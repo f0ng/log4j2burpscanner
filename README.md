@@ -2,7 +2,7 @@
 CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域名
 效果如下：
 
-靶场的
+靶场的 （靶场比较慢，但是互联网资产是没问题的，原因应该在于靶场对于其他请求头的处理不好，或者请求头过大，导致靶场反应较慢，多等等即可）
 ![image](https://user-images.githubusercontent.com/48286013/145667667-c32ea0de-19c2-45b1-9617-ab743b8431f3.png)
 
 ![image](https://user-images.githubusercontent.com/48286013/145667703-62ffb1ea-763a-44ae-a5e0-22a545db01b5.png)
