@@ -1,3 +1,12 @@
+
+# 0.12更新
+ 1.增加body={"a":"1","b":"22222"}格式、body={"params":{"a":"1","b":"22222"}}格式识别发送payload
+ 
+ 2.支持自定义dnslog，默认dns记录为log.xn--9tr.com，可以在配置处设置是否启用ceye、ceye token以及ceye地址。按钮在按钮界面，点击以后需要去插件加载页面查看是否保存成功，如果出现 "Save Success!" 则为保存成功。设置了isceye为true，则默认dnslog取消。(该更新是为了保证在log.xn--9tr.com网站挂了的情况下还可以进行漏洞探测，默认情况下还是log.xn--9tr.com网站)
+![image](https://user-images.githubusercontent.com/48286013/145709297-7788a8c0-9660-4d26-918e-4d8a32774b62.png)
+ 3.payload处添加路径，更为精准定位漏洞点，如test.com/login存在漏洞，那么payload记录地址为test.com.login.dnslog
+![image](https://user-images.githubusercontent.com/48286013/145709437-58b32654-d028-4c9e-af89-920ba7e79f7b.png)
+
 # log4j2burpscanner
 CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域名
 效果如下：
