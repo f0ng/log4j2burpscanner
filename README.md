@@ -12,7 +12,8 @@ CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域�
 ![image](https://user-images.githubusercontent.com/48286013/145667530-feb801ec-6e20-4020-8a11-c7e1af8673ce.png)
 
 加载后，会给出一个url，访问就可以查看dns的记录，当然，插件本身自带检查dns记录，这里只起后续方便查看的作用
-![image](https://user-images.githubusercontent.com/48286013/145667674-db473307-ac7e-4388-af9e-c215c4a141c6.png)
+![image](https://user-images.githubusercontent.com/48286013/145698319-e93ec2c8-9789-4d10-a926-d7f3f071e5a5.png)
+
 
 # 特点如下：
 ## 0x01 基于Cookie字段、XFF头字段、UA头字段发送payload
