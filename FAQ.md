@@ -3,9 +3,10 @@
 <img src="https://user-images.githubusercontent.com/48286013/145739783-e6b491ca-4959-4744-a1fe-4b15fb8287e2.png" width="800" height="150" />
 
 ## 0x02 isceye参数需要改为true
-<img src="https://user-images.githubusercontent.com/48286013/145739853-58f0130c-b841-45ca-8559-6feea6e97efa.png" width="800" height="150" />
+<img src="https://user-images.githubusercontent.com/48286013/145739853-58f0130c-b841-45ca-8559-6feea6e97efa.png" width="650" height="130" />
 
 
 # 2.默认dnslog平台访问不了是否影响结果？
 ## 只要配置了ceye，默认dnslog访问不了不会影响结果
-<img src="https://user-images.githubusercontent.com/48286013/145740940-fbed869d-f443-44cf-b99f-e74309cb1db9.png" width="800" height="300" />
+<img src="https://user-images.githubusercontent.com/48286013/145740940-fbed869d-f443-44cf-b99f-e74309cb1db9.png" width="600" height="200" />
+<img src="https://user-images.githubusercontent.com/48286013/145741263-14f6ec28-0fda-4211-ae3b-d67eed41d1db.png" width="650" height="200" />
