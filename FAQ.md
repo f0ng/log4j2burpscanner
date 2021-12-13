@@ -8,5 +8,5 @@
 
 # 2.默认dnslog平台访问不了是否影响结果？
 ## 只要配置了ceye，默认dnslog访问不了不会影响结果
-<img src="https://user-images.githubusercontent.com/48286013/145740940-fbed869d-f443-44cf-b99f-e74309cb1db9.png" width="600" height="200" />
+<img src="https://user-images.githubusercontent.com/48286013/145744984-1a2bd55d-8348-4863-8b68-bd0af03aa716.png" width="600" height="200" />
 <img src="https://user-images.githubusercontent.com/48286013/145741263-14f6ec28-0fda-4211-ae3b-d67eed41d1db.png" width="650" height="200" />
