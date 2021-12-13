@@ -42,6 +42,8 @@
 
 <img src="https://user-images.githubusercontent.com/48286013/145836830-06d3851c-5ce3-4dc5-9e52-b2c3715c71bb.png" width="600" height="450" />
 
+修复主域名与子域名问题：
+由于子域名存在漏洞，会导致主域名也报漏洞，0.14版本修复
 
 1.add rc1 bypass payload
 
