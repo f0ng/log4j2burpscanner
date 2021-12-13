@@ -21,12 +21,14 @@
   参数五：isuseXfflists(是否用xff列表测试，包含其他标识IP头)默认关闭
   
   参数六：isuseAllCookie(是否全部cookie都进行测试)默认开启
+
+# 记得点击恢复默认配置获得最新dnslog配置参数
   
-参数点更为精确
+0x01 参数点更为精确
 
 <img src="https://user-images.githubusercontent.com/48286013/145826369-f5b2276f-1cb2-4ccd-ae03-353d2220cd34.png" width="700" height="600" />
 
-内网dnslog、内网dnslog响应查看地址
+0x02 内网dnslog、内网dnslog响应查看地址
 
 由于我没有内网的dnslog地址，这里我以ceye.io来测试了
 
@@ -35,6 +37,9 @@
 只要确保 内网dnslog、内网dnslog响应查看地址 在内网中的网络连通性即可
 
 <img src="https://user-images.githubusercontent.com/48286013/145834006-e1cb7e93-1054-427b-83e9-406ad200d81d.png" width="600" height="400" />
+
+0x03 可控参数对payload位置进行自定义
+
 
 1.add rc1 bypass payload
 
