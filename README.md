@@ -1,5 +1,14 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
+# 0.13更新
+  1.增加请求头payload，感谢@小维师傅与@噗师傅
 
+["X-Forwarded-For","X-Forwarded","Forwarded-For","Forwarded","X-Requested-With","X-Requested-With", "X-Forwarded-Host","X-remote-IP","X-remote-addr","True-Client-IP","X-Client-IP","Client-IP","X-Real-IP","Ali-CDN-Real-IP","Cdn-Src-Ip","Cdn-Real-Ip","CF-Connecting-IP","X-Cluster-Client-IP","WL-Proxy-Client-IP", "Proxy-Client-IP","Fastly-Client-Ip","True-Client-Ip","X-Originating-IP", "X-Host","X-Custom-IP-Authorization","X-original-host","If-Modified-Since"]
+
+
+  1.add request headers
+  
+["X-Forwarded-For","X-Forwarded","Forwarded-For","Forwarded","X-Requested-With","X-Requested-With", "X-Forwarded-Host","X-remote-IP","X-remote-addr","True-Client-IP","X-Client-IP","Client-IP","X-Real-IP","Ali-CDN-Real-IP","Cdn-Src-Ip","Cdn-Real-Ip","CF-Connecting-IP","X-Cluster-Client-IP","WL-Proxy-Client-IP", "Proxy-Client-IP","Fastly-Client-Ip","True-Client-Ip","X-Originating-IP", "X-Host","X-Custom-IP-Authorization","X-original-host","If-Modified-Since"]
+ 
 # 0.12更新
  1.增加body={"a":"1","b":"22222"}格式、body={"params":{"a":"1","b":"22222"}}格式识别发送payload
  
@@ -40,6 +49,10 @@ CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域�
 4.post请求，a=1&param={“a”:”1”,”b”:”22222”}
 
 5.post请求，{"params":{"a":"1","b":"22222"}}
+
+6.post请求，body={"a":"1","b":"22222"}
+
+7.post请求，body={"params":{"a":"1","b":"22222"}}
 
 
 # 注：
