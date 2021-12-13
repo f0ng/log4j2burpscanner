@@ -1,4 +1,49 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
+# 0.14更新
+## 2021-12-14
+
+ 1.绕过rc1的链，payload添加空格
+ 
+ 2.对参数点进行更准确的定位，感谢@Chinakentgao 师傅提供的建议
+ 
+ 3.增加 是否使用内网dnslog地址、内网dnslog地址、内网dnslog响应查看地址 三个参数，可以对内网log4j2漏洞点进行探测，感谢@Chinakentgao 师傅提供的建议
+ 
+  参数一：isprivatedns(是否使用私有dns平台)
+  
+  参数二：privatednslogurl(内网dnslog地址)
+  
+  参数三：privatednslogurl(私有dns平台的响应查看地址)
+ 
+ 4.增加可控参数，目前增加三个参数
+ 
+  参数四：isuseUserAgenttokenXff(是否测试UA头、token、X-Forward-for头、X-Client-IP头)默认开启
+  
+  参数五：isuseXfflists(是否用xff列表测试，包含其他标识IP头)默认关闭
+  
+  参数六：isuseAllCookie(是否全部cookie都进行测试)默认开启
+  
+参数点更为精确
+
+<img src="https://user-images.githubusercontent.com/48286013/145826369-f5b2276f-1cb2-4ccd-ae03-353d2220cd34.png" width="700" height="600" />
+
+内网dnslog、内网dnslog响应查看地址
+
+由于我没有内网的dnslog地址，这里我以ceye.io来测试了
+
+<img src="https://user-images.githubusercontent.com/48286013/145832488-b1ab43d9-63db-47ae-a909-13ab18627687.png" width="600" height="200" />
+
+只要确保 内网dnslog、内网dnslog响应查看地址 在内网中的网络连通性即可
+
+<img src="https://user-images.githubusercontent.com/48286013/145834006-e1cb7e93-1054-427b-83e9-406ad200d81d.png" width="600" height="400" />
+
+1.add rc1 bypass payload
+
+2.more accurate
+
+3.add Intranet dnslog
+
+4.add controllable params
+
 # 0.13更新
   1.增加请求头payload，感谢@小维师傅与@噗师傅
 
