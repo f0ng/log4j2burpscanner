@@ -17,6 +17,14 @@
  3.payload处添加路径，更为精准定位漏洞点，如test.com/login存在漏洞，那么payload记录地址为test.com.login.dnslog
 ![image](https://user-images.githubusercontent.com/48286013/145709437-58b32654-d028-4c9e-af89-920ba7e79f7b.png)
 
+修复bug
+windows下路径问题
+
+1.add recognizable format  (body={"a":"1","b":"22222"}、body={"params":{"a":"1","b":"22222"}})
+
+2.add ceye.io api（https://ceye.io）
+
+3.more accurate（hostName + path）
 # log4j2burpscanner
 CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域名
 效果如下：
