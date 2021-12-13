@@ -40,6 +40,8 @@
 
 0x03 可控参数对payload位置进行自定义
 
+<img src="https://user-images.githubusercontent.com/48286013/145836830-06d3851c-5ce3-4dc5-9e52-b2c3715c71bb.png" width="600" height="450" />
+
 
 1.add rc1 bypass payload
 
