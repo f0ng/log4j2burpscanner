@@ -1,8 +1,26 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-en-us.md) Frequently Asked Questions
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)|English
+# 0.15更新
+## 2021-12-14
+ 1.add dnsldaprmi param (dns、ldap、rmi) default dns
+ 
+ 2.add isContenttypeRefererOrigin param 、isAccept param
+ 
+   isContenttypeRefererOrigin param(whether test Content-Type、Referer、Origin)default off
+   
+   isAccept param(whether test Accept-Language、Accept、Accept-Encoding)default off
+
+ 3.add bypass `jndi:` ,but the effect is not good,use with caution
+ 
+ 4.add `log.xn--9tr.com` to the white list
+ 
+ ## In addition, you need to click this button to obtain the latest configuration parameters
+
+ <img src="https://user-images.githubusercontent.com/48286013/145962694-65bc6943-5b60-41b0-8edb-cde9b087c597.png" width="600" height="300" />
+
+ <img src="https://user-images.githubusercontent.com/48286013/145962761-5c15d967-2085-48d8-ac93-b33c88d9fc3f.png" width="700" height="300" />
 
 # 0.14 update
-
 ## 2021-12-13
 
  1.add bypass rc1,add space to the payload
