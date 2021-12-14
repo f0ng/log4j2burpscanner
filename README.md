@@ -1,4 +1,5 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
+## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新版本插件
 # 0.14更新
 ## 2021-12-13
 
