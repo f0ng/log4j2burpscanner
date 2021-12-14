@@ -12,6 +12,16 @@
 
  3.add bypass `jndi:` ,but the effect is not good,use with caution
  
+  `jndi:` bypass methods https://twitter.com/ymzkei5/status/1469765165348704256
+ * jn${env::-}di:
+ * jn${date:}di${date:':'}
+ * j${k8s:k5:-ND}i${sd:k5:-:}
+ * j${main:\\k5:-Nd}i${spring:k5:-:}
+ * j${sys:k5:-nD}${lower:i${web:k5:-:}}
+ * j${::-nD}i${::-:}
+ * j${EnV:K5:-nD}i:
+ * j${loWer:Nd}i${uPper::}
+ 
  4.add `log.xn--9tr.com` to the white list
  
  ## In addition, you need to click this button to obtain the latest configuration parameters
