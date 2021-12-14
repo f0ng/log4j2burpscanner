@@ -1,4 +1,4 @@
-## 如何使用？
+## 1.如何使用？
 ### 0x01 去[releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新插件
 ### 0x02 加载完插件后，如果提示默认dnslog可以访问[https://log.xn--9tr.com](https://log.xn--9tr.com)，则可以不用设置其他dnslog
 ### 0x03 如果默认dnslog访问不了，那么就需要去配置[ceye.io](https://ceye.io)，记得将isceye设置为true，然后填上token、ceye.io的地址，保存配置
@@ -24,6 +24,7 @@
 #### isuseAllCookie=0
 
 ### 0x02 由于网络环境与dnslog的问题，导致请求不能及时响应，可以更换自定义dnslog尝试
+### 0x03 如果都不是以上原因，且在logger里没有看到扫描请求包，可以提交issue
 
 ## 5.为什么有些请求不会扫描？
 ### 本插件是通过Passive接口进行扫描，如果第一次扫描过了，第二次再次加载插件，是不会再次扫描，需要重启burp即可
