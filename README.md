@@ -3,7 +3,7 @@
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新版本插件
 # 0.15更新
 ## 2021-12-14
- 1.增加dns与ldap可选，感谢@k-fire 师傅，默认为dns协议(dnsorldap=dns)
+ 1.增加dns、ldap、rmi可选，感谢@k-fire 、@Chinakentgao 师傅，默认为dns协议(dnsldaprmi=dns)
  
  2.增加isContenttypeRefererOrigin参数与isAccept参数
  
@@ -15,6 +15,18 @@
    
  3.增加`jndi:`的绕过，jndiparam参数默认为`jndi:`(jndiparam=jndi:)这里需要提一点，如果更换为其他`jndi:`的绕过形式的话，会造成有些明明能检测出来漏洞的站点无法检测，慎用！
  
+ `jndi:`绕过的几种方式
+ https://twitter.com/ymzkei5/status/1469765165348704256
+ * jn${env::-}di:
+ * jn${date:}di${date:':'}
+ * j${k8s:k5:-ND}i${sd:k5:-:}
+ * j${main:\\k5:-Nd}i${spring:k5:-:}
+ * j${sys:k5:-nD}${lower:i${web:k5:-:}}
+ * j${::-nD}i${::-:}
+ * j${EnV:K5:-nD}i:
+ * j${loWer:Nd}i${uPper::}
+
+ 
  4.将默认dnslog平台添加至白名单，感谢@yumusb 师傅
  
 ## 另外需要点击此按钮获取最新配置参数
@@ -22,7 +34,7 @@
 
 <img src="https://user-images.githubusercontent.com/48286013/145962761-5c15d967-2085-48d8-ac93-b33c88d9fc3f.png" width="700" height="300" />
 
- 1.add dnsorldap param  (either dns or ldap) default dns
+ 1.add dnsorldap param  ( dns 、 ldap 、rmi) default dns
  
  2.add isContenttypeRefererOrigin param 、isAccept param
  
