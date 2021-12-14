@@ -102,7 +102,7 @@ CVE-2021-44228，log4j2 burp插件 Java版本，dnslog选取了非dnslog.cn域�
 ## 0x01 基于Cookie字段、XFF头字段、UA头字段发送payload
 ## 0x02 基于域名的唯一性，将host带入dnslog中
 
-插件主要识别五种形式：
+插件主要识别七种形式：
 
 1.get请求，a=1&b=2&c=3  
 
