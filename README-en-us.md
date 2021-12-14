@@ -1,4 +1,4 @@
-# [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md) Frequently Asked Questions
+# [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-en-us.md) Frequently Asked Questions
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)|English
 
 # 0.14 update
