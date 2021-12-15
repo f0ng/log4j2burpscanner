@@ -1,6 +1,22 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-en-us.md) Frequently Asked Questions
+## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)|English
-# 0.15更新
+# 0.16 update
+## 2021-12-15
+ 1.change the UI page
+ 
+  <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+  <img src="https://user-images.githubusercontent.com/48286013/146190519-cfb006a9-84aa-44c2-9c47-452d8d6798be.png" width="600" height="280" />
+
+ 2.add isip param(for the case that there is no domain name and only IP detection in the intranet) but  this kind of test has no parameter point digital ID and no host
+
+   If there are no other good intranet dnslog tools to replace, you can link the tools of KpLi0rn https://github.com/KpLi0rn/Log4j2Scan
+   
+   <img src="https://user-images.githubusercontent.com/48286013/146199979-0c6ef4ff-889e-42cb-865c-b70f4259bc43.png" width="700" height="400" />
+   <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+   <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
+
+# 0.15 update
 ## 2021-12-14
  1.add dnsldaprmi param (dns、ldap、rmi) default dns
  

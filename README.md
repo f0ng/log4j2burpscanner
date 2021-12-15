@@ -1,6 +1,22 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README-en-us.md)
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新版本插件
+# 0.16更新
+## 2021-12-15
+ 1.增加UI页面，可以对一些需要测试的参数进行勾选即可进行测试
+
+ <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+ <img src="https://user-images.githubusercontent.com/48286013/146190519-cfb006a9-84aa-44c2-9c47-452d8d6798be.png" width="600" height="280" />
+ 
+ 2.自定义dnslog设置是否为ip参数(isip)，针对内网没有域名只有ip检测的情况，感谢@Chinakentgao 师傅(注：此种测试没有参数点数字标识，没有host)
+ 
+   如没有其他好的内网ldap工具替代，可以联动木头师傅的工具，https://github.com/KpLi0rn/Log4j2Scan
+
+   <img src="https://user-images.githubusercontent.com/48286013/146199979-0c6ef4ff-889e-42cb-865c-b70f4259bc43.png" width="700" height="400" />
+ 设置如下：
+   <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+   <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
+
 # 0.15更新
 ## 2021-12-14
  1.增加dns、ldap、rmi可选，感谢@k-fire 、@Chinakentgao 师傅，默认为dns协议(dnsldaprmi=dns)
@@ -91,14 +107,6 @@
 
 修复主域名与子域名问题：
 由于子域名存在漏洞，会导致主域名也报漏洞，0.14版本修复
-
-1.add rc1 bypass payload
-
-2.more accurate
-
-3.add Intranet dnslog
-
-4.add controllable params
 
 # 0.13更新
   1.增加请求头payload，感谢@小维师傅与@噗师傅
