@@ -13,7 +13,11 @@
    如没有其他好的内网ldap工具替代，可以联动木头师傅的工具，https://github.com/KpLi0rn/Log4j2Scan
 
    <img src="https://user-images.githubusercontent.com/48286013/146199979-0c6ef4ff-889e-42cb-865c-b70f4259bc43.png" width="700" height="400" />
+   <img src="https://user-images.githubusercontent.com/48286013/146215995-4471304b-e39d-45d4-acf7-92b73fc37272.png" width="800" height="150" />
+
+
  设置如下：
+ 
    <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
    <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
 
