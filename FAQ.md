@@ -32,3 +32,7 @@
 ## 6.导入插件报错：java.lang.NullPointerException: Cannot invoke "burp.IHttpRequestResponse.getHttpService()" because "this.currentlyDisplayedItem" is null之类
 ### 0x01 burp的jdk版本太高，可以尝试降低burp的jdk版本，位置在Extender→Options→Java Environment→Folder for loading library JAR files(optional)→Select folder，作者的jdk版本在1.8_231
 ### 0x02 自行编译插件即可，下载源码，输入命令mvn package
+
+## 7.如何编译？
+### 下载源码至本地，命令行输入，mvn package，即可在target得到jar，使用burp导入jar即可
+![image](https://user-images.githubusercontent.com/48286013/146297735-1e19be83-2111-46e1-9e08-83697762ea7e.png)
