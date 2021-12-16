@@ -13,7 +13,7 @@
    If there are no other good intranet dnslog tools to replace, you can link the tools of KpLi0rn https://github.com/KpLi0rn/Log4j2Scan
    
    <img src="https://user-images.githubusercontent.com/48286013/146199979-0c6ef4ff-889e-42cb-865c-b70f4259bc43.png" width="700" height="400" />
-   <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+   <img src="https://user-images.githubusercontent.com/48286013/146287833-b647a9ed-11c2-4fae-9891-18cd8ef3f25d.png" width="650" height="350" />
    <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
 
 # 0.15 update
