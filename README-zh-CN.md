@@ -1,8 +1,8 @@
 # 本工具仅为企业测试漏洞使用，严禁他人使用本工具攻击
+# 本工具仅为企业测试漏洞使用，严禁他人使用本工具攻击
+# 本工具仅为企业测试漏洞使用，严禁他人使用本工具攻击
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-zh-CN.md)常见问题解答
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
-## how to use? download the source code and compile it
-## how to use? download the source code and compile it
 ## how to use? download the source code and compile it
 ### 默认dnslog选取[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 # 0.16更新
