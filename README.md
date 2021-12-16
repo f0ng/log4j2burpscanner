@@ -17,8 +17,8 @@
 
 
  设置如下：
- 
-   <img src="https://user-images.githubusercontent.com/48286013/146201676-362ea520-a77d-47ab-b3c9-3ff239d41fa7.png" width="650" height="350" />
+
+   <img src="https://user-images.githubusercontent.com/48286013/146287833-b647a9ed-11c2-4fae-9891-18cd8ef3f25d.png" width="650" height="350" />
    <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
 
 # 0.15更新
