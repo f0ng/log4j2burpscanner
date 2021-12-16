@@ -111,7 +111,7 @@ body={"a":"1","b":"22222"}
 body={"params":{"a":"1","b":"22222"}})
 
  2.add ceye.io api（https://ceye.io）,can customize the ceye API，click the button to save configuration，the Extender output page will be display the results such as "Save Success!".Remember to set isceye property to true,otherwise ceye will fail
-![image](https://user-images.githubusercontent.com/48286013/145709297-7788a8c0-9660-4d26-918e-4d8a32774b62.png)
+
  3.more accurate（hostName + path）
 ![image](https://user-images.githubusercontent.com/48286013/145709437-58b32654-d028-4c9e-af89-920ba7e79f7b.png)
 
