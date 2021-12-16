@@ -1,4 +1,4 @@
-# [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
+# [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-zh-CN.md)常见问题解答
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README-en-us.md)
 ## how to use? download the source code and compile it
 ## how to use? download the source code and compile it
