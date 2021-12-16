@@ -1,6 +1,7 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md)常见问题解答
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README-en-us.md)
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新版本插件
+### 默认dnslog选取[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)、适配内网ldap、rmi平台选取[Log4j2Scan](https://github.com/KpLi0rn/Log4j2Scan)
 # 0.16更新
 ## 2021-12-15
  1.增加UI页面，可以对一些需要测试的参数进行勾选即可进行测试
