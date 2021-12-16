@@ -18,8 +18,8 @@
 
  设置如下：
 
-   <img src="https://user-images.githubusercontent.com/48286013/146287833-b647a9ed-11c2-4fae-9891-18cd8ef3f25d.png" width="650" height="350" />
-   <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="330" />
+   <img src="https://user-images.githubusercontent.com/48286013/146288432-c14f8a7d-9ae6-4b3d-b9ea-0a50b82c94f8.png" width="650" height="400" />
+   <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="300" />
 
 # 0.15更新
 ## 2021-12-14
