@@ -2,9 +2,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.f0ng.burp</groupId>
-    <artifactId>log4jscanner</artifactId>
-    <version>1.4</version>
+    <groupId>com.f0ng.log4j2burpscanner</groupId>
+    <artifactId>log4j2burpscanner</artifactId>
+    <version>0.16.2</version>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
