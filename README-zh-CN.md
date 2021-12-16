@@ -4,7 +4,7 @@
 ## how to use? download the source code and compile it
 ## how to use? download the source code and compile it
 ## how to use? download the source code and compile it
-### 默认dnslog选取[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)、适配内网ldap、rmi平台选取[Log4j2Scan](https://github.com/KpLi0rn/Log4j2Scan)
+### 默认dnslog选取[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 # 0.16更新
 ## 2021-12-15
  1.增加UI页面，可以对一些需要测试的参数进行勾选即可进行测试
