@@ -29,3 +29,13 @@
 
 ## 5.Why are some requests not scanned？
 ### This plugin is scanned through the passive interface. If you use this plugin for the first time and load it again for the second time, it will not be scanned again. You need to restart burp
+
+## 6.error java.lang.NullPointerException: Cannot invoke "burp.IHttpRequestResponse.getHttpService()" because "this.currentlyDisplayedItem" is null
+### 0x01 The JDK version of burp is too high. You can try to reduce the JDK version of burp. The location is extender → options → Java environment → folder for loading library jar files (optional) → select folder, my JDK version is 1.8_231
+
+### 0x02  download source code ,and input  terminal input  mvn package
+
+## 7.How to compile?
+
+### Download the source code locally, enter MVN package on the command line, and you can get the jar at the target. You can use burp to import the jar
+![image](https://user-images.githubusercontent.com/48286013/146297735-1e19be83-2111-46e1-9e08-83697762ea7e.png)
