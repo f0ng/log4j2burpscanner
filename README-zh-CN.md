@@ -5,7 +5,7 @@
 # [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-zh-CN.md)常见问题解答 有问题可以先到[FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-zh-CN.md)里查找答案
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
 ## how to use? download the source code and compile it
-### 默认dnslog选取[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
+### 默认dnslog选取 https://dns.xn--9tr.com/
 # 0.16更新
 ## 2021-12-15
  1.增加UI页面，可以对一些需要测试的参数进行勾选即可进行测试
@@ -15,7 +15,17 @@
  
  2.自定义dnslog设置是否为ip参数(isip)，针对内网没有域名只有ip检测的情况，感谢@Chinakentgao 师傅(注：此种测试没有参数点数字标识，没有host)
  
+   如没有其他好的内网ldap工具替代，可以联动木头师傅的工具，https://github.com/KpLi0rn/Log4j2Scan
 
+   <img src="https://user-images.githubusercontent.com/48286013/146288249-ad4e2e08-c034-455e-a436-9ed97813096e.png" width="700" height="400" />
+   <img src="https://user-images.githubusercontent.com/48286013/146288272-377ce1ee-bedd-4e81-8732-5c9dbf19597f.png" width="800" height="200" />
+
+
+ 设置如下：
+
+   <img src="https://user-images.githubusercontent.com/48286013/146288432-c14f8a7d-9ae6-4b3d-b9ea-0a50b82c94f8.png" width="650" height="400" />
+   <img src="https://user-images.githubusercontent.com/48286013/146191640-0c9036d5-0ff9-4cef-8ba0-11c384f5f148.png" width="600" height="300" />
+   
 # 0.15更新
 ## 2021-12-14
  1.增加dns、ldap、rmi可选，感谢@k-fire 、@Chinakentgao 师傅，默认为dns协议(dnsldaprmi=dns)
