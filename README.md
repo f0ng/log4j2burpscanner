@@ -4,7 +4,7 @@
 ## [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md) Frequently Asked Questions
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
-### default dnslog https://dns.xn--9tr.com/   github地址为[DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
+### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 # 0.16 update
 ## 2021-12-15
  1.change the UI page
