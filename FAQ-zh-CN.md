@@ -71,4 +71,7 @@
 
    <img src="https://user-images.githubusercontent.com/48286013/146288432-c14f8a7d-9ae6-4b3d-b9ea-0a50b82c94f8.png" width="650" height="400" />
    
- 
+   
+ ## 9-为什么扫到的漏洞没有数字对参数进行标识？
+ 可能设置了`isip`属性，导致payload不对参数标识
+
