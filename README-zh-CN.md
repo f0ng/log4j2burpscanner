@@ -6,6 +6,22 @@
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
 ## how to use? download the source code and compile it
 ### 默认dnslog选取 https://dns.xn--9tr.com/
+# 0.17更新
+## 2021-12-19
+ 1.增加被动扫描按钮控制`log4j2 Passive Scanner`，对单个数据包进行可控扫描，增加数据包右键按钮`Send to log4j Scanner`
+ <img src="https://user-images.githubusercontent.com/48286013/146666473-83b53bfe-7a41-4379-b22c-a1085125e2e7.png" width="700" height="120" />
+ 
+ <img src="https://user-images.githubusercontent.com/48286013/146666487-5be3cfad-fd5c-42d5-ad43-f13e1c2fdac5.png" width="600" height="200" />
+
+
+ 
+ 2.更新优化payload参数，增加随机字符串，针对同一站点同一路由下进行区分；优化`%20`参数问题
+ 
+ 3.识别`multipart/form-data`格式、`xml`格式请求包
+ 
+ 修复
+ 修复了创建初始文件的参数问题
+
 # 0.16更新
 ## 2021-12-15
  1.增加UI页面，可以对一些需要测试的参数进行勾选即可进行测试
