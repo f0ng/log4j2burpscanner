@@ -5,6 +5,20 @@
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
 ### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
+# 0.17 update
+## 2021-12-19
+
+ 1.add passive switch `log4j2 Passive Scanner`，add log4j2 Scanner menu button `Send to log4j2 Scanner`
+ <img src="https://user-images.githubusercontent.com/48286013/146666473-83b53bfe-7a41-4379-b22c-a1085125e2e7.png" width="700" height="120" />
+ 
+ <img src="https://user-images.githubusercontent.com/48286013/146666487-5be3cfad-fd5c-42d5-ad43-f13e1c2fdac5.png" width="600" height="200" />
+
+ 2.update payload param，add random character string，distinguish between the same site and the same path, optimization `%20` problem
+ 
+ 3.recognize `multipart/form-data` type、`xml` type
+ 
+ fix parameter issue for creating initial `properties` file
+
 # 0.16 update
 ## 2021-12-15
  1.change the UI page
