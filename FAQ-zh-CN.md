@@ -41,7 +41,7 @@
  
  0x02 自行编译插件即可，下载源码，输入命令mvn package
 
-## 7-如何编译?
+## 7-如何编译?(编译导入报错与启动burp的jdk版本、Burp Extender模块jdk版本都有关系)
  下载源码至本地，命令行输入，mvn package，即可在target得到jar，使用burp导入jar即可
  
 ![image](https://user-images.githubusercontent.com/48286013/146297735-1e19be83-2111-46e1-9e08-83697762ea7e.png)
