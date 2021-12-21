@@ -1,5 +1,6 @@
 * [自定义dnslog配置方法(URL型)](#0x01设置域名类型dnslog平台)
 * [自定义dnslog配置方法(IP型)](#0x02设置ip类型dnslog平台)
+* [扫描无动静或`send to log4j2 Scanner`无效](#10-为什么扫描没有动静)
 
 ## 1-如何使用
  0x01 去[releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新插件
@@ -83,3 +84,19 @@
  原因：可能设置了`isip`属性，导致payload不对参数标识
  解决：将`isip`的勾选去掉
 
+## 10-为什么扫描没有动静
+### 或者(`send to log4j2 scanner`没有动静)
+
+ 原因在于jdk版本太高的问题，经测试，和`Extender`→`Options`→`Java Environment`→`Folder for loading library JAR files(optional)`→`Select folder`的jdk版本有关
+ 
+ 0x01 如果`Java Environment`的jdk有点高，经测试15的jdk是不行的，一些新版本jdk，如14 13可能也不行，换老版本jdk，如1.8_231
+ 
+ jdk10 失败
+ ![image](https://user-images.githubusercontent.com/48286013/146948810-b086f42b-f1c7-4054-aef6-09f841c4919f.png)
+ 
+ jdk8 成功
+ ![image](https://user-images.githubusercontent.com/48286013/146949149-30e34036-6474-4e52-a1f9-a16db3cbaf5c.png)
+
+
+ 
+ 
