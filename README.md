@@ -184,6 +184,5 @@ open dashbord→Live audit from Proxy and Repeater→tick repeater
 This tool is only for learning, research and self-examination. It should not be used for illegal purposes. All risks arising from the use of this tool have nothing to do with me!
 
 
-## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/f0ng/log4j2burpscanner.svg)](https://starchart.cc/f0ng/log4j2burpscanner)
+![](https://starchart.cc/f0ng/log4j2burpscanner.svg)
