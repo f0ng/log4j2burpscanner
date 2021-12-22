@@ -70,6 +70,7 @@
  由于默认dnslog平台特性，获取响应的记录格式为`http://域名/yourtoken`，所以这里我设置`privatednsResponseurl`为`http://1.1.1.1/f0ngf0ng`即可
  
   <img src="https://user-images.githubusercontent.com/48286013/146548135-143782d0-c8ad-4b53-bcec-436b4af4235d.png" width="600" height="500" />
+  
  ### 0x003 保存配置
  点击Save按钮，保存配置，即可
 
