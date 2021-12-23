@@ -90,7 +90,7 @@
 
  原因在于jdk版本太高的问题，经测试，和`Extender`→`Options`→`Java Environment`→`Folder for loading library JAR files(optional)`→`Select folder`的jdk版本有关
  
- 0x01 如果`Java Environment`的jdk有点高，经测试15的jdk是不行的，一些新版本jdk，如14 13可能也不行，换老版本jdk，如1.8_231
+ 0x01 如果`Java Environment`的jdk过高，经测试15的jdk是不行的，一些新版本jdk，如14 13可能也不行，换老版本jdk；大版本号低，小版本号高也吧不一定可以，如1.8_301可能也成功不了，可以试试测试成功的指定jdk版本，如1.8_231，1.8_151是可以成功的
  
  jdk15 失败
  ![image](https://user-images.githubusercontent.com/48286013/146948810-b086f42b-f1c7-4054-aef6-09f841c4919f.png)
