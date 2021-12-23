@@ -185,4 +185,4 @@ This tool is only for learning, research and self-examination. It should not be 
 
 
 
-![](https://starchart.cc/f0ng/log4j2burpscanner.svg)
+![f](https://starchart.cc/f0ng/log4j2burpscanner.svg)
