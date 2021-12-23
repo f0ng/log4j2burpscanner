@@ -92,7 +92,7 @@
  
  0x01 如果`Java Environment`的jdk有点高，经测试15的jdk是不行的，一些新版本jdk，如14 13可能也不行，换老版本jdk，如1.8_231
  
- jdk10 失败
+ jdk15 失败
  ![image](https://user-images.githubusercontent.com/48286013/146948810-b086f42b-f1c7-4054-aef6-09f841c4919f.png)
  
  jdk8 成功
