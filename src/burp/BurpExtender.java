@@ -23,7 +23,7 @@ import okhttp3.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController ,IContextMenuFactory{
-//public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController {
+    //public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController {
     private IBurpExtenderCallbacks callbacks;
 
     private IExtensionHelpers helpers;
@@ -314,7 +314,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         callbacks.setExtensionName("log4j2burpscanner");
         this.stdout.println("===========================");
         this.stdout.println("[+]   load successful!     ");
-        this.stdout.println("[+] log4j2burpscanner v0.17.7");
+        this.stdout.println("[+] log4j2burpscanner v0.17.8");
         this.stdout.println("[+]      code by f0ng      ");
         this.stdout.println("===========================");
 
@@ -726,11 +726,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 BurpExtender.this.fieldd2 = new JComboBox(sg); // 协议名称dns ldap rmi
 
                 JLabel labell3 = new JLabel("white lists:");
-                BurpExtender.this.whitelists_area = new JTextArea(4,45);
+                BurpExtender.this.whitelists_area = new JTextArea(4,40);
                 BurpExtender.this.whitelists_area.setLineWrap(true);
 
                 JLabel labell4 = new JLabel("custom headers lists:");
-                BurpExtender.this.customheaders_area = new JTextArea(4,45);
+                BurpExtender.this.customheaders_area = new JTextArea(4,40);
                 BurpExtender.this.customheaders_area.setLineWrap(true);
 
 
@@ -1256,10 +1256,23 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }
             }
         }
+        byte[] response = iHttpRequestResponse.getResponse();
+        IResponseInfo analyzedIResponseInfo = this.helpers.analyzeResponse(response);
 
 
+        List<String> response_header = analyzedIResponseInfo.getHeaders(); // 获取请求头
 
-//        stdout.println(code_headers);
+        //增加响应包的Content-type黑名单
+        List<String> response_black_lists = Arrays.asList("Content-Type: image/jpeg","Content-Type: image/jpg","Content-Type: image/png"
+        ,"Content-Type: application/octet-stream","Content-Type: text/css");
+
+        for (String response_header_single : response_header){
+            for (String response_black_single: response_black_lists)
+            {
+                if (response_black_single.equals(response_header_single))
+                    return null;
+            }
+        }
 
         String firstrequest_header = request_header.get(0); //第一行请求包含请求方法、请求uri、http版本
         String[] firstheaders = firstrequest_header.split(" ");
@@ -1298,7 +1311,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         List<String> blacklists = Arrays.asList(".js",".jpg",".png",".jpeg",".svg",".mp4",".css",".mp3",".ico",".woff",".woff2");
 
         for (String black_single: blacklists)
-            if (firstheaders[1].endsWith(black_single))
+            if (firstheaders[1].split("\\?")[0].endsWith(black_single))
                 return null;
 
         //firstheaders[0] 为请求方法
@@ -1492,27 +1505,27 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     body = body_total;
                 }
             } else if (request_header_content_type.contains("text/xml")){
-                    // 第二种情况
-                    //<?xml version=“1.0” encoding = “UTF-8”?>
-                    // <COM>
-                    //<REQ name="111">
-                    //<USER_ID>yoyoketang</USER_ID>
-                    //<COMMODITY_ID>123456</COMMODITY_ID>
-                    //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
-                    //</REQ>
-                    //</COM>
-                    List<String> list = new ArrayList<String>();
-                    Pattern pattern = Pattern.compile(">(.*?)</");
-                    Matcher m = pattern.matcher(body);
+                // 第二种情况
+                //<?xml version=“1.0” encoding = “UTF-8”?>
+                // <COM>
+                //<REQ name="111">
+                //<USER_ID>yoyoketang</USER_ID>
+                //<COMMODITY_ID>123456</COMMODITY_ID>
+                //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
+                //</REQ>
+                //</COM>
+                List<String> list = new ArrayList<String>();
+                Pattern pattern = Pattern.compile(">(.*?)</");
+                Matcher m = pattern.matcher(body);
 
-                    while (m.find()) {
-                        list.add(m.group(1));
+                while (m.find()) {
+                    list.add(m.group(1));
 //                        System.out.println(m.group(1));
-                    }
-                    for (String str: list){
-                        body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
-                    }
                 }
+                for (String str: list){
+                    body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
+                }
+            }
 
             else if( request_header_content_type.contains("multipart/form-data") ){
                 // file文件格式 感觉没必要去考虑
@@ -1639,8 +1652,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if ( headers_lists.length > 0 ) { // 判断自定义参数不为空
             for (String headers_host_single : headers_lists) // 白名单设置
             {
-            if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
-                request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
+                if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
+                    request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
             }
         }
         // 参数头由于参数问题，XFF头 如果没有参数，还会自动加上
@@ -1742,7 +1755,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             byte[] newRequest = this.helpers.buildHttpMessage(request_header_single, request_bodys);
 
             IHttpRequestResponse newIHttpRequestResponse = this.callbacks.makeHttpRequest(httpService, newRequest);
-            byte[] response = newIHttpRequestResponse.getResponse();
+            byte[] response3 = newIHttpRequestResponse.getResponse();
 
             if (this.logxn) { // logxn 的dnslog记录
                 String words_vuln = firstheaders[0].trim().toLowerCase() + "." + host.trim() + uri.trim();
@@ -1953,6 +1966,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             int bodyOffset = iRequestInfo.getBodyOffset();
             String request2 = new String(byte_Request); //byte[] to String
             String body = request2.substring(bodyOffset); // 请求体
+            String code_body = request2.substring(bodyOffset); // 原始请求体
 
             String[] white_lists = BurpExtender.this.whitelists_area.getText().split("\n");
             String[] headers_lists = BurpExtender.this.customheaders_area.getText().split("\n");
@@ -2125,7 +2139,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             String uri_total = "";
 
             // uri黑名单，如果匹配到不进行扫描
-            List<String> blacklists = Arrays.asList(".js",".jpg",".png",".jpeg",".svg",".mp4",".css",".mp3",".ico",".woff",".php",".asp",".aspx",".gif",".bmp");
+            List<String> blacklists = Arrays.asList(".js",".jpg",".png",".jpeg",".svg",".mp4",".css",".mp3",".ico",".woff",".php",".asp",".aspx",".gif",".bmp",".jpeg");
 
             for (String black_single: blacklists)
                 if (firstheaders[1].split("\\?")[0].endsWith(black_single)) // 增加 ?分割后的第一个字符串进行匹配
@@ -2434,7 +2448,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        stdout.println("1219");
 //                        stdout.println(this.isuseAccept);
 
-                        //0.17.1更新，不对cookie发起请求
+                    //0.17.1更新，不对cookie发起请求
 //                        String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
 //                        String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
 //                        String[] cookie_single_0 = cookies_lists[0].split("=");
