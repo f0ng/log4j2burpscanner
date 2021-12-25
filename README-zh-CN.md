@@ -6,6 +6,11 @@
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
 ## how to use? download the source code and compile it
 ### 默认dnslog选取 https://dns.xn--9tr.com/
+# 0.18 更新
+## 2021-12-25
+1.Send to log4j2 Scanner使用jndi:的bypass payload进行测试，目前包含以下三种j${::-n}di:、 jn${env::-}di:、j${sys:k5:-nD}${lower:i${web:k5:-:}}
+<img src="https://user-images.githubusercontent.com/48286013/147379943-f0dc07e9-7d06-4897-9df8-d29fa4172898.png" width="530" height="535" />
+
 # 0.17更新
 ## 2021-12-19
  1.增加被动扫描按钮控制`log4j2 Passive Scanner`，对单个数据包进行可控扫描，增加数据包右键按钮`Send to log4j2 Scanner`
