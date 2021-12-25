@@ -5,6 +5,11 @@
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
 ### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
+
+# 0.18 update
+## 2021-12-25
+1.`Send to log4j2 Scanner`the bypass payload of `jndi:` is used for testing. at now it includes the following three types`j${::-n}di:`、 `jn${env::-}di:`、`j${sys:k5:-nD}${lower:i${web:k5:-:}}`
+
 # 0.17 update
 ## 2021-12-19
 
