@@ -314,7 +314,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         callbacks.setExtensionName("log4j2burpscanner");
         this.stdout.println("===========================");
         this.stdout.println("[+]   load successful!     ");
-        this.stdout.println("[+] log4j2burpscanner v0.18.5");
+        this.stdout.println("[+] log4j2burpscanner v0.18.6");
         this.stdout.println("[+]      code by f0ng      ");
         this.stdout.println("===========================");
 
@@ -1674,7 +1674,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         }
         // 参数头由于参数问题，XFF头 如果没有参数，还会自动加上
         if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-            request_header.add( "X-Forwarded-For: 127.0.0.1 ," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
+            request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
 //
 //        if (!request_header.contains("X-Client-IP:") && this.isuseUserAgentTokenXff) // 如果没有x-client-ip头，就增加
 //            request_header.add( "X-Client-IP: 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
@@ -2537,7 +2537,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             }
 
             if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-                request_header.add( "X-Forwarded-For: 127.0.0.1 ," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
+                request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
 
             // 如果没有参数，那么将不会测试
 //            if (!request_header.contains("Content-Type:") && this.isuseRefererOrigin)
@@ -2680,6 +2680,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                         byte[] request_bodys;
                         byte[] newRequest;
+
+                        // code_body为正常请求体、finalBody为payload化的请求体
                         if (ij == 2 && this.isipincreasing) {
                             request_bodys = code_body.getBytes();  //String to byte[] 原始请求体
                             newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
@@ -2693,6 +2695,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         }
 
                         ij++;
+
                         int finalParam_i = param_i;
                         String finalHost = host;
                         int finalIj = ij;
@@ -3099,7 +3102,4 @@ class CustomScanIssue implements IScanIssue
     {
         return httpService;
     }
-
-
-
 }
