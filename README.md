@@ -6,6 +6,11 @@
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
 ### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 
+# 0.19 update
+## 2022-05-02
+1.add polling dnslog query including active scanning and passive scanning
+<img width="758" alt="image" src="https://user-images.githubusercontent.com/48286013/166197475-ef6f7c94-955d-4299-be31-6dc7304f47a6.png">
+
 # 0.18 update
 ## 2021-12-25
 1.`Send to log4j2 Scanner`the bypass payload of `jndi:` is used for testing. at now it includes the following three types`j${::-n}di:`、 `jn${env::-}di:`、`j${sys:k5:-nD}${lower:i${web:k5:-:}}`
