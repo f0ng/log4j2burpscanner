@@ -12,6 +12,7 @@
 优化dnslog轮询查询，主动扫描、被动扫描都会进行dnslog的轮询查询
 
 <img width="758" alt="image" src="https://user-images.githubusercontent.com/48286013/166197475-ef6f7c94-955d-4299-be31-6dc7304f47a6.png">
+
 # 0.18 更新
 ## 2021-12-25
 1.Send to log4j2 Scanner使用jndi:的bypass payload进行测试，目前包含以下三种`j${::-n}di:`、 `jn${env::-}di:`、`j${sys:k5:-nD}${lower:i${web:k5:-:}}`
