@@ -1,6 +1,13 @@
 # JUST FOR TESTING，DON'T ATTACK ANYONE
 # JUST FOR TESTING，DON'T ATTACK ANYONE
 # JUST FOR TESTING，DON'T ATTACK ANYONE
+
+交流群
+
+<img width="250" alt="image" src="https://user-images.githubusercontent.com/48286013/187598683-67df8cf6-edb8-4157-ba2d-00b8f7482425.png">
+
+二维码失效请加微信`f-f0ng`、备注poc2jar交流
+
 ## [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md) Frequently Asked Questions
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
