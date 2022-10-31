@@ -41,7 +41,7 @@
  
  2.自定义dnslog设置是否为ip参数(isip)，针对内网没有域名只有ip检测的情况，感谢@Chinakentgao 师傅(注：此种测试没有参数点数字标识，没有host)
  
-   如没有其他好的内网ldap工具替代，可以联动木头师傅的工具，https://github.com/KpLi0rn/Log4j2Scan
+   如没有其他好的内网ldap工具替代，可以联动木头师傅的工具，https://github.com/KpLi0rn/Log4j2Scan【关注主页公众号（only security），回复Log4j2Scan获取下载地址】
 
    <img src="https://user-images.githubusercontent.com/48286013/146288249-ad4e2e08-c034-455e-a436-9ed97813096e.png" width="700" height="400" />
    <img src="https://user-images.githubusercontent.com/48286013/146288272-377ce1ee-bedd-4e81-8732-5c9dbf19597f.png" width="800" height="200" />
