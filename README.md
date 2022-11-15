@@ -8,6 +8,8 @@
 
 二维码失效请加微信`f-f0ng`、备注log4j2burpscanner交流
 
+关注主页公众号（only security），回复`log4j2burpscanner`获取下载地址】
+
 ## [FAQ](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ.md) Frequently Asked Questions
 ## how to use? [releases](https://github.com/f0ng/log4j2burpscanner/releases/) download the latest plugin
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
