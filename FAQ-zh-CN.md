@@ -108,4 +108,35 @@
 
 - 填写`jndi:`的绕过方式，如`j$%7b::-n%7ddi:`等
 
- 
+
+# 参数说明
+主要是三个模块
+
+#### dnslog configuration
+- 0x01 log4j2 Passive Scanner 为被动扫描开关，勾选就会进行被动扫描，不勾选就不会扫描
+- 0x02 isuseceye 是否使用ceye.io的平台
+- 0x03 ceyetoken ceye.io的用户token
+- 0x04 ceyednslog ceye.io的用户记录域名
+- 0x05 isuseprivatedns 是否使用自定义dnslog
+- 0x06 isip 自定义dnslog是否为ip(主要针对内网的ip监听)
+- 0x07 privatednslogurl 自定义的dnslog记录域名
+- 0x08 privatednsResponseurl 自定义dnslog记录域名响应查看地址，详细自定义dnslog配置可以到[此处](https://github.com/f0ng/log4j2burpscanner/blob/main/FAQ-zh-CN.md#0x01%E8%AE%BE%E7%BD%AE%E5%9F%9F%E5%90%8D%E7%B1%BB%E5%9E%8Bdnslog%E5%B9%B3%E5%8F%B0)查看
+- 0x09 Save configuration 保存配置
+- 0x10 Restore/Loading latest params 恢复默认参数
+- 0x11 Test dnslog delay 测试与dnslog的延迟
+- 0x12 use`[${::-.}]`replace`.`  是否使用`${::-.}`替换`.`
+
+##### custom params
+- 0x01 jndiparam 传入的jndi参数，可以使用类似于`j${::-n}di:`进行替换，达到bypass效果
+- 0x02 dnsldaprmi 可选，传入dns、ldap、rmi三个参数
+- 0x03 white lists 白名单，可使用通配符进行配置，如`*.gov.cn`、`*.edu.cn`也可以设置成指定的域名后缀结尾，如`qq.com`，这样任何以qq.com结尾的域名都不会进行扫描
+- 0x04 headers lists 自定义请求头的参数名
+- 0x05 test UserAgentTokenXff 是否测试User-Agent、token(包含jwt一些关键字) 、常见XFF头参数等
+- 0x06 test Xfflists 是否测试所有xff头参数
+- 0x07 test Cookie 是否测试所有Cookie
+- 0x08 test RefererOrigin 是否测试Referer、Origin参数
+- 0x09 test Contenttype 是否测试Contenttype参数
+- 0x010 test Accept 是否测试Accept等参数
+
+##### custom params2
+- 0x01 jndiparams 主动扫描时用到的jndi参数，可以使用类似于`j${::-n}di:`进行替换，达到bypass效果，换行隔开
