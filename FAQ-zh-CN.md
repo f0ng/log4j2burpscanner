@@ -76,7 +76,8 @@
 
  ### 0x02设置IP类型dnslog平台 
  ###  准确一点，应该是IP类型的监控平台。
- ### 设置`privatednslogurl`为内网可以访问到的域名即可，如`127.0.0.1:8001`，记得勾选isip，标明dnslog属性为ip
+ 
+  设置`privatednslogurl`为内网可以访问到的域名即可，如`127.0.0.1:8001`，记得勾选isip，标明dnslog属性为ip
 
    <img src="https://user-images.githubusercontent.com/48286013/146288432-c14f8a7d-9ae6-4b3d-b9ea-0a50b82c94f8.png" width="650" height="400" />
    
@@ -98,6 +99,13 @@
  jdk8 成功
  ![image](https://user-images.githubusercontent.com/48286013/146949149-30e34036-6474-4e52-a1f9-a16db3cbaf5c.png)
 
+## 11-`dnsldaprmi`参数如何填写
 
- 
+- 可以填写`dns:`的绕过方式，如`dns${::-:}`;
+- 也可以填写`dns://`的绕过方式，如`dns${::-:}/${::-}/`
+
+## 12-`jndiparams`参数如何填写
+
+- 填写`jndi:`的绕过方式，如`j$%7b::-n%7ddi:`等
+
  
