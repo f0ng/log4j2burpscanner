@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.f0ng.log4j2burpscanner</groupId>
     <artifactId>log4j2burpscanner</artifactId>
-    <version>0.18.6</version>
+    <version>0.19.2</version>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
