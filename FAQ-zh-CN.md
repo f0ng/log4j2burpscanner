@@ -1,6 +1,7 @@
 * [自定义dnslog配置方法(URL型)](#0x01设置域名类型dnslog平台)
 * [自定义dnslog配置方法(IP型)](#0x02设置ip类型dnslog平台)
 * [扫描无动静或`send to log4j2 Scanner`无效](#10-为什么扫描没有动静)
+* [参数说明](#参数说明)
 
 ## 1-如何使用
  0x01 去[releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新插件
