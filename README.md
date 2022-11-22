@@ -15,6 +15,15 @@
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
 ### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 
+# 0.20.0 update
+## 2022-11-22
+
+1. add `suffixparam`
+2. change the path to full spelling
+3. delete `isusepointBypas`,change to custom param
+
+<img width="606" alt="image" src="https://user-images.githubusercontent.com/48286013/203261127-a428fb5f-7fac-43f2-a8a8-c1e3fc3a1072.png">
+
 # 0.19 update
 ## 2022-05-02
 1.add polling dnslog query including active scanning and passive scanning
