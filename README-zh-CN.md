@@ -6,6 +6,16 @@
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
 ## how to use? download the source code and compile it
 ### 默认dnslog选取 https://dns.xn--9tr.com/
+# 0.20.0更新
+## 2022-11-22
+
+1. 增加参数`suffixparam`，后缀可控，可输入如`${::-}/${::-}%20user`。默认值为`/%20user`，如果没有`/`，默认设置为`/%20user`
+2. dns中查询的路径为全拼，不再为首字母拼(最长的记录为63字符，感觉不大可能有路径名超过63字符的，超过63字符的取前5位)
+3. 删除`isusepointBypas`参数，更改为自定义
+<img width="606" alt="image" src="https://user-images.githubusercontent.com/48286013/203261127-a428fb5f-7fac-43f2-a8a8-c1e3fc3a1072.png">
+
+
+
 # 0.19.0
 ## 2022-05-02
 
