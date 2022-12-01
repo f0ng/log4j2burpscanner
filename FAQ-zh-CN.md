@@ -125,7 +125,7 @@
 - 0x09 Save configuration 保存配置
 - 0x10 Restore/Loading latest params 恢复默认参数
 - 0x11 Test dnslog delay 测试与dnslog的延迟
-- 0x12 use`[${::-.}]`replace`.`  是否使用`${::-.}`替换`.`
+- 0x12 use`[${::-.}]`replace`.`  使用参数替换`.`,默认绕过，不绕过请填`.`
 
 ##### custom params
 - 0x01 jndiparam 传入的jndi参数，可以使用类似于`j${::-n}di:`进行替换，达到bypass效果
