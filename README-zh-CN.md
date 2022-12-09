@@ -6,6 +6,11 @@
 ### 简体中文|[English](https://github.com/f0ng/log4j2burpscanner/blob/main/README.md)
 ## how to use? download the source code and compile it
 ### 默认dnslog选取 https://dns.xn--9tr.com/
+# 0.21.0 更新
+## 2022-12-9
+1. 增加参数 `prefixparam`前缀可控，可输入如`%84$`，造成一些数据库组件解析错误，从而进行log4j2的报错触发
+<img width="600" alt="image" src="https://user-images.githubusercontent.com/48286013/206602178-bb80c887-196d-4f85-a065-44fc47130e8a.png">
+
 # 0.20.0更新
 ## 2022-11-22
 
