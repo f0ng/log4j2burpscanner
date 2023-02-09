@@ -12,14 +12,12 @@
  
  0x04 如果需要内网dnslog，那么将isceye设置为false， 将内网dnslog填入privatednslogurl，内网dnslog查看的地址填入privatednsResponseurl，保存配置
 
-## 2-自定义ceye发现没有效果?
+~~## 2-自定义ceye发现没有效果?
  0x01 可能由于对界面处理得不是很好，导致按钮那里可能按下去没有触发事件，多按几次，可以去Extender→output页面查看保存是否成功
  
-<img src="https://user-images.githubusercontent.com/48286013/145739783-e6b491ca-4959-4744-a1fe-4b15fb8287e2.png" width="800" height="150" />
 
- 0x02 isceye参数需要改为true
+ ~~0x02 isceye参数需要改为true
  
-<img src="https://user-images.githubusercontent.com/48286013/145739853-58f0130c-b841-45ca-8559-6feea6e97efa.png" width="650" height="130" />
 
 ## 3-默认dnslog平台访问不了是否影响结果?
  只要配置了ceye，默认dnslog访问不了不会影响结果
