@@ -15,6 +15,10 @@
 ### [简体中文](https://github.com/f0ng/log4j2burpscanner/blob/main/README-zh-CN.md)|English
 ### default dnslog https://dns.xn--9tr.com/   github: [DNSLog-Platform-Golang](https://github.com/yumusb/DNSLog-Platform-Golang)
 
+# 0.22.0 update
+## 2023-2-14
+- fix problem 
+
 # 0.21.0 update
 ## 2022-12-9
 1. add `prefixparam`
