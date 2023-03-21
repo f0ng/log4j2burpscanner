@@ -2,6 +2,7 @@
 * [自定义dnslog配置方法(IP型)](#0x02设置ip类型dnslog平台)
 * [扫描无动静或`send to log4j2 Scanner`无效](#10-为什么扫描没有动静)
 * [参数说明](#参数说明)
+* [内网检测](#14-内网检测)
 
 ## 1-如何使用
  0x01 去[releases](https://github.com/f0ng/log4j2burpscanner/releases/)下载最新插件
@@ -147,3 +148,7 @@
 如果拿send主动扫描的payload去测试一些靶场，那八成是检测不出来的，本身中间件以及各种各样解析，就会造成一些字符无法解析的问题
 
 最简单的方式还是使用无任何`bypass`字符的被动扫描去扫描靶场
+
+## 14-内网检测
+
+参考文章 https://mp.weixin.qq.com/s/NJ3gocQ_LojYlJk_0yWm6A
