@@ -152,3 +152,7 @@
 ## 14-内网检测
 
 参考文章 https://mp.weixin.qq.com/s/NJ3gocQ_LojYlJk_0yWm6A
+
+## 15-插件页面在send后没有显示结果
+
+有漏洞才会出现结果，没有漏洞不会出现结果
